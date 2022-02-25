@@ -46,12 +46,11 @@ let userLocation;
 let localUserName = localStorage.getItem("Name");
 let accessToken = localStorage.getItem("ACCESS_TOKEN");
 let RecaptchaSelector = getElement('recaptcha'); 
-var menuLogoutButton = getElement('menuLogoutButton');
-var logoutDropdown = getElement('logout-dropdown');
 var dashboardButton = getElement('dashboard-button');
 var menuLoginButton = getElement('menuLoginButton');
 var navbarSelector = getElement("navbar-container");
 var loginModal = getElement("login-modal");
+var closeLoginModalIcon = getElement("close-login-modal");
 var checkoutModal = getElement("checkout-modal");
 var thankyouModal = getElement("thankyou-modal");
 var userName = getElement('Name');
@@ -59,6 +58,9 @@ var phoneFormatter = getElement('phoneFormatter');
 var downloadEbookButton = getElement('download-ebook-button');
 var currentPath = window.location.pathname;
 var preplacedLogo = "https://uploads-ssl.webflow.com/5fa298c0bded9141021f03fa/5fe8f718a1688547053c318d_preplaced.png";
+var customOnSignIn = false;
+var customOnSignInMethod = function() {
+}
 
 const urlSearchParams = new URLSearchParams(window.location.search);
 const URLQueryParams = Object.fromEntries(urlSearchParams.entries());
@@ -542,16 +544,14 @@ var packageMap = {
 var setInitialDisplays = function(){
     if (accessToken){
         hideElements([menuLoginButton]);
-        // menuLoginButton && menuLoginButton.classList.add('hide');
+        showElements([dashboardButton], "flex");
         (localUserName && userName) ? 
             (userName.innerHTML = "Welcome " + localUserName) 
             : userName && userName.classList.add('hide');
     }
     else {
-        hideElements([menuLogoutButton, dashboardButton, logoutDropdown]);
-        // menuLogoutButton && menuLogoutButton.classList.add('hide');
-        // dashboardButton && dashboardButton.classList.add('hide');
-        
+        hideElements([dashboardButton]);
+        showElements([menuLoginButton]);
     }
 }
 setInitialDisplays();
@@ -585,17 +585,14 @@ firebase.auth().onAuthStateChanged(function (user) {
         console.log('UID: ' + user.uid);
         updateAccessToken();
         hideElements([menuLoginButton]);
-        // menuLoginButton && menuLoginButton.classList.add('hide');
-        // menuLogoutButton && menuLogoutButton.classList.remove('hide');
-        showElements([menuLogoutButton, dashboardButton, logoutDropdown]);
-        menuLogoutButton && menuLogoutButton.addEventListener('click',logoutUser);
+        showElements([dashboardButton], "flex");
     } else {
         // User is signed out.
         if (privatePages.includes(currentPath)) {
             window.location.replace('/');
         } else {
             showElements([menuLoginButton]);
-            hideElements([menuLogoutButton, dashboardButton, logoutDropdown]);
+            hideElements([dashboardButton]);
             console.log('No user is logged in');
         }
     }
@@ -864,7 +861,12 @@ formButtonSelector.addEventListener('click',function(e){
             'country_code': `+${iti.getSelectedCountryData().dialCode}`
           });
           removeButtonLoading(formButtonSelector, "Veirfied");
-          redirectToDashboard();
+          if (customOnSignIn){
+              customOnSignInMethod();
+          }
+          else{
+            redirectToDashboard();
+          }
         }
         login(otp, onLogin, onLoginFailed);
       }
@@ -880,6 +882,11 @@ formButtonSelector.addEventListener('click',function(e){
           let userNameValue = capitalize(userNameSelector.value);
           // updating auth user with name and email
           try {
+            var redirectToDashbaordOnSignup = function() {
+                setTimeout(()=>{
+                    redirectToDashboard();
+                }, 1000);
+            }
             verifiedUser.updateEmail(userEmailSelector.value.toLowerCase()).then(function(){
               // verifiedUser.reauthenticateWithCredential(credential).then(function() {
                   verifiedUser.updateProfile({
@@ -898,7 +905,7 @@ formButtonSelector.addEventListener('click',function(e){
                       email: userEmailSelector.value.toLowerCase(),
                       phoneNumber: phoneNumber,
                       subscribed: acceptSubscriptionSelector.checked
-                    }, redirectToDashboard, redirectToDashboard)
+                    }, redirectToDashbaordOnSignup, redirectToDashbaordOnSignup)
                   })
                   .catch(onLoginFailed)
               // }).catch(onLoginFailed)
@@ -1008,7 +1015,7 @@ let pkDetails = JSON.parse(localStorage.getItem('packageDetails'));
 
 let totalPrice = 0;
 let coupon= "";
-let gstAdded = pkDetails.addGST || false;
+let gstAdded = (pkDetails && pkDetails.addGST) || false;
 let gstPrice = 0;
 
 function updateCheckoutValuesOnShown() {
@@ -1133,10 +1140,11 @@ payNowButtonSelector.addEventListener('click', function(e) {
             pkDetails['order_id'] = response.razorpay_order_id;
             triggerPurchase(pkDetails);
             function goToThankYouPage(){
-                // redirect('/thankyou');
+                // redirect('/thankyou');   
+                hideElements([orderOverlay, orderLoader, checkoutModal]);
                 showElements([thankyouModal], "flex");
                 var redirectingText = getElement('redirecting-text');
-                let count = 5;
+                let count = 10;
                 let initialText =  redirectingText.innerText;
                 redirectingText.innerText = initialText+ ' ' + count-- + ' secs'
                 setInterval(() =>{
@@ -1198,4 +1206,38 @@ payNowButtonSelector.addEventListener('click', function(e) {
 
 function closeCheckoutModal(){
     hideElements([checkoutModal])
+}
+
+function showLoginModal() {
+    if (!verifiedUser){
+        showElements([loginModal], "flex");
+    }
+}
+
+function closeLoginModal() {
+    hideElements([loginModal]);
+}
+
+
+menuLoginButton.onclick = function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.returnValue = false;
+    showLoginModal();
+}
+
+var loginLink01 = getElement("login-link-01");
+if (loginLink01){
+    loginLink01.onclick = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.returnValue = false;
+        showLoginModal();
+    }
+}
+
+closeLoginModalIcon.onclick = function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeLoginModal();
 }

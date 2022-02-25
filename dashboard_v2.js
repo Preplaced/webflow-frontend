@@ -1,12 +1,20 @@
 let closeIcon = getElement("close-icon");
 let userCompleptionForm = getElement("embed-user-completion-form");
 let formOverlay = getElement("form-overlay");
+let logoutonDashboardButton = getElement("dashboard-button");
+
+logoutonDashboardButton.innerText = "Log out"
+logoutonDashboardButton.onclick = function(event) {
+    event.preventDefault();
+    signOutUser();
+}
+
 
 if (URLQueryParams["profile-completed"]){
     localStorage.setItem("profileCompleted", true);
 }
 
-let profileCompleted = localStorage.getItem("profileCompleted");
+let profileCompleted = false;//localStorage.getItem("profileCompleted");
 
 let initialSampleElements = [
     packageStatusContainer,
