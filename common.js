@@ -77,6 +77,9 @@ function triggerEvent(eventName, params){
     }
     eventName = eventName[0].toUpperCase() + eventName.substring(1);
     fbq('track', eventName, fbParams);
+    if (analytics){
+        analytics.track(eventName,fbParams);
+    }
 }
 
 function triggerPurchase(packageDetails){
@@ -855,11 +858,8 @@ formButtonSelector.addEventListener('click',function(e){
       let validFields = checkFieldsAndShowError([otpFieldSelector], errorFieldSelector);
       if (validFields){
         function onLogin(){
-          triggerEvent('login', {
-            'source': 'sign-in',
-            'method': 'phone',
-            'country_code': `+${iti.getSelectedCountryData().dialCode}`
-          });
+
+
           removeButtonLoading(formButtonSelector, "Veirfied");
           if (customOnSignIn){
               customOnSignInMethod();
@@ -879,6 +879,14 @@ formButtonSelector.addEventListener('click',function(e){
       if (validFields){
         async function onLogin(result) {
           verifiedUser = result.user;
+          if (analytics){
+            analytics.identify(verifiedUser.uid);
+            }
+            triggerEvent('login', {
+                'source': 'sign-in',
+                'method': 'phone',
+                'country_code': `+${iti.getSelectedCountryData().dialCode}`
+              });
           let userNameValue = capitalize(userNameSelector.value);
           // updating auth user with name and email
           try {
@@ -894,12 +902,21 @@ formButtonSelector.addEventListener('click',function(e){
                   }).then(async function(){
                     // add User Data to backend
                     await updateAccessToken();
+
+
                     triggerEvent('sign_up', {
                       'source': 'sign-in',
                       'method': 'phone',
                       'country_code': `+${iti.getSelectedCountryData().dialCode}`,
                       'subscribe_newsletter': acceptSubscriptionSelector.checked
                     });
+                    if (analytics){
+                        analytics.identify(verifiedUser.uid, {
+                            name: userNameValue,
+                            email: userEmailSelector.value.toLowerCase(),
+                            phone: phoneNumber
+                          });
+                    }
                     addUserDetails({
                       name: userNameValue,
                       email: userEmailSelector.value.toLowerCase(),
