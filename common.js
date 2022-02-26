@@ -75,11 +75,12 @@ function triggerEvent(eventName, params){
         delete fbParams.items;
         fbParams["value"]=fbParams.totalPrice || fbParams.price;
     }
-    eventName = eventName[0].toUpperCase() + eventName.substring(1);
-    fbq('track', eventName, fbParams);
     if (analytics){
         analytics.track(eventName,fbParams);
     }
+
+    eventName = eventName[0].toUpperCase() + eventName.substring(1);
+    fbq('track', eventName, fbParams);
 }
 
 function triggerPurchase(packageDetails){
@@ -97,7 +98,7 @@ function triggerPurchase(packageDetails){
         'target_companies': packageDetails.target_companies,
         'logged_in': !!accessToken,
     }
-    triggerEvent('purchase', eventParams);
+    triggerEvent('Payment Completed', eventParams);
 }
 
 function triggerPurchaseInitiation(packageDetails){
@@ -114,7 +115,7 @@ function triggerPurchaseInitiation(packageDetails){
         'target_companies': packageDetails.target_companies,
         'logged_in': !!accessToken,
     }
-    triggerEvent('add_payment_info', eventParams);
+    triggerEvent('Payment Started', eventParams);
 }
 
 function getDefaultConfig() {
@@ -418,7 +419,13 @@ function login(code, successCallback, errorCallback){
     credential = firebase.auth.PhoneAuthProvider.credential(window.confirmationResult.verificationId, code);
     firebase.auth().signInWithCredential(credential)
     .then(function(result){
-    successCallback(result);
+        console.log("trying to identify user");
+        if (analytics){
+            console.log("identifying user");
+            analytics.identify(result.user.uid);
+        }
+        console.log("were you able to identify user?");
+        successCallback(result);
     })
     .catch(function(error){
     errorCallback(error);
@@ -442,7 +449,7 @@ function addUserDetails(details, successCallback, errorCallback){
 }
 
 function checkCoupon(coupon, package_id, successCallback, errorCallback){
-    triggerEvent('apply_coupon', {'coupon': coupon});
+    triggerEvent('Coupon Applied', {'coupon': coupon});
     let url = apiBaseURL+ `pricing/validate-coupon/${coupon}?package=${package_id}`;
     getAPI(url, function(response){
     if (response.status === 200){
@@ -654,7 +661,7 @@ if (navbarSelector){
 
 if (downloadEbookButton) {
     downloadEbookButton.onclick = function(){
-        triggerEvent('download_ebook_click');
+        triggerEvent('Ebook Downloaded');
     }
 }
 
@@ -858,9 +865,13 @@ formButtonSelector.addEventListener('click',function(e){
       let validFields = checkFieldsAndShowError([otpFieldSelector], errorFieldSelector);
       if (validFields){
         function onLogin(){
-
-
-          removeButtonLoading(formButtonSelector, "Veirfied");
+            
+            triggerEvent('Signed In', {
+                'source': 'sign-in',
+                'method': 'phone',
+                'country_code': `+${iti.getSelectedCountryData().dialCode}`
+              });
+          removeButtonLoading(formButtonSelector, "Verified");
           if (customOnSignIn){
               customOnSignInMethod();
           }
@@ -879,14 +890,6 @@ formButtonSelector.addEventListener('click',function(e){
       if (validFields){
         async function onLogin(result) {
           verifiedUser = result.user;
-          if (analytics){
-            analytics.identify(verifiedUser.uid);
-            }
-            triggerEvent('login', {
-                'source': 'sign-in',
-                'method': 'phone',
-                'country_code': `+${iti.getSelectedCountryData().dialCode}`
-              });
           let userNameValue = capitalize(userNameSelector.value);
           // updating auth user with name and email
           try {
@@ -904,7 +907,7 @@ formButtonSelector.addEventListener('click',function(e){
                     await updateAccessToken();
 
 
-                    triggerEvent('sign_up', {
+                    triggerEvent('Signed Up', {
                       'source': 'sign-in',
                       'method': 'phone',
                       'country_code': `+${iti.getSelectedCountryData().dialCode}`,

@@ -220,7 +220,7 @@ bookButton.onclick = function(event){
   if(companyNeedsTobeAdded()){
     return;
   }
-  triggerEvent('begin_checkout', {
+  triggerEvent('Checkout Started', {
     'experience': packageDetails.experience,
     'domain': packageDetails.domain,
     'designation': packageDetails.designation,
