@@ -422,7 +422,7 @@ function login(code, successCallback, errorCallback){
         console.log("trying to identify user");
         if (analytics){
             console.log("identifying user");
-            analytics.identify(result.user.uid);
+            analytics.identify(result.user.email);
         }
         console.log("were you able to identify user?");
         successCallback(result);
@@ -906,20 +906,22 @@ formButtonSelector.addEventListener('click',function(e){
                     // add User Data to backend
                     await updateAccessToken();
 
-
+                    if (analytics){
+                        analytics.identify(userEmailSelector.value.toLowerCase(), {
+                            name: userNameValue,
+                            email: userEmailSelector.value.toLowerCase(),
+                            phone: phoneNumber
+                          });
+                    }
+                    
                     triggerEvent('Signed Up', {
                       'source': 'sign-in',
                       'method': 'phone',
                       'country_code': `+${iti.getSelectedCountryData().dialCode}`,
                       'subscribe_newsletter': acceptSubscriptionSelector.checked
                     });
-                    if (analytics){
-                        analytics.identify(verifiedUser.uid, {
-                            name: userNameValue,
-                            email: userEmailSelector.value.toLowerCase(),
-                            phone: phoneNumber
-                          });
-                    }
+
+
                     addUserDetails({
                       name: userNameValue,
                       email: userEmailSelector.value.toLowerCase(),
@@ -1244,6 +1246,17 @@ menuLoginButton.onclick = function (event) {
     event.stopPropagation();
     event.returnValue = false;
     showLoginModal();
+}
+
+//intercombot launch
+let bookSessionButtons = document.querySelectorAll(".intercom-bot")
+for (let i = 0; i < bookSessionButtons.length; i++){
+    bookSessionButtons[i].onclick = bookSessionMethod;
+}
+
+let bookSessionMethod = function () {
+    triggerEvent('Sales Session Booking Started', {});
+    //Intercom('trackEvent', 'Sales Session Booking Started');
 }
 
 var loginLink01 = getElement("login-link-01");
