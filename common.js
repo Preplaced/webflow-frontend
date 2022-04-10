@@ -546,6 +546,7 @@ var currencyMap = {
 var packageMap = {
     'mock-interview': 'Mock Interview',
     'interview-preparation-bundle': 'Interview Preparation Bundle',
+    'interview-preparation-bundle-trial': 'Interview Preparation Bundle Trial',
     'consulting-session': 'Consulting Session'
      
 }
@@ -637,14 +638,14 @@ function changeNavbarDisplay() {
     if (isNavbarChangeNeeded){
         let currentScrollTop = document.body.scrollTop || document.documentElement.scrollTop;
         if (currentScrollTop > lastScrollTop){ //scroll down
+            navbarSelector.classList.remove("popNav");
+        }
+        else if (currentScrollTop < lastScrollTop - 50){ //scroll up
             if (currentScrollTop > 105) {
                 navbarSelector.classList.add("popNav");
             } else {
                 navbarSelector.classList.remove("popNav");
             }
-        }
-        else if (currentScrollTop < lastScrollTop - 50){ //scroll up
-            navbarSelector.classList.remove("popNav");
         }
         lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
     }
@@ -1094,7 +1095,6 @@ function updateUI(){
     experienceTitleSelector.innerText = pkDetails.experience !== "Fresher" ?  pkDetails.experience + " Experience": "Fresher";
     // handleUserDetailsUI();
     handlePaymentSectionUI();
-
 }
 
 
@@ -1240,13 +1240,15 @@ function closeLoginModal() {
     hideElements([loginModal]);
 }
 
-
-menuLoginButton.onclick = function (event) {
-    event.preventDefault();
-    event.stopPropagation();
-    event.returnValue = false;
-    showLoginModal();
+if(menuLoginButton){
+    menuLoginButton.onclick = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.returnValue = false;
+        showLoginModal();
+    }
 }
+
 
 //intercombot launch
 let bookSessionButtons = document.querySelectorAll(".intercom-bot")

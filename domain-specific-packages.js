@@ -1,94 +1,94 @@
 // Initial variables
-let package_id = window.location.pathname.slice(1);
+let package_id = "interview-preparation-bundle";
 let country = "India";
 let currentCurrency = "INR";
 let currentPrice = "1799";
+let currentTrialPrice = "99";
 let currentExperience = "fresher";
 let pricing = {};
+let trialPricing = {};
 let packageDetails = {};
 let selectedCompanies = [];
 let locationUpdated = false;
 let addGST = false;
 
 // Selectors
-var experienceSelector = getElement('experience');
+var packageExperienceSelector = getElement('package-experience');
+var experienceSelector = packageExperienceSelector;
+var trialExperienceSelector = getElement('trial-experience');
 // var mentorDesignation = getElement('mentor-designation');
 var priceSelector = getElement('price');
-var priceLoader = getElement('price-loader');
+// var priceLoader = getElement('price-loader');
 var priceContainer = getElement('price-container');
-var currencySelector = getElement('currency');
-// var domainSelector = getElement('domain');
-// $domainSelector = $('#domain').select2();
-// var companiesSelector = getElement('companies');
-// var selectDomainMessage = getElement('select-domain-message');
-// var selectDesignationMessage = getElement('select-designation-message');
-// var emptyCompanyMessage = getElement('empty-company-message');
-// $companiesSelector = $('#companies').select2({placeholder: "Select your target companies", tags: true, matcher: matchMaker});
-var bookButton = getElement('book-button');
+var currencySelector = getElement('package-currency');
+var trialPriceSelector = getElement('trial-price');
+var trialCurrencySelector = getElement('trial-currency');
+var bookButton = getElement('package-book-button');
+var trialBookButton = getElement('trial-book-button');
 var bookNowForm = getElement('book-now-form-container');
-// var contentSection = getElement('content-section');
-// var radioButtonDomain = getElement('domain-wise');
-// var radioButtonCompany = getElement('company-wise');
-// var companyPreferenceContainer = getElement('company-preference-container');
+
+var packageTab = getElement('package-tab');
+var trialTab = getElement('trial-tab');
+var goToTrialLink = getElement('go-to-trial');
 
 
-var domainURL = window.location.pathname.split("packages/")[1];
+var domainURL = window.location.pathname.split("programs/")[1];
 var DomainURLMapping = {
-    "backend-developer": {
-        "text": "Backend Development",
+    "backend-interview-preparation": {
+        "text": "Backend",
         "id": "back_end"
     },
-    "data-scientist": {
+    "data-science-interview-preparation": {
         "text": "Data Science",
         "id": "data_science"
     },
-    "dev-ops": {
+    "devops-interview-preparation": {
         "text": "DevOps",
         "id": "dev_ops"
     },
-    "frontend-developer":{
-        "text": "Frontend Developer",
+    "frontend-interview-preparation":{
+        "text": "Frontend",
         "id": "front_end"
     }
 }
-let domainText = DomainURLMapping.domainURL.text;
-let domainId = DomainURLMapping.domainURL.id;
+let domainText = DomainURLMapping[domainURL].text;
+let domainId = DomainURLMapping[domainURL].id;
 
 
 //methods
 
-// function populateDomainDropdown(domains){
-//   // //clear initaial dropdown values 
-//   // while (domainSelector.children.length > 0){
-//   //   domainSelector.remove(0);
-//   // }
-//   //add new options
-//   for (const domainId in domains){
-//     let domainData = domains[domainId];
-//     if (domainData.data && domainData.data.title && domainData.id)
-//     domainSelector.append(new Option(domainData.data.title, domainData.id));
-//   }
-// }
+function updatePackageTabDetails () {
+    package_id = "interview-preparation-bundle";
+    experienceSelector = packageExperienceSelector;
+    experienceSelector.value = currentExperience;
+    updatePricing();
+}
 
-// function populatePreferredCompanies(companies){
-// 	companies.sort();
-//   for(let index in companies){
-//     $companiesSelector.append(new Option(companies[index], companies[index]));
-//   }
-// }
+function updateTrialTabDetails() {
+    package_id = "interview-preparation-bundle-trial";
+    experienceSelector = trialExperienceSelector;
+    experienceSelector.value = currentExperience;
+    updateTrialPricing();
+}
 
 function setCurrency(currency){
   if (currency) currentCurrency = currency;
   var currencyText = (currentCurrency == "USD") ? "$" : "Rs";
   currencySelector.innerText = currencyText;
+  trialCurrencySelector.innerText = currencyText;
 }
 
 function updatePricing(){
-  priceLoader.style.display="none";
   currentExperience = experienceSelector.options[experienceSelector.selectedIndex].value;
   currentPrice = pricing[currentExperience];
   priceSelector.innerText = currentPrice + "/-";
 }
+
+function updateTrialPricing(){
+      currentExperience = experienceSelector.options[experienceSelector.selectedIndex].value;
+      currentPrice = trialPricing[currentExperience];
+      trialPriceSelector.innerText = trialPricing[currentExperience]; + "/-";
+    }
 
 function setGSTFlag(gstEnabled){
     addGST = gstEnabled;
@@ -102,23 +102,13 @@ function getPricingData() {
     setCurrency(responseData.currency);
     setGSTFlag(responseData.gstEnabled);
   })
-//   var response = {currency : "INR"};
-//   response["pricing"] = { fresher: "1799", six_ten: "2999", ten_plus: "3499", three_six: "2499", zero_three: "1999" };
+
+  //getting trial pricing
+  getPrice(country, package_id+"-trial", function(responseData){
+    trialPricing = responseData.pricing;
+    // updateTrialPricing();
+  })
 }
-
-// function getDomains(){
-//   //getDomains from Backend
-//   getAllDomains(function(responseData){
-//     populateDomainDropdown(responseData.domains);
-//   })
-// }
-
-// function getCompanies(){
-//   //getCompanies from backend
-//   getAllCompanies(function(responseData){
-//     populatePreferredCompanies(responseData["companyArray"]);
-//   })
-// }
 
 function saveInfoToLocalStorage(){
 //   let domainText = domainSelector.options[domainSelector.selectedIndex].text;
@@ -130,7 +120,7 @@ function saveInfoToLocalStorage(){
     "target_companies": companies,
     "domain_id": domainId, //domainSelector.options[domainSelector.selectedIndex].value,
     "domain": domainText,
-    "designation": domainText + ", " + experienceSelector.options[experienceSelector.selectedIndex].text,
+    "designation": experienceSelector.options[experienceSelector.selectedIndex].text,
     "currency" : currentCurrency,
     "price": currentPrice,
     "country": country,
@@ -156,93 +146,27 @@ function proceedToCheckout() {
     //   window.location.assign('/checkout');
 }
 
-experienceSelector.onchange = function(event){
+packageExperienceSelector.onchange = function(event){
   event.preventDefault();
   updatePricing();
 }
 
-// function domainNotSelected(){
-//   return domainSelector.options[domainSelector.selectedIndex].value === "initial-domain-selector";
-// }
+trialExperienceSelector.onchange = function(event){
+    event.preventDefault();
+    updateTrialPricing();
+  }
 
-// function designationNotAdded(){
-//   return mentorDesignation.value === "";
-// }
+packageTab.onclick = updatePackageTabDetails;
 
-// function checkForDomain(){
-//   if (domainNotSelected()){
-//     showElements([selectDomainMessage]);
-//   }
-//   else{
-//     hideElements([selectDomainMessage]);
-//   }
-// }
+trialTab.onclick = updateTrialTabDetails;
 
-// function checkForDesignation(){
-//   if (designationNotAdded()){
-//     showElements([selectDesignationMessage]);
-//   }
-//   else{
-//     hideElements([selectDesignationMessage]);
-//   }
-// }
-
-// function companyNeedsTobeAdded(){
-//   return (radioButtonCompany.checked && selectedCompanies.length === 0)
-// }
-
-// function checkForCompany() {
-//   if (companyNeedsTobeAdded()){
-//     showElements([emptyCompanyMessage]);
-//   }
-//   else{
-//     hideElements([emptyCompanyMessage]);
-//   }
-// }
-
-// domainSelector.onchange = function(event){
-//   checkForDomain();
-// }
-
-// mentorDesignation.onchange = function(){
-// //   checkForDesignation();
-//   let designation = mentorDesignation.value;
-//   if (designation.length <= 5){
-//     mentorDesignation.value = designation.toUpperCase();
-//   }
-//   else{
-//     mentorDesignation.value = capitalize(designation);
-//   }
-// }
-
-// function radioButtonChanged() {
-//   hideElements([emptyCompanyMessage]);
-//   if (radioButtonCompany.checked){
-//     showElements([companyPreferenceContainer])
-//   }
-//   else{
-//     hideElements([companyPreferenceContainer])
-//   }
-// }
-
-// radioButtonDomain.onchange = radioButtonChanged;
-// radioButtonCompany.onchange = radioButtonChanged;
+goToTrialLink.onclick = function(){
+  trialTab.click();
+}
 
 bookButton.onclick = function(event){
   event.preventDefault();
   saveInfoToLocalStorage(); //save the form Info here to local Storage which will be used in the checkout page
-//   checkForDesignation();
-//   if (designationNotAdded()){
-//     return;
-//   }
-//   checkForDomain();
-//   if (domainNotSelected()){
-//     return;
-//   }
-//   checkForCompany();
-//   if(companyNeedsTobeAdded()){
-//     return;
-//   }
   triggerEvent('Checkout Started', {
     'experience': packageDetails.experience,
     'domain': packageDetails.domain,
@@ -254,30 +178,20 @@ bookButton.onclick = function(event){
   proceedToCheckout();
 }
 
-// $companiesSelector.on("select2:select", function (e) {
-//   var lastSelectedItem = e.params.data.text;
-//   selectedCompanies.push(lastSelectedItem);
-//   checkForCompany();
-//   console.log(selectedCompanies)
-// });
-
-// $companiesSelector.on("select2:unselect", function (e) {
-//   var unselectedItem = e.params.data.text;
-//   var index = selectedCompanies.indexOf(unselectedItem);
-//   selectedCompanies.splice(index, 1);
-//   checkForCompany();
-// });
-
-// contentSection.onmouseenter = function(){
-//     isNavbarChangeNeeded = false;
-//     navbarSelector.classList.remove("popNav");
-// }
-
-// contentSection.onmouseleave = function(){
-//     isNavbarChangeNeeded = true;
-//     changeNavbarDisplay();
-// }
-
+trialBookButton.onclick = function(event){
+    event.preventDefault();
+    saveInfoToLocalStorage(); //save the form Info here to local Storage which will be used in the checkout page
+    triggerEvent('Checkout Started', {
+      'experience': packageDetails.experience,
+      'domain': packageDetails.domain,
+      'designation': packageDetails.designation,
+      'target_companies': packageDetails.target_companies,
+      'logged_in': !!accessToken,
+      'items': packageDetails
+    })
+    proceedToCheckout();
+  }
+  
 //initialize methods
 function getLocation(){
     if (userLocation){
@@ -305,14 +219,4 @@ function getLocation(){
     }, 3000);
 }
 
-// hideElements([selectDomainMessage, selectDesignationMessage, emptyCompanyMessage]);
-// try {
-//   radioButtonDomain.checked = true;
-//   hideElements([companyPreferenceContainer]);
-// }
-// catch(e){
-
-// }
 getLocation();
-// getDomains();
-// getCompanies();
