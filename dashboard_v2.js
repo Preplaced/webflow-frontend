@@ -50,6 +50,9 @@ let package_status = {
     'Confirm Mentor With Candidate': {
         'short': 'POC Will Confirm The Assigned Mentor With You'
     },
+    'Create Slack and Add Coda': {
+        'short': 'Package In Progress'
+    },
     'Package In Progress': {
         'short': 'Package In Progress'
     },

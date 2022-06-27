@@ -1,3 +1,7 @@
+try{
+    document.domain = 'preplaced.in';
+}
+catch(e){}
 var firebaseConfig = {
     apiKey: "AIzaSyDEjje1xnNR_5Ckx27w_8emPFUy5ppC0E8",
     authDomain: "preplaced-ui.firebaseapp.com",
@@ -56,11 +60,18 @@ var thankyouModal = getElement("thankyou-modal");
 var userName = getElement('Name');
 var phoneFormatter = getElement('phoneFormatter');
 var downloadEbookButton = getElement('download-ebook-button');
+var footerLogin = getElement('footer-login');
 var currentPath = window.location.pathname;
 var preplacedLogo = "https://uploads-ssl.webflow.com/5fa298c0bded9141021f03fa/5fe8f718a1688547053c318d_preplaced.png";
 var customOnSignIn = false;
 var customOnSignInMethod = function() {
 }
+var callAfterCheckout = false;
+var afterCheckoutClosedMethod = function() {
+}
+
+
+var isMobile = window.innerWidth <= 425;
 
 const urlSearchParams = new URLSearchParams(window.location.search);
 const URLQueryParams = Object.fromEntries(urlSearchParams.entries());
@@ -92,6 +103,8 @@ function triggerPurchase(packageDetails){
         'transaction_id': packageDetails.order_id,
         'value': packageDetails.totalPrice,
         'items': packageDetails,
+        'item_name': packageMap[packageDetails.package_id],
+        'item_id': packageDetails.package_id,
         'experience': packageDetails.experience,
         'domain': packageDetails.domain,
         'designation': packageDetails.designation,
@@ -109,6 +122,8 @@ function triggerPurchaseInitiation(packageDetails){
         'currency': packageDetails.currency,
         'value': packageDetails.totalPrice,
         'items': packageDetails,
+        'item_name': packageMap[packageDetails.package_id],
+        'item_id': packageDetails.package_id,
         'experience': packageDetails.experience,
         'domain': packageDetails.domain,
         'designation': packageDetails.designation,
@@ -467,6 +482,8 @@ function checkCoupon(coupon, package_id, successCallback, errorCallback){
 
 function createOrder(packageDetails, successCallback, errorCallback){
     triggerPurchaseInitiation(packageDetails);
+    packageDetails["version"] = "default";
+    packageDetails["package_type"]= packageMap[pkDetails.package_id];
     let url = apiBaseURL + "user/create-order";
     postAPI(url, packageDetails, function(response){
         if (response.status === 200){
@@ -545,17 +562,23 @@ var currencyMap = {
 
 var packageMap = {
     'mock-interview': 'Mock Interview',
-    'interview-preparation-bundle': 'Interview Preparation Bundle',
-    'interview-preparation-bundle-trial': 'Interview Preparation Bundle Trial',
-    'consulting-session': 'Consulting Session'
-     
+    'interview-preparation-bundle': 'Interview Preparation Program',
+    'mock-interview-bundle': 'Mock Interview Bundle',
+    'interview-preparation-bundle-trial': 'Planning Session',
+    'consulting-session': 'Consulting Session',
+    'consulting-session-trial': "Interview Preparation Program Trial"
 }
 
 // need to set Initial component displays
 var setInitialDisplays = function(){
     if (accessToken){
         hideElements([menuLoginButton]);
-        showElements([dashboardButton], "flex");
+        if (!isMobile){
+            showElements([dashboardButton], "flex");
+        }
+        else{
+            hideElements([dashboardButton]);
+        }
         (localUserName && userName) ? 
             (userName.innerHTML = "Welcome " + localUserName) 
             : userName && userName.classList.add('hide');
@@ -596,7 +619,17 @@ firebase.auth().onAuthStateChanged(function (user) {
         console.log('UID: ' + user.uid);
         updateAccessToken();
         hideElements([menuLoginButton]);
-        showElements([dashboardButton], "flex");
+        if (!isMobile){
+            showElements([dashboardButton], "flex");
+        }
+        else{
+            hideElements([dashboardButton]);
+        }
+
+        //changing the footer login text to dashboard
+        if (footerLogin){
+            footerLogin.innerText = "Dashboard";
+        }
     } else {
         // User is signed out.
         if (privatePages.includes(currentPath)) {
@@ -634,30 +667,30 @@ let lastScrollTop = 0;
 
 let isNavbarChangeNeeded = true;
 
-function changeNavbarDisplay() {
-    if (isNavbarChangeNeeded){
-        let currentScrollTop = document.body.scrollTop || document.documentElement.scrollTop;
-        if (currentScrollTop > lastScrollTop){ //scroll down
-            navbarSelector.classList.remove("popNav");
-        }
-        else if (currentScrollTop < lastScrollTop - 50){ //scroll up
-            if (currentScrollTop > 105) {
-                navbarSelector.classList.add("popNav");
-            } else {
-                navbarSelector.classList.remove("popNav");
-            }
-        }
-        lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
-    }
-}
+// function changeNavbarDisplay() {
+//     if (isNavbarChangeNeeded){
+//         let currentScrollTop = document.body.scrollTop || document.documentElement.scrollTop;
+//         if (currentScrollTop > lastScrollTop){ //scroll down
+//             navbarSelector.classList.remove("popNav");
+//         }
+//         else if (currentScrollTop < lastScrollTop - 50){ //scroll up
+//             if (currentScrollTop > 105) {
+//                 navbarSelector.classList.add("popNav");
+//             } else {
+//                 navbarSelector.classList.remove("popNav");
+//             }
+//         }
+//         lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
+//     }
+// }
 
-if (navbarSelector){ 
-    window.onscroll = function() {
-        throttle(function(){
-            changeNavbarDisplay();
-        },200);
-    }
-}
+// if (navbarSelector){ 
+//     window.onscroll = function() {
+//         throttle(function(){
+//             changeNavbarDisplay();
+//         },200);
+//     }
+// }
 
 
 if (downloadEbookButton) {
@@ -666,40 +699,6 @@ if (downloadEbookButton) {
     }
 }
 
-
-// Intl-tel-input -->
-    var input = getElement("phone"),
-        dialCode = getElement(".dialCode"),
-        errorMsg = getElement("error-msg"),
-        validMsg = getElement("valid-msg");
-
-    var iti = intlTelInput(input, {initialCountry: "in", placeholderNumberType: 'FIXED_LINE', separateDialCode: true,});
-    var errorMap = ["Invalid number", "Invalid country code", "Too short", "Too long", "Invalid number"];
-
-    var reset = function() {
-        input.classList.remove("error");
-        errorMsg.innerHTML = "";
-        errorMsg.classList.add("hide");
-        validMsg.classList.add("hide");
-    };
-
-    input.addEventListener('blur', function() {
-    reset();
-    if (input.value.trim()) {
-        if (iti.isValidNumber()) {
-            phoneFormatter.value = iti.getNumber();
-            // validMsg.classList.remove("hide");
-        } else {
-        input.classList.add("error");
-        var errorCode = iti.getValidationError();
-        errorMsg.innerHTML = errorMap[errorCode];
-        errorMsg.classList.remove("hide");
-        }
-    }
-    });
-
-    input.addEventListener('change', reset);
-    input.addEventListener('keyup', reset);
 
 
 
@@ -877,7 +876,7 @@ formButtonSelector.addEventListener('click',function(e){
               customOnSignInMethod();
           }
           else{
-            redirectToDashboard();
+            // redirectToDashboard();
           }
         }
         login(otp, onLogin, onLoginFailed);
@@ -895,9 +894,14 @@ formButtonSelector.addEventListener('click',function(e){
           // updating auth user with name and email
           try {
             var redirectToDashbaordOnSignup = function() {
-                setTimeout(()=>{
-                    redirectToDashboard();
-                }, 1000);
+                if (customOnSignIn){
+                    customOnSignInMethod();
+                }
+                else{
+                    setTimeout(()=>{
+                        // redirectToDashboard();
+                    }, 1000);
+                }
             }
             verifiedUser.updateEmail(userEmailSelector.value.toLowerCase()).then(function(){
               // verifiedUser.reauthenticateWithCredential(credential).then(function() {
@@ -949,6 +953,57 @@ formButtonSelector.addEventListener('click',function(e){
 });
 
 
+
+// Intl-tel-input -->
+var input = getElement("phone"),
+dialCode = getElement(".dialCode"),
+errorMsg = getElement("error-msg"),
+validMsg = getElement("valid-msg");
+
+var iti = intlTelInput(input, {initialCountry: "in", placeholderNumberType: 'FIXED_LINE', separateDialCode: true,});
+var errorMap = ["Invalid number", "Invalid country code", "Too short", "Too long", "Invalid number"];
+
+var reset = function(event) {
+    input.classList.remove("error");
+    errorMsg.innerHTML = "";
+    errorMsg.classList.add("hide");
+    validMsg.classList.add("hide");
+    if (event && event.key === "Enter") {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        getPhoneNumberFromIti(function(){
+            formButtonSelector.click()
+        });
+    }
+};
+
+var getPhoneNumberFromIti = function(onCorrectNumber){
+    reset();
+    if (input.value.trim()) {
+        if (iti.isValidNumber()) {
+            phoneFormatter.value = iti.getNumber();
+            if (onCorrectNumber){
+                onCorrectNumber();
+            }
+            // validMsg.classList.remove("hide");
+        } else {
+            input.classList.add("error");
+            var errorCode = iti.getValidationError();
+            errorMsg.innerHTML = errorMap[errorCode];
+            errorMsg.classList.remove("hide");
+        }
+    }
+}
+
+input.addEventListener('blur', function (){
+    getPhoneNumberFromIti()
+});
+
+input.addEventListener('change', reset);
+input.addEventListener('keyup', reset);
+
+
+
 /*
 ------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------
@@ -959,21 +1014,6 @@ Checkout Logic
 ------------------------------------------------------------------------------------
 */
 
-var signInTitleSelector = document.getElementById('sign-in-title');
-var countryCodeSelector = document.getElementById('country-code');
-var phoneNumberSelector = document.getElementById('phone');
-var editPhoneSelector = document.getElementById('edit-phone');
-var recaptchaSelector = document.getElementById('recaptcha');
-var otpFieldSelector = document.getElementById('otp-field');
-var resendOTPSelector = document.getElementById('resend-otp');
-var resendOTPContainerSelector = document.getElementById('resend-otp-container');
-var userNameSelector = document.getElementById('user-name');
-var userEmailSelector = document.getElementById('user-email');
-var acceptTermsSelector = document.getElementById('accept-terms');
-var acceptSubscriptionSelector = document.getElementById('accept-subscription');
-var formButtonSelector = document.getElementById('form-button');
-var formSubmitButtonSelector = document.getElementById('form-button-hidden');
-var errorFieldSelector = document.getElementById('error-message');
 
 
 let [
@@ -1118,6 +1158,10 @@ changeDomainSelector.addEventListener('click', function(e){
     e.preventDefault();
     // redirect("/"+pkDetails.package_id);
     closeCheckoutModal();
+    if (callAfterCheckout){
+        afterCheckoutClosedMethod && afterCheckoutClosedMethod();
+    }
+
 })
 
 closeCheckout.addEventListener('click', function(e){
@@ -1249,16 +1293,15 @@ if(menuLoginButton){
     }
 }
 
+let bookSessionMethod = function () {
+    triggerEvent('Sales Session Booking Started', {});
+    //Intercom('trackEvent', 'Sales Session Booking Started');
+}
 
 //intercombot launch
 let bookSessionButtons = document.querySelectorAll(".intercom-bot")
 for (let i = 0; i < bookSessionButtons.length; i++){
     bookSessionButtons[i].onclick = bookSessionMethod;
-}
-
-let bookSessionMethod = function () {
-    triggerEvent('Sales Session Booking Started', {});
-    //Intercom('trackEvent', 'Sales Session Booking Started');
 }
 
 var loginLink01 = getElement("login-link-01");
@@ -1275,4 +1318,17 @@ closeLoginModalIcon.onclick = function (event) {
     event.preventDefault();
     event.stopPropagation();
     closeLoginModal();
+}
+
+
+if (footerLogin){
+    footerLogin.onclick = function(event){
+        event.preventDefault();
+        if (verifiedUser){
+            redirect('/dashboard');
+        }
+        else{
+            showLoginModal();
+        }
+    }
 }

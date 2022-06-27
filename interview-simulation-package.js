@@ -1,12 +1,13 @@
 // Initial variables
-let package_id = "interview-preparation-bundle";
+let package_id = "mock-interview-bundle";
+let mock_package_id = "mock-interview";
 let country = "India";
 let currentCurrency = "INR";
 let currentPrice = "1799";
 let currentTrialPrice = "399";
 let currentExperience = "zero_three";
 let pricing = {};
-let trialPricing = {};
+let mockInterviewPricing = {};
 let packageDetails = {};
 let selectedCompanies = [];
 let locationUpdated = false;
@@ -18,62 +19,72 @@ var experienceSelector = getElement('experience');
 var domainSelector = getElement('domain');
 // var trialExperienceSelector = getElement('trial-experience');
 // var mentorDesignation = getElement('mentor-designation');
-var priceSelector = getElement('package-price');
-// var priceLoader = getElement('price-loader');
-var priceContainer = getElement('price-container');
-var currencySelector = getElement('package-currency');
-var trialPriceSelector = getElement('planning-price');
-var trialCurrencySelector = getElement('planning-currency');
-var bookButton = getElement('package-book-button');
-var trialBookButton = getElement('planning-book-button');
-// var bookNowForm = getElement('book-now-form-container');
+var priceSelector = getElement('program-price');
+var priceContainer = getElement('pricing-section');
+var currencySelector = getElement('program-currency');
+var slashedCurrency = getElement('slashed-program-currency');
+var slashedPrice = getElement('slashed-program-price');
+var mockInterviewPriceSelector = getElement('planning-price');
+var mockInterviewCurrencySelector = getElement('planning-currency');
+var slashedMockInterviewCurrency = getElement('slashed-planning-currency');
+var slashedMockInterviewPrice = getElement('slashed-planning-price');
+
+var bookButton = getElement('program-book-button');
+var mockInterviewBookButton = getElement('planning-book-button');
 
 
-var domainURL = window.location.pathname.split("programs/")[1];
-var DomainURLMapping = {
-    "backend-interview-preparation": {
-        "text": "Backend",
-        "id": "back_end"
-    },
-    "data-science-interview-preparation": {
-        "text": "Data Science",
-        "id": "data_science"
-    },
-    "devops-interview-preparation": {
-        "text": "DevOps",
-        "id": "dev_ops"
-    },
-    "frontend-interview-preparation":{
-        "text": "Frontend",
-        "id": "front_end"
-    }
-}
-// let domainText = DomainURLMapping[domainURL].text;
-// let domainId = DomainURLMapping[domainURL].id;
+hideElements([slashedMockInterviewCurrency, slashedMockInterviewPrice]);
+
 
 
 //methods
+
+
+function populateDomainDropdown(domains){
+  // //clear initaial dropdown values 
+  while (domainSelector.children.length > 0){
+    domainSelector.remove(0);
+  }
+  //add new options
+  for (const domainId in domains){
+    let domainData = domains[domainId];
+    if (domainData.data && domainData.data.title && domainData.id)
+    domainSelector.append(new Option(domainData.data.title, domainData.id));
+  }
+}
+
+function getDomains(){
+  //getDomains from Backend
+  getAllDomains(function(responseData){
+    populateDomainDropdown(responseData.domains);
+  })
+}
+
 function setCurrency(currency){
   if (currency) currentCurrency = currency;
-  var currencyText = (currentCurrency == "USD") ? "$" : "Rs";
+  var currencyText = (currentCurrency == "USD") ? "$" : "₹";
   currencySelector.innerText = currencyText;
-  trialCurrencySelector.innerText = currencyText;
+  mockInterviewCurrencySelector.innerText = currencyText;
+  slashedMockInterviewCurrency.innerText = currencyText;
+  slashedCurrency.innerText = currencyText;
 }
 
 function updatePricing(){
   try{
     currentPrice = pricing[currentExperience];
-    priceSelector.innerText = currentPrice + "/-";
+    priceSelector.innerText = currentPrice;
+    slashedPrice.innerText = (Math.ceil(currentPrice/60)*100 - 1)
   }
   catch(error){
     console.error("error: ", error);
   }
 }
 
-function updateTrialPricing(){
+function updateMockInterviewPricing(){
   try{
-      currentTrialPrice = trialPricing[currentExperience];
-      trialPriceSelector.innerText = currentTrialPrice + "/-";
+      currentTrialPrice = mockInterviewPricing[currentExperience];
+      mockInterviewPriceSelector.innerText = currentTrialPrice;
+      slashedMockInterviewPrice.innerText = (Math.ceil(currentTrialPrice/80)*100 - 1)
   }
   catch(error){
     console.error("error: ", error);
@@ -94,16 +105,16 @@ function getPricingData() {
   })
 
   //getting trial pricing
-  getPrice(country, package_id+"-trial", function(responseData){
-    trialPricing = responseData.pricing;
-    updateTrialPricing();
+  getPrice(country, mock_package_id, function(responseData){
+    mockInterviewPricing = responseData.pricing;
+    updateMockInterviewPricing();
   })
 }
 
 function saveInfoToLocalStorage(forTrial){
   let domainText = domainSelector.options[domainSelector.selectedIndex].text;
   const price = forTrial ? currentTrialPrice : currentPrice;
-  const packageId = forTrial ? package_id+"-trial" : package_id;
+  const packageId = forTrial ? mock_package_id : package_id;
   let companies = `${domainText} Domain`;
   packageDetails = {
     "package_id": packageId,
@@ -138,12 +149,22 @@ function proceedToCheckout() {
     //   window.location.assign('/checkout');
 }
 
+function scrollToPricing() {
+  priceContainer.scrollIntoView({behavior: "smooth"});
+}
+
+callAfterCheckout = true;
+if (afterCheckoutClosedMethod) {
+  afterCheckoutClosedMethod = scrollToPricing;
+}
+
 experienceSelector.onchange = function(event){
   event.preventDefault();
   currentExperience = experienceSelector.options[experienceSelector.selectedIndex].value;
   updatePricing();
-  updateTrialPricing();
+  updateMockInterviewPricing();
 }
+
 
 bookButton.onclick = function(event){
   event.preventDefault();
@@ -160,7 +181,7 @@ bookButton.onclick = function(event){
   proceedToCheckout();
 }
 
-trialBookButton.onclick = function(event){
+mockInterviewBookButton.onclick = function(event){
     event.preventDefault();
     const forTrial = true;
     saveInfoToLocalStorage(forTrial); //save the form Info here to local Storage which will be used in the checkout page
@@ -203,3 +224,4 @@ function getLocation(){
 }
 
 getLocation();
+getDomains();

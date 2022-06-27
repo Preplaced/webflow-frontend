@@ -18,15 +18,21 @@ var experienceSelector = getElement('experience');
 var domainSelector = getElement('domain');
 // var trialExperienceSelector = getElement('trial-experience');
 // var mentorDesignation = getElement('mentor-designation');
-var priceSelector = getElement('package-price');
-// var priceLoader = getElement('price-loader');
-var priceContainer = getElement('price-container');
-var currencySelector = getElement('package-currency');
+var priceSelector = getElement('program-price');
+var priceContainer = getElement('pricing-section');
+var currencySelector = getElement('program-currency');
+var slashedCurrency = getElement('slashed-program-currency');
+var slashedPrice = getElement('slashed-program-price');
 var trialPriceSelector = getElement('planning-price');
 var trialCurrencySelector = getElement('planning-currency');
-var bookButton = getElement('package-book-button');
+var slashedPlanningCurrency = getElement('slashed-planning-currency');
+var slashedPlanningPrice = getElement('slashed-planning-price');
+
+var bookButton = getElement('program-book-button');
 var trialBookButton = getElement('planning-book-button');
-// var bookNowForm = getElement('book-now-form-container');
+
+
+hideElements([slashedCurrency, slashedPrice]);
 
 
 var domainURL = window.location.pathname.split("programs/")[1];
@@ -55,15 +61,18 @@ var DomainURLMapping = {
 //methods
 function setCurrency(currency){
   if (currency) currentCurrency = currency;
-  var currencyText = (currentCurrency == "USD") ? "$" : "Rs";
+  var currencyText = (currentCurrency == "USD") ? "$" : "₹";
   currencySelector.innerText = currencyText;
   trialCurrencySelector.innerText = currencyText;
+  slashedPlanningCurrency.innerText = currencyText;
+  slashedCurrency.innerText = currencyText;
 }
 
 function updatePricing(){
   try{
     currentPrice = pricing[currentExperience];
-    priceSelector.innerText = currentPrice + "/-";
+    priceSelector.innerText = currentPrice;
+    slashedPrice.innerText = (Math.ceil(currentPrice/60)*100 - 1)
   }
   catch(error){
     console.error("error: ", error);
@@ -73,7 +82,8 @@ function updatePricing(){
 function updateTrialPricing(){
   try{
       currentTrialPrice = trialPricing[currentExperience];
-      trialPriceSelector.innerText = currentTrialPrice + "/-";
+      trialPriceSelector.innerText = currentTrialPrice;
+      slashedPlanningPrice.innerText = (Math.ceil(currentTrialPrice/20)*100 - 1)
   }
   catch(error){
     console.error("error: ", error);
@@ -94,7 +104,7 @@ function getPricingData() {
   })
 
   //getting trial pricing
-  getPrice(country, package_id+"-trial", function(responseData){
+  getPrice(country, mock_package_id, function(responseData){
     trialPricing = responseData.pricing;
     updateTrialPricing();
   })
@@ -138,12 +148,22 @@ function proceedToCheckout() {
     //   window.location.assign('/checkout');
 }
 
+function scrollToPricing() {
+  priceContainer.scrollIntoView({behavior: "smooth"});
+}
+
+callAfterCheckout = true;
+if (afterCheckoutClosedMethod) {
+  afterCheckoutClosedMethod = scrollToPricing;
+}
+
 experienceSelector.onchange = function(event){
   event.preventDefault();
   currentExperience = experienceSelector.options[experienceSelector.selectedIndex].value;
   updatePricing();
   updateTrialPricing();
 }
+
 
 bookButton.onclick = function(event){
   event.preventDefault();
