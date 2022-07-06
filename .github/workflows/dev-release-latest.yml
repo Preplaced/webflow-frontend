@@ -1,4 +1,4 @@
-name: upload file to Firebase workflow
+name: Dev Release Latest
 
 on: workflow_dispatch
 
