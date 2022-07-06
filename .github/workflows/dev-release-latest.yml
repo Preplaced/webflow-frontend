@@ -38,4 +38,4 @@ jobs:
       
       # run the upload script
       - name: run upload script
-        run: python ./.github/workflows/upload_file_firestore.py dev  # the path to upload script in the repository
+        run: python ./.github/workflows/upload-file-firestore.py dev  # the path to upload script in the repository
