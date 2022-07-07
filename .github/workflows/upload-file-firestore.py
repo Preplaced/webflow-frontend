@@ -40,6 +40,12 @@ dirname = '/'.join(rootPath)
 
 listOfFiles = [f for f in os.listdir(dirname) if not f.startswith('.')]
 
+# clearing out the bucket first
+blobs = bucket.list_blobs(prefix= sys.argv[1] + '/')
+
+for blob in blobs:
+  blob.delete()
+
 for eachFile in listOfFiles:
     fileFullPath = dirname + '/' + eachFile
     
