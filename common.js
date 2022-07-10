@@ -877,6 +877,7 @@ formButtonSelector.addEventListener('click',function(e){
           }
           else{
             // redirectToDashboard();
+            closeLoginModal();
           }
         }
         login(otp, onLogin, onLoginFailed);
@@ -900,6 +901,7 @@ formButtonSelector.addEventListener('click',function(e){
                 else{
                     setTimeout(()=>{
                         // redirectToDashboard();
+                        closeLoginModal();
                     }, 1000);
                 }
             }
