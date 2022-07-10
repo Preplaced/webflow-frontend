@@ -1,0 +1,25 @@
+name: Purge JSDeliver
+
+on:
+  push:
+    branches:
+    - main
+    - develop
+
+jobs:
+  purge-jsdelivr-cache:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: gacts/purge-jsdelivr-cache@v1
+        with:
+          url: |
+            https://cdn.jsdelivr.net/gh/Preplaced/webflow-frontend@develop/dashboard.js
+            https://cdn.jsdelivr.net/gh/Preplaced/webflow-frontend@main/dashboard.js
+            https://cdn.jsdelivr.net/gh/Preplaced/webflow-frontend@develop/common.js
+            https://cdn.jsdelivr.net/gh/Preplaced/webflow-frontend@main/common.js
+            https://cdn.jsdelivr.net/gh/Preplaced/webflow-frontend@develop/consulting-session.js
+            https://cdn.jsdelivr.net/gh/Preplaced/webflow-frontend@main/consulting-session.js
+            https://cdn.jsdelivr.net/gh/Preplaced/webflow-frontend@develop/mock-interview.js
+            https://cdn.jsdelivr.net/gh/Preplaced/webflow-frontend@main/mock-interview.js
+            https://cdn.jsdelivr.net/gh/Preplaced/webflow-frontend@develop/interview-preparation-program.js
+            https://cdn.jsdelivr.net/gh/Preplaced/webflow-frontend@main/interview-preparation-program.js
