@@ -1,12 +1,22 @@
 console.log("Loading File Dashboard V3");
 const DATE_TIME_OPTION ={ month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
 const DATE_OPTION ={ month: 'long', day: 'numeric' };
+const SESSION_COMPLETED_STATUSES = ["Take Session Feedback", "Session Completed"];
+const SESSION_STATUS_MAP = {
+    "Schedule Session": "To Be Scheduled",
+    "Attend Session": "Session Scheduled",
+    "Take Session Feedback": "Session Completed",
+    "Session Cancelled": "Session Cancelled",
+    "Session Completed": "Session Completed",
+}
+
 const JOIN_SLACK_LINK = "https://join.slack.com/t/preplaced-community/shared_invite/zt-19h4xpew2-QcMCCLdnwHicwDxfz0ALHQ";
 let slackCTALink = JOIN_SLACK_LINK;
 
 let welcomeText = getElement("welcome-text");
 let packageDropdown = getElement("package-selector");
 let packageDropdownContainer = getElement("package-selector-form");
+let packageStatusList = getElement("package-status-list");
 let packageContainer = getElement("package-container");
 let packageName =  getElement("package-type-name");
 let packageID = getElement("package-id");
@@ -27,6 +37,8 @@ let plannerDocCTA = getElement("planner-cta");
 let plannedDocContainer = getElement("planner-container");
 let packageGuidelinesCTA = getElement("package-guidelines-cta");
 let packageGuidelinesContainer = getElement("package-guidelines-container");
+let exploreProgramsSection = getElement("explore-programs-section");
+let sessionContainer = getElement("session-container");
 
 const activeFormsContainer = getElement("active-form-container");
 const activeFormsHeader = getElement("active-form-title");
@@ -42,11 +54,21 @@ const SESSION_NAME = "session-name";
 const SESSION_DATE = "session-date";
 const SESSION_STATUS = "session-status";
 const SESSION_CTA = "session-cta";
+const ACTIVE_ICON_IDENTIFIER = "lottie-animation-23";
 
 const sessionsContainer = getElement("sessions-container");
 const dummySessionContainer = getElement(DUMMY_SESSION_ID);
 
+
 const loaderSpinner = getElement("loader-overlay");
+
+let logoutonDashboardButton = getElement("dashboard-button");
+
+logoutonDashboardButton.innerText = "Log out"
+logoutonDashboardButton.onclick = function(event) {
+    event.preventDefault();
+    signOutUser();
+}
 
 
 ///Things to Interact with
@@ -78,6 +100,7 @@ Slack CTA: slack-cta
 Mentor Name: mentor-name
 Mentor Profile: mentor-profile
 Mentor Profile: mentor-profile-cta
+
 
 
 Planner CTA: planner-cta
@@ -181,6 +204,37 @@ const getCurrentStatus= () => {
 }
 
 
+const setPackageStatus = () =>{
+    let packageStatus = activePackage.packageStatus;
+    let activeIndex = 0;
+    switch(packageStatus){
+        case("Package Onboarding"):
+        case("Mentor Matchmaking"):
+            activeIndex = 0;
+            break;
+        case("Sessions In Progress"):
+        case("Package Paused"):
+            activeIndex = 1;
+            break;
+        case("Post Package Steps"):
+        case("Package Expired"):
+            activeIndex = 2
+    }
+    // setting correct classes
+    for (let index=0; index < packageStatusList.children.length; index++){
+        if (index == activeIndex){
+            console.log("Active: ", packageStatusList.children[index]);
+            packageStatusList.children[index].classList = "progress-state"
+            showElements([packageStatusList.children[index].querySelector("."+ACTIVE_ICON_IDENTIFIER)])
+        }
+        else{
+            console.log("Inactive: ", packageStatusList.children[index]);
+            packageStatusList.children[index].classList = "progress-state inactive"
+            hideElements([packageStatusList.children[index].querySelector("."+ACTIVE_ICON_IDENTIFIER)])
+        }
+    }
+}
+
 
 
 let candidateData = {};
@@ -214,6 +268,7 @@ const setActiveForms = () =>{
             activeFormsHeader.innerText = formToShow.cfgActiveForms[0].header;
             activeFormsSubtext.innerText = formToShow.cfgActiveForms[0].subtext;
             activeFormsCTA.innerText = formToShow.cfgActiveForms[0].buttonText;
+            addIframe(formToShow.formUrl);
             activeFormsCTA.onclick = () => onActiveFormsCTAClick(formToShow.formUrl);
         }
         else{
@@ -264,13 +319,13 @@ closeModalIcon.onclick = () => closeFormModal();
 
 
 function onActiveFormSubmit() {
-    fetchActiveForms();
-    setTimeout(closeFormModal, 2000);
+    setTimeout(fetchActiveForms, 2000);
+    setTimeout(closeFormModal, 5000);
 }
 
 function closeFormModal (){
     console.log("closing the icon");
-    activeFormsEmbed.removeChild(activeFormsEmbed.childNodes[0]);
+    // activeFormsEmbed.removeChild(activeFormsEmbed.childNodes[0]);
     hideElements([activeFormsModal]);
 }
 
@@ -308,6 +363,7 @@ const onCandidateFetched = (response) => {
 const onCandidateFetchedError = (response) => {
     console.log("Error Fetching Candidate Data: ", response);
     hidePackageDetails();
+    hideElements([activeFormsContainer]);
 }
 
 const getCandidateData = () => {
@@ -355,7 +411,6 @@ const getCandidateData = () => {
               sessionStatus
               sessionDateTime
               isInThePast
-              feedbackReportForTheCandidate
               feedbackToBeFilledByCandidate
               name
               recording
@@ -402,8 +457,11 @@ hidePackageDetails = () => {
 setDropdownAndInitialPackage = () => {
     packageList = candidateData.packages;
     if (!packageList.length){
-        hidePackageDetails()
+        hidePackageDetails();
         return;
+    }
+    else{
+        hideElements([exploreProgramsSection]);
     }
     packageList.reverse();
     try{
@@ -447,6 +505,10 @@ const setPackageDetails = () => {
 
 const setSessionDetails = () => {
     let sessionsData = activePackage.sessions;
+    if (sessionsData.length === 0){
+        hideElements([sessionContainer]);
+        return;
+    }
     let clonedSessionContainer;
     
     //Create Initial display
@@ -494,27 +556,27 @@ const setSessionDetails = () => {
         let sessionDateDOM = clonedSessionContainer.querySelector(`#dummy-${SESSION_DATE}`);
         if (sessionDateDOM){
             sessionDateDOM.id= SESSION_DATE + "-" + session.id;
-            sessionDateDOM.innerText = session.sessionDateTime ? new Date(session.sessionDateTime).toLocaleString('en-US', DATE_TIME_OPTION) : "Not Scheduled Yet";
+            sessionDateDOM.innerText = session.sessionDateTime ? new Date(session.sessionDateTime).toLocaleString('en-US', DATE_TIME_OPTION) : "";
         }
         let sessionStatusDOM = clonedSessionContainer.querySelector(`#dummy-${SESSION_STATUS}`);
         if (sessionStatusDOM){
             sessionStatusDOM.id= SESSION_STATUS + "-" + session.id;
-            sessionStatusDOM.innerText = session.sessionStatus;
+            sessionStatusDOM.innerText = SESSION_STATUS_MAP[session.sessionStatus];
         }
         let sessionCTADOM = clonedSessionContainer.querySelector(`#dummy-${SESSION_CTA}`);
         if (sessionCTADOM){
             sessionCTADOM.id= SESSION_CTA + "-" + session.id;
-            if (session.feedbackReportForTheCandidate){
-                sessionCTADOM.innerText = "View Report →";
-                sessionCTADOM.href = session.feedbackReportForTheCandidate;
+            sessionCTADOM.innerText = "Contact Support →";
+            sessionCTADOM.href = slackCTALink;
+            if (SESSION_COMPLETED_STATUSES.includes(session.sessionStatus)){
+                if (session.feedbackReportForTheCandidate) {// change the logic to show the report here
+                    sessionCTADOM.innerText = "View Report →";
+                    sessionCTADOM.href = session.feedbackReportForTheCandidate;
+                }
             }
-            else if (session.meetingLink){
+            else if (session.sessionStatus === "Attend Session" && session.meetingLink){
                 sessionCTADOM.innerText = "Join Meeting →";
                 sessionCTADOM.href = session.meetingLink;
-            }
-            else{
-                sessionCTADOM.innerText = "Contact Support →";
-                sessionCTADOM.href = slackCTALink;
             }
         }
         sessionsContainer.append(clonedSessionContainer);
@@ -571,14 +633,14 @@ const setMentorDetails = () => {
     //   ],
     let mentor = activePackage.mentors[0]
     if (mentor){
-        showElements([mentorProfileContainer])
+        showElements([mentorProfileContainer, mentorProfileCTA])
         mentorName.innerText = mentor.name;
         mentorProfile.innerText = `${mentor.currentDesignation}, ${mentor.currentCompany}`;
         mentorProfileCTA.href = mentor.publicProfileLink;
         mentorProfilePicture.src = mentor.photoUrl;
     }
     else{
-        hideElements([mentorProfileContainer])
+        hideElements([mentorProfileCTA]);
     }
 }
 
@@ -629,6 +691,9 @@ const setSideBarElements = () =>{
 
 // Set Selected Package
 const renderPackageView = () => {
+    // Set Package Status
+    setPackageStatus();
+
     // Set Package Details
     setPackageDetails();
 
@@ -637,10 +702,13 @@ const renderPackageView = () => {
 
     // Set Sessions
     setSessionDetails();
-
 }
 
 const addIframe = (url) => {
+    try{
+        activeFormsEmbed.removeChild(activeFormsEmbed.childNodes[0]);
+    }
+    catch(e){};
     let iframeDom = document.createElement('iframe');
     iframeDom.classList="active-form-iframe";
     iframeDom.src = url;
@@ -650,7 +718,7 @@ const addIframe = (url) => {
 }
 
 onActiveFormsCTAClick = (url) =>{
-    addIframe(url);
+    // addIframe(url);
     showElements([activeFormsModal]);
 }
 
