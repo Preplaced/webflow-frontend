@@ -23,3 +23,5 @@ jobs:
             https://cdn.jsdelivr.net/gh/Preplaced/webflow-frontend@main/mock-interview.js
             https://cdn.jsdelivr.net/gh/Preplaced/webflow-frontend@develop/interview-preparation-program.js
             https://cdn.jsdelivr.net/gh/Preplaced/webflow-frontend@main/interview-preparation-program.js
+            https://cdn.jsdelivr.net/gh/Preplaced/webflow-frontend@develop/videos-template.js
+            https://cdn.jsdelivr.net/gh/Preplaced/webflow-frontend@main/videos-template.js
