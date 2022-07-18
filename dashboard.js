@@ -108,6 +108,10 @@ Planner Title: planner-title
 
 Package Guidelines CTA: package-guidelines-cta
 
+
+
+
+
 Different Statuses
 
 Package Status:
@@ -143,38 +147,13 @@ Session Completed
 */
 
 const getCurrentStatus= () => {
-    let statusToShow = "Package In Progress"
     let step1Text="";
-    let step1SubText="";
     let step2Text="";
-    let step2SubText="";
     let step3Text="";
-    let step3SubText="";
     let activeStep=1;
-    // Package Onboarding
-    // Mentor Matchmaking
-    // Sessions In Progress
-    // Package Feedback
-    // Package Completed
+    
     let phaseStatus = "Package Onboarding";
-    // Assign Relationship Manager
-    // Get Candidate Profile Completed
-    // Get Package Onboarding Form Completed
-    // Done
     let packageOnboardingStatus = "Assign Relationship Manager";
-    // Confirm Mentor With Candidate
-    // Confirm Candidate With Mentor
-    // Rejected By The Candidate
-    // Rejected By The Mentor
-    // Accepted
-    let mentorMatchMakingStatus = "Confirm Mentor With Candidate";
-    // Schedule Session
-    // Attend Session
-    // Take Session Feedback
-    // Session Cancelled
-    // Session Completed
-    let activeSessionStatus = "Schedule Session";
-    let postPackageStatus = "";
     switch(phaseStatus){
         case("Package Onboarding"):
             switch(packageOnboardingStatus){
@@ -325,7 +304,6 @@ function onActiveFormSubmit() {
 
 function closeFormModal (){
     console.log("closing the icon");
-    // activeFormsEmbed.removeChild(activeFormsEmbed.childNodes[0]);
     hideElements([activeFormsModal]);
 }
 
@@ -537,11 +515,6 @@ const setSessionDetails = () => {
     //     "recording": null,
     //     "myInterviewDocLink": null
     //   },
-    // const SESSION_CONTAINER = "session-container";
-    // const SESSION_NAME = "session-name";
-    // const SESSION_DATE = "session-date";
-    // const SESSION_STATUS = "session-status";
-    // const SESSION_CTA = "session-cta";
     for (sessionIndex in sessionsData){
         let session = sessionsData[sessionIndex]
         if (!session.sessionStatus) continue;
@@ -683,8 +656,6 @@ const setSideBarElements = () =>{
 
     // Set Package Guidelines
     setPackageGuidelinesDetails();
-
-    // Set RM
 }
 
 
