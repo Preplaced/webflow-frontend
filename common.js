@@ -71,6 +71,11 @@ var afterCheckoutClosedMethod = function () {
 }
 var isMobile = window.innerWidth <= 425;
 
+if(Intercom){
+    Intercom('update', {
+        "hide_default_launcher": true
+    });
+}
 
 /*******************************************************************\
 |                                                                   |
