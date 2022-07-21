@@ -10,6 +10,7 @@ let domainClusters = {
     "data_engineer":"Data Engineer",
     "devops_engineer":"DevOps Engineer",
     "project_manager":"Project Manager",
+    "marketing_roles": "Marketing Roles",
     "sre":"SRE",
     "cloud_engineer":"Cloud Engineer",
     "finance_roles" : "Finance Roles",
@@ -39,7 +40,6 @@ let addGST = false;
 var packageName = getElement('program-name');
 var experienceSelector = getElement('target-role');
 var mentorDesignation = getElement('mentor-experience');
-
 var priceSelector = getElement('program-price');
 var slashedPrice = getElement('slashed-program-price');
 var priceContainer = getElement('price-container');
