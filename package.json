@@ -1,0 +1,23 @@
+{
+  "name": "webflow-frontend",
+  "version": "1.0.0",
+  "description": "common.js: This file loads on all the pages",
+  "main": "index.html",
+  "scripts": {
+    "start": "node index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Preplaced/webflow-frontend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Preplaced/webflow-frontend/issues"
+  },
+  "homepage": "https://github.com/Preplaced/webflow-frontend#readme",
+  "dependencies": {
+    "static-server": "^2.2.1"
+  }
+}
