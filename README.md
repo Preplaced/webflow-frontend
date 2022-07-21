@@ -1,3 +1,7 @@
+# To run files on localhost
+
+command: npx static-server
+
 # Current File Usage
 
 common.js: This file loads on all the pages
