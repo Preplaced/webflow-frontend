@@ -9,6 +9,7 @@ let domainClusters = {
     "data_analyst":"Data Analyst",
     "data_engineer":"Data Engineer",
     "devops_engineer":"DevOps Engineer",
+    "project_manager":"Project Manager",
     "sre":"SRE",
     "cloud_engineer":"Cloud Engineer",
     "finance_roles" : "Finance Roles",
