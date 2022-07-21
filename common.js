@@ -69,7 +69,14 @@ var customOnSignInMethod = function () {
 var callAfterCheckout = false;
 var afterCheckoutClosedMethod = function () {
 }
+var isMobile = window.innerWidth <= 425;
 
+
+/*******************************************************************\
+|                                                                   |
+|                   Analytics Methods                               |
+|                                                                   |
+\*******************************************************************/
 if (analytics) {
     const params = new URLSearchParams(window.location.search)
     if (window.sessionStorage.getItem("page_visited") == null) {
@@ -82,8 +89,6 @@ if (analytics) {
         window.sessionStorage.setItem("page_visited", true)
     }
 }
-
-var isMobile = window.innerWidth <= 425;
 
 const urlSearchParams = new URLSearchParams(window.location.search);
 const URLQueryParams = Object.fromEntries(urlSearchParams.entries());
@@ -144,6 +149,14 @@ function triggerPurchaseInitiation(packageDetails) {
     }
     triggerEvent('Payment Started', eventParams);
 }
+//////////////////////////////////////////////////////////////////////
+
+
+/*******************************************************************\
+|                                                                   |
+|                   CRUD  API COMMON METHODS                        |
+|                                                                   |
+\*******************************************************************/
 
 function getDefaultConfig() {
     let config = {}
@@ -197,13 +210,14 @@ function postAPI(url, data, successCallback, errorCallback) {
             });
         });
 }
+//////////////////////////////////////////////////////////////////////
 
-function capitalize(stringValue) {
-    return stringValue.toLowerCase()
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-}
+
+/*******************************************************************\
+|                                                                   |
+|                       DOM Manipulations                           |
+|                                                                   |
+\*******************************************************************/
 
 function hideElements(selectorsArray) {
     for (let index in selectorsArray) {
@@ -339,6 +353,15 @@ if (RecaptchaSelector) {
         }
     );
 }
+//////////////////////////////////////////////////////////
+
+
+/*******************************************************************\
+|                                                                   |
+|                  OTHER COMMON METHODS                             |
+|                                                                   |
+\*******************************************************************/
+
 
 function sendOTP(phoneNumber, successCallback, errorCallback) {
     var appVerifier = window.recaptchaVerifier;
@@ -518,6 +541,13 @@ function updateOrder(orderObject, successCallback, errorCallback) {
     });
 }
 
+function capitalize(stringValue) {
+    return stringValue.toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
 function isValidEmail(email) {
     return (/^\w+([^@]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email))
 }
@@ -617,6 +647,14 @@ function matchMaker(params, data) {
     return data;
 };
 
+
+
+/*******************************************************************\
+|                                                                   |
+|                       ON LOGIN VERIFIED                           |
+|                                                                   |
+\*******************************************************************/
+
 firebase.auth().onAuthStateChanged(function (user) {
     var logoutUser = function (e) {
         e.preventDefault();
@@ -712,17 +750,11 @@ if (downloadEbookButton) {
 }
 
 
-
-
-/*
-------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------
-
-Sign In Logic
-
-------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------
-*/
+/*******************************************************************\
+|                                                                   |
+|                   SIGN IN LOGIC                                   |
+|                                                                   |
+\*******************************************************************/
 
 // Selectors
 var signInTitleSelector = document.getElementById('sign-in-title');
@@ -1015,21 +1047,15 @@ input.addEventListener('blur', function () {
 
 input.addEventListener('change', reset);
 input.addEventListener('keyup', reset);
+/////////////////////////////////////////////////////////////////////
 
 
 
-/*
-------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------
-
-Checkout Logic
-
-------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------
-*/
-
-
-
+/*******************************************************************\
+|                                                                   |
+|                   CHECKOUT LOGIC                                  |
+|                                                                   |
+\*******************************************************************/
 let [
     changeDomainSelector,
     domainTitleSelector,
@@ -1283,6 +1309,8 @@ payNowButtonSelector.addEventListener('click', function (e) {
         createOrder(pkDetails, onOrderCreated, function () { onPaymentFailure("create-order") });
     }
 });
+
+///////////////////////////////////////////////////////////////
 
 function closeCheckoutModal() {
     hideElements([checkoutModal])

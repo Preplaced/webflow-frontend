@@ -51,7 +51,6 @@ let currentMentorExperience = "zero_three";
 let pricing = {};
 let trialPricing = {};
 let packageDetails = {};
-// let selectedCompanies = [];
 let locationUpdated = false;
 let addGST = false;
 
@@ -61,17 +60,10 @@ var mentorDesignation = getElement('mentor-experience');
 
 var priceSelector = getElement('program-price');
 var slashedPrice = getElement('slashed-program-price');
-// var priceLoader = getElement('price-loader');
 var priceContainer = getElement('price-container');
 var currencySelector = getElement('program-currency');
 var slashedCurrency = getElement('slashed-program-currency');
 var domainSelector = getElement('target-domain');
-// $domainSelector = $('#domain').select2();
-// var companiesSelector = getElement('companies');
-// var selectDomainMessage = getElement('select-domain-message');
-// var selectDesignationMessage = getElement('select-designation-message');
-// var emptyCompanyMessage = getElement('empty-company-message');
-// $companiesSelector = $('#companies').select2({placeholder: "Select your target companies", tags: true, matcher: matchMaker});
 var bookButton = getElement('program-book-button');
 var trialBookButton = getElement('trial-book-button');
 var bookNowForm = getElement('book-now-form-container');
@@ -88,42 +80,16 @@ afterCheckoutClosedMethod = function() {
 }
 
 //methods
-
 function populateDomainDropdown(){
   //clear initaial dropdown values 
   while (domainSelector.children.length > 0){
     domainSelector.remove(0);
   }
-  // {
-  //   "backend_developer": "Backend Developer",
-  //   "frontend_developer": "Frontend Developer",
-  //   "fullstack_developer": "Fullstack Developer"
-  // }
   //add new options
   for (const domainId in currentDomainCluster){
     domainSelector.append(new Option(currentDomainCluster[domainId], domainId));
   }
 }
-
-// function setNoOfReasonsChecked() {
-//   let totalChecked = 0;
-//   reasonCheckboxes.forEach(function (checkboxContainer){
-//     let checkbox = checkboxContainer.querySelector("input");
-//     if (checkbox.checked) totalChecked++;
-//   })
-//   reasonCounter.innerText = `${totalChecked ? totalChecked : ""} ${totalChecked === 1 ? "Reason": "Reasons"}`
-// }
-
-// function setCheckboxListeners() {
-//   reasonCheckboxes.forEach(function (checkboxContainer){
-//     let checkbox = checkboxContainer.querySelector("input");
-//     checkbox.onchange = function() {
-//       console.log("checkbox changed");
-//       setNoOfReasonsChecked();
-//     }
-//   })
-// }
-
 
 
 function setCurrency(currency){
@@ -148,8 +114,6 @@ function updateTrialPricing(){
       currentTrialPrice = trialPricing[currentMentorExperience];
 
       trialBookButton.innerText = `${trialBookButton.innerText.split('@')[0]}@ ${(currentCurrency == "USD") ? "$" : "₹"}${currentTrialPrice}/-`;
-      // trialPriceSelector.innerText = currentTrialPrice;
-      // slashedPlanningPrice.innerText = (Math.ceil(currentTrialPrice/20)*100 - 1)
   }
   catch(error){
     console.error("error: ", error);
@@ -173,23 +137,7 @@ function getPricingData() {
     setCurrency(responseData.currency);
     setGSTFlag(responseData.gstEnabled);
   });
-//   var response = {currency : "INR"};
-//   response["pricing"] = { fresher: "1799", six_ten: "2999", ten_plus: "3499", three_six: "2499", zero_three: "1999" };
 }
-
-// function getDomains(){
-//   //getDomains from Backend
-//   getAllDomains(function(responseData){
-//     populateDomainDropdown(responseData.domains);
-//   })
-// }
-
-// function getCompanies(){
-//   //getCompanies from backend
-//   getAllCompanies(function(responseData){
-//     populatePreferredCompanies(responseData["companyArray"]);
-//   })
-// }
 
 function saveInfoToLocalStorage(forTrial){
   let domainText = domainSelector.options[domainSelector.selectedIndex].text;
@@ -228,7 +176,6 @@ function proceedToCheckout() {
         updateCheckoutValuesOnShown();
         showElements([checkoutModal], "flex");
     }
-    //   window.location.assign('/checkout');
 }
 
 function disableLowerMentorDesignationOptions () {
@@ -240,98 +187,20 @@ function disableLowerMentorDesignationOptions () {
 
 experienceSelector.onchange = function(event){
   event.preventDefault();
-  // let candidateExperienceIndex = experienceList.indexOf(experienceSelector.value);
-  // let mentorExperienceIndex = experienceList.indexOf(mentorDesignation.value);
   mentorDesignation.value = experienceSelector.value;
   updatePricing();
   disableLowerMentorDesignationOptions();
 }
 
-// function domainNotSelected(){
-//   return domainSelector.options[domainSelector.selectedIndex].value === "initial-domain-selector";
-// }
-
-// function designationNotAdded(){
-//   return mentorDesignation.value === "";
-// }
-
-// function checkForDomain(){
-//   if (domainNotSelected()){
-//     showElements([selectDomainMessage]);
-//   }
-//   else{
-//     hideElements([selectDomainMessage]);
-//   }
-// }
-
-// function checkForDesignation(){
-//   if (designationNotAdded()){
-//     showElements([selectDesignationMessage]);
-//   }
-//   else{
-//     hideElements([selectDesignationMessage]);
-//   }
-// }
-
-// function companyNeedsTobeAdded(){
-//   return (radioButtonCompany.checked && selectedCompanies.length === 0)
-// }
-
-// function checkForCompany() {
-//   if (companyNeedsTobeAdded()){
-//     showElements([emptyCompanyMessage]);
-//   }
-//   else{
-//     hideElements([emptyCompanyMessage]);
-//   }
-// }
-
-// domainSelector.onchange = function(event){
-//   checkForDomain();
-// }
-
 mentorDesignation.onchange = function(event){
   event.preventDefault();
   updatePricing();
-  // checkForDesignation();
-  // let designation = mentorDesignation.value;
-  // if (designation.length <= 5){
-  //   mentorDesignation.value = designation.toUpperCase();
-  // }
-  // else{
-  //   mentorDesignation.value = capitalize(designation);
-  // }
 }
-
-// function radioButtonChanged() {
-//   hideElements([emptyCompanyMessage]);
-//   if (radioButtonCompany.checked){
-//     showElements([companyPreferenceContainer])
-//   }
-//   else{
-//     hideElements([companyPreferenceContainer])
-//   }
-// }
-
-// radioButtonDomain.onchange = radioButtonChanged;
-// radioButtonCompany.onchange = radioButtonChanged;
 
 bookButton.onclick = function(event){
   event.preventDefault();
   const forTrial = false;
   saveInfoToLocalStorage(forTrial); //save the form Info here to local Storage which will be used in the checkout page
-  // checkForDesignation();
-  // if (designationNotAdded()){
-  //   return;
-  // }
-  // checkForDomain();
-  // if (domainNotSelected()){
-  //   return;
-  // }
-  // checkForCompany();
-  // if(companyNeedsTobeAdded()){
-  //   return;
-  // }
   triggerEvent('Checkout Started', {
     'experience': packageDetails.experience,
     'domain': packageDetails.domain,
@@ -398,16 +267,5 @@ function getLocation(){
     }, 3000);
 }
 
-// hideElements([selectDomainMessage, selectDesignationMessage, emptyCompanyMessage]);
-try {
-  // radioButtonDomain.checked = true;
-  // hideElements([companyPreferenceContainer]);
-}
-catch(e){
-
-}
 getLocation();
 populateDomainDropdown();
-// setCheckboxListeners();
-// getDomains();
-// getCompanies();
