@@ -71,15 +71,32 @@ var afterCheckoutClosedMethod = function () {
 }
 var isMobile = window.innerWidth <= 425;
 
-try {
-    if(Intercom && isMobile){
-        Intercom('update', {
-            "hide_default_launcher": true
-        });
+
+// To check if a user is on mobile device or not
+let details = navigator.userAgent;
+let regexp = /android|iphone|kindle|ipad/i;
+let isMobileDevice = regexp.test(details);
+
+// Wait for Intercom to boot (max 30 seconds)
+const timeout = setTimeout(() => clearInterval(interval), 30000);
+
+const interval = setInterval(() => {
+  if (window.Intercom.booted) {
+    // Intercom is booted!
+    try {
+        if(isMobileDevice){
+            Intercom('update', {
+                "hide_default_launcher": true
+            });
+        }
+    } catch (error) {
+        console.log(error);
     }
-} catch (error) {
-    console.log(error);
-}
+    clearInterval(interval);
+    clearTimeout(timeout);
+  }
+}, 100);
+
 
 /*******************************************************************\
 |                                                                   |
