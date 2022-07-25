@@ -71,6 +71,15 @@ var afterCheckoutClosedMethod = function () {
 }
 var isMobile = window.innerWidth <= 425;
 
+// try {
+//     if(Intercom && isMobile){
+//         Intercom('update', {
+//             "hide_default_launcher": true
+//         });
+//     }
+// } catch (error) {
+//     console.log(error);
+// }
 
 // To check if a user is on mobile device or not
 // let details = navigator.userAgent;
@@ -96,7 +105,6 @@ var isMobile = window.innerWidth <= 425;
 //     clearTimeout(timeout);
 //   }
 // }, 100);
-
 
 /*******************************************************************\
 |                                                                   |
