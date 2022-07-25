@@ -1380,14 +1380,23 @@ function closeLoginModal() {
 //     }
 // }
 
-menuLogin.forEach((logBtn)=>{
-    logBtn.onclick = function (event) {
+// menuLogin.forEach((logBtn)=>{
+//     logBtn.onclick = function (event) {
+//         event.preventDefault();
+//         event.stopPropagation();
+//         event.returnValue = false;
+//         showLoginModal();
+//     }
+// })
+
+for(let i=0;i<menuLogin.length;i++){
+    menuLogin[i].onclick = function (event) {
         event.preventDefault();
         event.stopPropagation();
         event.returnValue = false;
         showLoginModal();
     }
-})
+}
 
 let bookSessionMethod = function () {
     triggerEvent('Sales Session Booking Started', {});
