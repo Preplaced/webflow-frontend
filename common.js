@@ -70,6 +70,7 @@ var callAfterCheckout = false;
 var afterCheckoutClosedMethod = function () {
 }
 var isMobile = window.innerWidth <= 425;
+var menuLogin = document.getElementsByClassName("login-button");
 
 // try {
 //     if(Intercom && isMobile){
@@ -82,9 +83,9 @@ var isMobile = window.innerWidth <= 425;
 // }
 
 // To check if a user is on mobile device or not
-// let details = navigator.userAgent;
-// let regexp = /android|iphone|kindle|ipad/i;
-// let isMobileDevice = regexp.test(details);
+let details = navigator.userAgent;
+let regexp = /android|iphone|kindle|ipad/i;
+let isMobileDevice = regexp.test(details);
 
 // Wait for Intercom to boot (max 30 seconds)
 // const timeout = setTimeout(() => clearInterval(interval), 30000);
@@ -105,6 +106,21 @@ var isMobile = window.innerWidth <= 425;
 //     clearTimeout(timeout);
 //   }
 // }, 100);
+
+// timeout();
+
+// setTimeout(()=>{
+//     try {
+//         if(window.Intercom.booted && (isMobile || isMobileDevice)){
+//             Intercom('update', {
+//                 "hide_default_launcher": true
+//             });
+//         }
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }, 6000)
+
 
 /*******************************************************************\
 |                                                                   |
@@ -648,7 +664,8 @@ var packageMap = {
 // need to set Initial component displays
 var setInitialDisplays = function () {
     if (accessToken) {
-        hideElements([menuLoginButton]);
+        // hideElements([menuLoginButton]);
+        hideElements(menuLogin);
         if (!isMobile) {
             showElements([dashboardButton], "flex");
         }
@@ -661,7 +678,8 @@ var setInitialDisplays = function () {
     }
     else {
         hideElements([dashboardButton]);
-        showElements([menuLoginButton]);
+        // showElements([menuLoginButton]);
+        showElements(menuLogin);
     }
 }
 setInitialDisplays();
@@ -702,7 +720,8 @@ firebase.auth().onAuthStateChanged(function (user) {
         console.log('phone: ' + user.phoneNumber);
         console.log('UID: ' + user.uid);
         updateAccessToken();
-        hideElements([menuLoginButton]);
+        // hideElements([menuLoginButton]);
+        hideElements(menuLogin);
         if (!isMobile) {
             showElements([dashboardButton], "flex");
         }
@@ -719,7 +738,8 @@ firebase.auth().onAuthStateChanged(function (user) {
         if (privatePages.includes(currentPath)) {
             window.location.replace('/');
         } else {
-            showElements([menuLoginButton]);
+            // showElements([menuLoginButton]);
+            showElements(menuLogin);
             hideElements([dashboardButton]);
             console.log('No user is logged in');
         }
@@ -1360,8 +1380,26 @@ function closeLoginModal() {
     hideElements([loginModal]);
 }
 
-if (menuLoginButton) {
-    menuLoginButton.onclick = function (event) {
+// if (menuLoginButton) {
+//     menuLoginButton.onclick = function (event) {
+//         event.preventDefault();
+//         event.stopPropagation();
+//         event.returnValue = false;
+//         showLoginModal();
+//     }
+// }
+
+// menuLogin.forEach((logBtn)=>{
+//     logBtn.onclick = function (event) {
+//         event.preventDefault();
+//         event.stopPropagation();
+//         event.returnValue = false;
+//         showLoginModal();
+//     }
+// })
+
+for(let i=0;i<menuLogin.length;i++){
+    menuLogin[i].onclick = function (event) {
         event.preventDefault();
         event.stopPropagation();
         event.returnValue = false;
