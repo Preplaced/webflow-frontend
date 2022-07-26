@@ -1407,6 +1407,7 @@ for(let i=0;i<menuLogin.length;i++){
     }
 }
 
+
 let bookSessionMethod = function () {
     triggerEvent('Sales Session Booking Started', {});
     //Intercom('trackEvent', 'Sales Session Booking Started');
