@@ -72,6 +72,15 @@ var afterCheckoutClosedMethod = function () {
 var isMobile = window.innerWidth <= 425;
 var menuLogin = document.getElementsByClassName("login-button");
 
+// try {
+//     if(Intercom && isMobile){
+//         Intercom('update', {
+//             "hide_default_launcher": true
+//         });
+//     }
+// } catch (error) {
+//     console.log(error);
+// }
 
 // To check if a user is on mobile device or not
 let details = navigator.userAgent;
