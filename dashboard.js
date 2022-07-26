@@ -346,8 +346,9 @@ const onCandidateFetchedError = (response) => {
 
 const getCandidateData = () => {
     let url = apiBaseURL+ 'user/get-user-data-graphql';
+    let emailToFetch = params.email || verifiedUser.email;
     let reqBodyFormatted = `query MyQuery {
-        candidates(email: "${verifiedUser.email}") {
+        candidates(email: "${emailToFetch}") {
           activeForms {
             id
             formUrl

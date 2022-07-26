@@ -72,6 +72,8 @@ var afterCheckoutClosedMethod = function () {
 var isMobile = window.innerWidth <= 425;
 var menuLogin = document.getElementsByClassName("login-button");
 
+var params = Object.fromEntries(new URLSearchParams(window.location.search).entries())
+
 // try {
 //     if(Intercom && isMobile){
 //         Intercom('update', {
