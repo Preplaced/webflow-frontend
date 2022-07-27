@@ -11,8 +11,8 @@ jobs:
       with:
         args: --acl public-read
       env:
-        SOURCE_DIR: './prod'
-        SPACE_NAME: ${{ secrets.SPACE_NAME }}
+        SOURCE_DIR: './'
+        SPACE_NAME: ${{ secrets.SPACE_NAME }}/prod
         SPACE_REGION: ${{ secrets.SPACE_REGION}}
         SPACE_ACCESS_KEY_ID: ${{ secrets.SPACE_ACCESS_KEY_ID }}
         SPACE_SECRET_ACCESS_KEY: ${{ secrets.SPACE_SECRET_ACCESS_KEY }}
