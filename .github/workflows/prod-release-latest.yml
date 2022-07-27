@@ -3,39 +3,16 @@ name: Prod Release Latest
 on: workflow_dispatch
 
 jobs:
-  ciTask:
-    name: test CI
-    runs-on: macos-latest
+  deploy:
+    runs-on: ubuntu-latest
     steps:
-      #do something
-        - run: echo 'do something here'
-          
-  check-json:
-    needs: [ciTask] # trigger the ci task must be success to run this upload task
-    name: Make a json
-    runs-on: macos-latest
-    steps:
-      # check out the repository
-      - name: check out
-        uses: actions/checkout@v2
-      
-      # install python for running the script
-      - name: Setup Python and dependencies
-        uses: actions/setup-python@v2
-        with:
-            python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
-            architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
-      - run: |
-          pip install firebase-admin
-        
-      # write the Credential json secrect key from git_secrect
-      - name: get secrect key
-        id: write_key_file
-        uses: timheuer/base64-to-file@v1
-        with:
-          fileName: 'firestore_key.json' # name of the written key file
-          encodedString: ${{ secrets.FIRESTORE_SECRET }} # Secret stored in Github secrets
-      
-      # run the upload script
-      - name: run upload script
-        run: python ./.github/workflows/upload-file-firestore.py prod  # the path to upload script in the repository
+    - uses: actions/checkout@master
+    - uses: idlefingers/do-space-sync-action@master
+      with:
+        args: --acl public-read
+      env:
+        SOURCE_DIR: './prod'
+        SPACE_NAME: ${{ secrets.SPACE_NAME }}
+        SPACE_REGION: ${{ secrets.SPACE_REGION}}
+        SPACE_ACCESS_KEY_ID: ${{ secrets.SPACE_ACCESS_KEY_ID }}
+        SPACE_SECRET_ACCESS_KEY: ${{ secrets.SPACE_SECRET_ACCESS_KEY }}
