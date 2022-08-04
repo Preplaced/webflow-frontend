@@ -47,6 +47,7 @@ const activeFormsCTA = getElement("active-form-link");
 const activeFormsModal = getElement("active-form-modal");
 const activeFormsEmbed = getElement("embed-user-form");
 const closeModalIcon = getElement("modal-close-icon");
+const stepOnePackageStatus = document.getElementsByClassName("text-block-192")[0];
 
 const DUMMY_SESSION_ID = "dummy-session-container"
 const SESSION_CONTAINER = "session-container";
@@ -59,6 +60,7 @@ const ACTIVE_ICON_IDENTIFIER = "lottie-animation-23";
 const sessionsContainer = getElement("sessions-container");
 const dummySessionContainer = getElement(DUMMY_SESSION_ID);
 
+var params = Object.fromEntries(new URLSearchParams(window.location.search).entries())
 
 const loaderSpinner = getElement("loader-overlay");
 
@@ -190,6 +192,8 @@ const setPackageStatus = () =>{
         case("Package Onboarding"):
         case("Mentor Matchmaking"):
             activeIndex = 0;
+            stepOnePackageStatus.innerText = `1. ${packageStatus}`
+            mentorName.innerText = (activePackage?.statusFromPotentialMentorAssignment && activePackage?.statusFromPotentialMentorAssignment[0]==="Confirm Candidate With Mentor") ? "Waiting for Confirmation from Mentor" : "Mentor Assignment Pending"
             break;
         case("Sessions In Progress"):
         case("Package Paused"):
@@ -272,8 +276,9 @@ const onActiveFormsFetchedError = (response) => {
 
 const fetchActiveForms = () =>{
     let url = apiBaseURL+ 'user/get-user-data-graphql';
+    let emailToFetch =  params.email || verifiedUser.email;
     let reqBodyFormatted = `query MyQuery {
-        candidates(email: "${verifiedUser.email}") {
+        candidates(email: "${emailToFetch}") {
           activeForms {
             id
             formUrl
@@ -346,8 +351,9 @@ const onCandidateFetchedError = (response) => {
 
 const getCandidateData = () => {
     let url = apiBaseURL+ 'user/get-user-data-graphql';
+    let emailToFetch =  params.email || verifiedUser.email;
     let reqBodyFormatted = `query MyQuery {
-        candidates(email: "${verifiedUser.email}") {
+        candidates(email: "${emailToFetch}") {
           activeForms {
             id
             formUrl
@@ -725,6 +731,5 @@ async function authenticateAndUpdateUserName() {
 }
 
 authenticateAndUpdateUserName();
-
 
 
