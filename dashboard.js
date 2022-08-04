@@ -192,8 +192,8 @@ const setPackageStatus = () =>{
         case("Package Onboarding"):
         case("Mentor Matchmaking"):
             activeIndex = 0;
-            stepOnePackageStatus.innerText = `1. ${packageStatus}`
-            mentorName.innerText = (activePackage?.statusFromPotentialMentorAssignment && activePackage?.statusFromPotentialMentorAssignment[0]==="Confirm Candidate With Mentor") ? "Waiting for Confirmation from Mentor" : "Mentor Assignment Pending"
+            stepOnePackageStatus.innerText = `1. ${(activePackage?.statusFromPotentialMentorAssignment && activePackage?.statusFromPotentialMentorAssignment[0]==="Confirm Candidate With Mentor" && packageStatus === "Mentor Matchmaking") ? "Waiting for Confirmation from Mentor" : "Looking for a Mentor"}`
+            mentorName.innerText = (activePackage?.statusFromPotentialMentorAssignment && activePackage?.statusFromPotentialMentorAssignment[0]==="Confirm Candidate With Mentor" && packageStatus === "Mentor Matchmaking") ? "Waiting for Confirmation from Mentor" : "Mentor Assignment Pending"
             break;
         case("Sessions In Progress"):
         case("Package Paused"):
