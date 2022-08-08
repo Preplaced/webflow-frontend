@@ -47,7 +47,7 @@ const activeFormsCTA = getElement("active-form-link");
 const activeFormsModal = getElement("active-form-modal");
 const activeFormsEmbed = getElement("embed-user-form");
 const closeModalIcon = getElement("modal-close-icon");
-const stepOnePackageStatus = document.getElementsByClassName("text-block-192")[0];
+const stepOneStatusSelector = document.getElementsByClassName("text-block-192")[0];
 
 const DUMMY_SESSION_ID = "dummy-session-container"
 const SESSION_CONTAINER = "session-container";
@@ -195,11 +195,11 @@ const setPackageStatus = () =>{
         case("Mentor Matchmaking"):
             activeIndex = 0;
             if(activePackage?.statusFromPotentialMentorAssignment && activePackage?.statusFromPotentialMentorAssignment[0]==="Confirm Candidate With Mentor" && packageStatus === "Mentor Matchmaking"){
-                stepOnePackageStatus.innerText = `1. Mentor Yet To Confirm`
+                stepOneStatusSelector.innerText = `1. Mentor Yet To Confirm`
                 mentorName.innerText = "Waiting for Confirmation from Mentor"
                 mentorProfile.innerText = "Mentor is yet to confirm the availability."
             }else{
-                stepOnePackageStatus.innerText = `1. Looking for a Mentor`
+                stepOneStatusSelector.innerText = `1. Looking for a Mentor`
                 mentorName.innerText = "Mentor Assignment Pending"
                 mentorProfile.innerText = `We're looking for a mentor for you.`
             }
