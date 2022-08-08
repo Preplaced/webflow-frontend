@@ -2,6 +2,10 @@ try {
     document.domain = 'preplaced.in';
 }
 catch (e) { }
+// Comment out After testing;
+loadFile("select2.min.css",false);
+loadFile("select2.min.js",false);
+loadFile("checkout.js", false);
 var firebaseConfig = {
     apiKey: "AIzaSyDEjje1xnNR_5Ckx27w_8emPFUy5ppC0E8",
     authDomain: "preplaced-ui.firebaseapp.com",
