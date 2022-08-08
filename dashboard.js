@@ -72,6 +72,8 @@ logoutonDashboardButton.onclick = function(event) {
     signOutUser();
 }
 
+// Styling mentorProfile text
+mentorProfile.style.lineHeight = "1rem";
 
 ///Things to Interact with
 /*
@@ -192,8 +194,15 @@ const setPackageStatus = () =>{
         case("Package Onboarding"):
         case("Mentor Matchmaking"):
             activeIndex = 0;
-            stepOnePackageStatus.innerText = `1. ${(activePackage?.statusFromPotentialMentorAssignment && activePackage?.statusFromPotentialMentorAssignment[0]==="Confirm Candidate With Mentor" && packageStatus === "Mentor Matchmaking") ? "Waiting for Confirmation from Mentor" : "Looking for a Mentor"}`
-            mentorName.innerText = (activePackage?.statusFromPotentialMentorAssignment && activePackage?.statusFromPotentialMentorAssignment[0]==="Confirm Candidate With Mentor" && packageStatus === "Mentor Matchmaking") ? "Waiting for Confirmation from Mentor" : "Mentor Assignment Pending"
+            if(activePackage?.statusFromPotentialMentorAssignment && activePackage?.statusFromPotentialMentorAssignment[0]==="Confirm Candidate With Mentor" && packageStatus === "Mentor Matchmaking"){
+                stepOnePackageStatus.innerText = `1. Mentor Yet To Confirm`
+                mentorName.innerText = "Waiting for Confirmation from Mentor"
+                mentorProfile.innerText = "Mentor is yet to confirm the availability."
+            }else{
+                stepOnePackageStatus.innerText = `1. Looking for a Mentor`
+                mentorName.innerText = "Mentor Assignment Pending"
+                mentorProfile.innerText = `We're looking for a mentor for you.`
+            }
             break;
         case("Sessions In Progress"):
         case("Package Paused"):
