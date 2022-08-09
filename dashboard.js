@@ -205,7 +205,7 @@ const setPackageStatus = () =>{
                 stepOneStatusSelector.innerText = `1. Looking for a Mentor`
                 mentorName.innerText = "Mentor Assignment Pending"
                 mentorProfile.innerText = `We're looking for a mentor for you.`
-                stepOneSubtitleSelector.innerText =  `Estimated time: 3 day`
+                stepOneSubtitleSelector.innerText =  `Estimated time: 3 days`
             }
             break;
         case("Sessions In Progress"):
