@@ -48,6 +48,7 @@ const activeFormsModal = getElement("active-form-modal");
 const activeFormsEmbed = getElement("embed-user-form");
 const closeModalIcon = getElement("modal-close-icon");
 const stepOneStatusSelector = document.getElementsByClassName("text-block-192")[0];
+const stepOneSubtitleSelector = document.getElementsByClassName("ongoin-subtitle")[0];
 
 const DUMMY_SESSION_ID = "dummy-session-container"
 const SESSION_CONTAINER = "session-container";
@@ -74,6 +75,7 @@ logoutonDashboardButton.onclick = function(event) {
 
 // Styling mentorProfile text
 mentorProfile.style.lineHeight = "1rem";
+activeFormsCTA.style.textDecoration = "underline";
 
 ///Things to Interact with
 /*
@@ -196,12 +198,14 @@ const setPackageStatus = () =>{
             activeIndex = 0;
             if(activePackage?.statusFromPotentialMentorAssignment && activePackage?.statusFromPotentialMentorAssignment[0]==="Confirm Candidate With Mentor" && packageStatus === "Mentor Matchmaking"){
                 stepOneStatusSelector.innerText = `1. Mentor Yet To Confirm`
+                stepOneSubtitleSelector.innerText =  `Estimated time: 1 day`
                 mentorName.innerText = "Waiting for Confirmation from Mentor"
                 mentorProfile.innerText = "Mentor is yet to confirm the availability."
             }else{
                 stepOneStatusSelector.innerText = `1. Looking for a Mentor`
                 mentorName.innerText = "Mentor Assignment Pending"
                 mentorProfile.innerText = `We're looking for a mentor for you.`
+                stepOneSubtitleSelector.innerText =  `Estimated time: 3 days`
             }
             break;
         case("Sessions In Progress"):
