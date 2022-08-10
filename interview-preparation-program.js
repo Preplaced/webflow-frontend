@@ -209,6 +209,9 @@ bookButton.onclick = function(event){
     'logged_in': !!accessToken,
     'items': packageDetails
   })
+  if(gtag){
+    gtag("event", "Checkout Started", { items:[{...pkDetails}] })
+  }
   proceedToCheckout();
 }
 
@@ -223,6 +226,9 @@ function bookATrialSession () {
     'logged_in': !!accessToken,
     'items': packageDetails
   })
+  if(gtag){
+    gtag("event", "Checkout Started", { items:[{...pkDetails}] })
+  }
   proceedToCheckout();
 }
 
