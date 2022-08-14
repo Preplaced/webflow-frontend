@@ -5,7 +5,9 @@ catch (e) { }
 // Comment out After testing;
 loadFile("select2.min.css",false);
 loadFile("select2.min.js",false);
+loadFile("styles/style.js",false);
 loadFile("checkout.js", false);
+
 var firebaseConfig = {
     apiKey: "AIzaSyDEjje1xnNR_5Ckx27w_8emPFUy5ppC0E8",
     authDomain: "preplaced-ui.firebaseapp.com",
@@ -59,7 +61,7 @@ var menuLoginButton = getElement('menuLoginButton');
 var navbarSelector = getElement("navbar-container");
 var loginModal = getElement("login-modal");
 var closeLoginModalIcon = getElement("close-login-modal");
-var checkoutModal = getElement("checkout-modal");
+var checkoutModal = getElement("checkout-new");
 var thankyouModal = getElement("thankyou-modal");
 var userName = getElement('Name');
 var phoneFormatter = getElement('phoneFormatter');
@@ -552,28 +554,28 @@ function addUserDetails(details, successCallback, errorCallback) {
     });
 }
 
-function checkCoupon(coupon, package_id, successCallback, errorCallback) {
-    triggerEvent('Coupon Applied', { 'coupon': coupon });
-    let url = apiBaseURL + `pricing/validate-coupon/${coupon}?package=${package_id}`;
-    getAPI(url, function (response) {
-        if (response.status === 200) {
-            var discount = response.data
-            successCallback(discount);
-        }
-        else {
-            errorCallback(false);
-        }
-    }, function (error) {
-        console.error("checkCoupon: ", error);
-        errorCallback(false)
-    })
-}
+// function checkCoupon(coupon, successCallback, errorCallback) {
+//     triggerEvent('Coupon Applied', { 'coupon': coupon });
+//     let url = apiBaseURL + `pricing/validate-coupon/v2/${coupon}`;
+//     getAPI(url, function (response) {
+//         if (response.status === 200) {
+//             var discount = response.data
+//             successCallback(discount);
+//         }
+//         else {
+//             errorCallback(false);
+//         }
+//     }, function (error) {
+//         console.error("checkCoupon: ", error);
+//         errorCallback(false)
+//     })
+// }
 
 function createOrder(packageDetails, successCallback, errorCallback) {
     triggerPurchaseInitiation(packageDetails);
     packageDetails["version"] = "default";
     packageDetails["package_type"] = packageMap[pkDetails.package_id];
-    let url = apiBaseURL + "user/create-order";
+    let url = apiBaseURL + "user/create-order/v2";
     postAPI(url, packageDetails, function (response) {
         if (response.status === 200) {
             successCallback(response.data);
@@ -1114,173 +1116,173 @@ input.addEventListener('keyup', reset);
 |                   CHECKOUT LOGIC                                  |
 |                                                                   |
 \*******************************************************************/
-let [
-    changeDomainSelector,
-    domainTitleSelector,
-    experienceTitleSelector,
-    packageTitleSelector,
-    couponSelector,
-    couponSubmitSelector,
-    couponSuccessSelector,
-    couponErrorSelector,
-    totalAmountTextSelector,
-    payNowButtonSelector,
-    userDetailsSelector,
-    nameDetailsSelector,
-    phoneDetailsSelector,
-    emailDetailsSelector,
-    payNowOverlay,
-    payNowWrapper,
-    packagePriceSelector,
-    discountPriceSelector,
-    totalPriceSelector,
-    orderOverlay,
-    orderErrorSelector,
-    orderLoader,
-    hideOverlay,
-    gstContainer,
-    gstLabel,
-    gstPriceDiv,
-    closeCheckout
-] = getElements([
-    'change-domain',
-    'domain-title',
-    'experience-title',
-    'package-title',
-    'coupon-field',
-    'coupon-submit',
-    'coupon-success',
-    'coupon-error',
-    'total-amount-text',
-    'pay-now-button',
-    'user-details-section',
-    'verified-user-name',
-    'verified-user-phone',
-    'verified-user-email',
-    'pay-now-overlay',
-    'pay-now-wrapper',
-    'package-price',
-    'coupon-discount-price',
-    'total-price',
-    'order-overlay',
-    'order-error',
-    'order-loader',
-    'hide-overlay',
-    'gst-addition-container',
-    'gst-label',
-    'gst-price',
-    'close-checkout'
-])
+// let [
+//     changeDomainSelector,
+//     domainTitleSelector,
+//     experienceTitleSelector,
+//     packageTitleSelector,
+//     couponSelector,
+//     couponSubmitSelector,
+//     couponSuccessSelector,
+//     couponErrorSelector,
+//     totalAmountTextSelector,
+//     payNowButtonSelector,
+//     userDetailsSelector,
+//     nameDetailsSelector,
+//     phoneDetailsSelector,
+//     emailDetailsSelector,
+//     payNowOverlay,
+//     payNowWrapper,
+//     packagePriceSelector,
+//     discountPriceSelector,
+//     totalPriceSelector,
+//     orderOverlay,
+//     orderErrorSelector,
+//     orderLoader,
+//     hideOverlay,
+//     gstContainer,
+//     gstLabel,
+//     gstPriceDiv,
+//     closeCheckout
+// ] = getElements([
+//     'change-domain',
+//     'domain-title',
+//     'experience-title',
+//     'package-title',
+//     'coupon-field',
+//     'coupon-submit',
+//     'coupon-success',
+//     'coupon-error',
+//     'total-amount-text',
+//     'pay-now-button',
+//     'user-details-section',
+//     'verified-user-name',
+//     'verified-user-phone',
+//     'verified-user-email',
+//     'pay-now-overlay',
+//     'pay-now-wrapper',
+//     'package-price',
+//     'coupon-discount-price',
+//     'total-price',
+//     'order-overlay',
+//     'order-error',
+//     'order-loader',
+//     'hide-overlay',
+//     'gst-addition-container',
+//     'gst-label',
+//     'gst-price',
+//     'close-checkout'
+// ])
 
-let pkDetails = JSON.parse(localStorage.getItem('packageDetails'));
+// let pkDetails = JSON.parse(localStorage.getItem('packageDetails'));
 
-let totalPrice = 0;
-let coupon = "";
-let gstAdded = (pkDetails && pkDetails.addGST) || false;
-let gstPrice = 0;
+// let totalPrice = 0;
+// let coupon = "";
+// let gstAdded = (pkDetails && pkDetails.addGST) || false;
+// let gstPrice = 0;
 
-function updateCheckoutValuesOnShown() {
-    pkDetails = JSON.parse(localStorage.getItem('packageDetails'));
-    totalPrice = 0;
-    coupon = "";
-    gstAdded = pkDetails.addGST || false;
-    gstPrice = 0;
-    updateUI();
-}
-
-
-function handlePaymentSectionUI() {
-    updatePaymentInfo();
-    packagePriceSelector.innerText = `${currencyMap[pkDetails.currency]} ${pkDetails.price}`;
-    discountPriceSelector.innerText = `${currencyMap[pkDetails.currency]} 0`;
-    hideElements([couponErrorSelector, couponSuccessSelector]);
-    if (gstAdded) {
-        if (pkDetails.currency !== "INR") {
-            gstLabel.innerText = "IGST (18%)";
-        }
-        // showElements([gstContainer]);
-    }
-    else {
-        hideElements([gstContainer]);
-    }
-    if (accessToken) {
-        showElements([payNowWrapper]);
-        hideElements([payNowOverlay]);
-    } else {
-        hideElements([payNowWrapper]);
-    }
-}
-
-function updatePaymentInfo(couponDiscount) {
-    let packagePrice = pkDetails.price;
-    let discount = couponDiscount || 0;
-    let discountedPrice = Math.ceil(discount * packagePrice).toFixed(2); // fixed to 2 decimal
-    let priceAfterDiscount = packagePrice - discountedPrice;
-    gstPrice = (gstAdded ? priceAfterDiscount * 0.18 : 0);
-    totalPrice = (priceAfterDiscount + gstPrice).toFixed(2);
-    pkDetails['totalPrice'] = totalPrice;
-    gstPriceDiv.innerText = `${currencyMap[pkDetails.currency]} ${gstPrice.toFixed(2)} `;
-    discountPriceSelector.innerText = `- ${currencyMap[pkDetails.currency]} ${discountedPrice}`
-    totalPriceSelector.innerText = `${currencyMap[pkDetails.currency]} ${totalPrice}`;
-    if (discount) {
-        couponSuccessSelector.innerText = `Coupon Applied! You are saving ${currencyMap[pkDetails.currency]} ${discountedPrice} `;
-    }
-}
-
-function updateUI() {
-    domainTitleSelector.innerText = pkDetails.domain;
-    packageTitleSelector.innerText = packageMap[pkDetails.package_id];
-    experienceTitleSelector.innerText = pkDetails.experience !== "Fresher" ? pkDetails.experience + " Experience" : "Fresher";
-    // handleUserDetailsUI();
-    handlePaymentSectionUI();
-}
+// function updateCheckoutValuesOnShown() {
+//     pkDetails = JSON.parse(localStorage.getItem('packageDetails'));
+//     totalPrice = 0;
+//     coupon = "";
+//     gstAdded = pkDetails.addGST || false;
+//     gstPrice = 0;
+//     updateUI();
+// }
 
 
+// function handlePaymentSectionUI() {
+//     updatePaymentInfo();
+//     packagePriceSelector.innerText = `${currencyMap[pkDetails.currency]} ${pkDetails.price}`;
+//     discountPriceSelector.innerText = `${currencyMap[pkDetails.currency]} 0`;
+//     hideElements([couponErrorSelector, couponSuccessSelector]);
+//     if (gstAdded) {
+//         if (pkDetails.currency !== "INR") {
+//             gstLabel.innerText = "IGST (18%)";
+//         }
+//         // showElements([gstContainer]);
+//     }
+//     else {
+//         hideElements([gstContainer]);
+//     }
+//     if (accessToken) {
+//         showElements([payNowWrapper]);
+//         hideElements([payNowOverlay]);
+//     } else {
+//         hideElements([payNowWrapper]);
+//     }
+// }
 
-function onCouponApplied(discount) {
-    updatePaymentInfo(discount);
-    showElements([couponSuccessSelector]);
-    couponSubmitSelector.innerText = "Redeem";
-}
+// function updatePaymentInfo(couponDiscount) {
+//     let packagePrice = pkDetails.price;
+//     let discount = couponDiscount || 0;
+//     let discountedPrice = Math.ceil(discount * packagePrice).toFixed(2); // fixed to 2 decimal
+//     let priceAfterDiscount = packagePrice - discountedPrice;
+//     gstPrice = (gstAdded ? priceAfterDiscount * 0.18 : 0);
+//     totalPrice = (priceAfterDiscount + gstPrice).toFixed(2);
+//     pkDetails['totalPrice'] = totalPrice;
+//     gstPriceDiv.innerText = `${currencyMap[pkDetails.currency]} ${gstPrice.toFixed(2)} `;
+//     discountPriceSelector.innerText = `- ${currencyMap[pkDetails.currency]} ${discountedPrice}`
+//     totalPriceSelector.innerText = `${currencyMap[pkDetails.currency]} ${totalPrice}`;
+//     if (discount) {
+//         couponSuccessSelector.innerText = `Coupon Applied! You are saving ${currencyMap[pkDetails.currency]} ${discountedPrice} `;
+//     }
+// }
 
-function onInvalidCoupon() {
-    showElements([couponErrorSelector]);
-    couponSubmitSelector.innerText = "Redeem";
-    updatePaymentInfo();
-    coupon = "";
-    // discountPriceSelector.innerText=`${currencyMap[pkDetails.currency]} 0`;
-    // totalPriceSelector.innerText=`${currencyMap[pkDetails.currency]} ${totalPrice}`;
-}
+// function updateUI() {
+//     domainTitleSelector.innerText = pkDetails.domain;
+//     packageTitleSelector.innerText = packageMap[pkDetails.package_id];
+//     experienceTitleSelector.innerText = pkDetails.experience !== "Fresher" ? pkDetails.experience + " Experience" : "Fresher";
+//     // handleUserDetailsUI();
+//     handlePaymentSectionUI();
+// }
 
-changeDomainSelector.addEventListener('click', function (e) {
-    e.preventDefault();
-    // redirect("/"+pkDetails.package_id);
-    closeCheckoutModal();
-    if (callAfterCheckout) {
-        afterCheckoutClosedMethod && afterCheckoutClosedMethod();
-    }
 
-})
 
-closeCheckout.addEventListener('click', function (e) {
-    e.preventDefault();
-    // redirect("/"+pkDetails.package_id);
-    closeCheckoutModal();
-})
+// function onCouponApplied(discount) {
+//     updatePaymentInfo(discount);
+//     showElements([couponSuccessSelector]);
+//     couponSubmitSelector.innerText = "Redeem";
+// }
 
-couponSubmitSelector.addEventListener('click', function (e) {
-    e.preventDefault();
-    couponSubmitSelector.innerText = "Checking";
-    hideElements([couponErrorSelector, couponSuccessSelector]);
-    coupon = couponSelector.value.toUpperCase().trim();
-    if (coupon) {
-        checkCoupon(coupon, pkDetails.package_id, onCouponApplied, onInvalidCoupon);
-    }
-    else {
-        couponSubmitSelector.innerText = "Redeem";
-        updatePaymentInfo();
-    }
-});
+// function onInvalidCoupon() {
+//     showElements([couponErrorSelector]);
+//     couponSubmitSelector.innerText = "Redeem";
+//     updatePaymentInfo();
+//     coupon = "";
+//     // discountPriceSelector.innerText=`${currencyMap[pkDetails.currency]} 0`;
+//     // totalPriceSelector.innerText=`${currencyMap[pkDetails.currency]} ${totalPrice}`;
+// }
+
+// changeDomainSelector.addEventListener('click', function (e) {
+//     e.preventDefault();
+//     // redirect("/"+pkDetails.package_id);
+//     closeCheckoutModal();
+//     if (callAfterCheckout) {
+//         afterCheckoutClosedMethod && afterCheckoutClosedMethod();
+//     }
+
+// })
+
+// closeCheckout.addEventListener('click', function (e) {
+//     e.preventDefault();
+//     // redirect("/"+pkDetails.package_id);
+//     closeCheckoutModal();
+// })
+
+// couponSubmitSelector.addEventListener('click', function (e) {
+//     e.preventDefault();
+//     couponSubmitSelector.innerText = "Checking";
+//     hideElements([couponErrorSelector, couponSuccessSelector]);
+//     coupon = couponSelector.value.toUpperCase().trim();
+//     if (coupon) {
+//         checkCoupon(coupon, pkDetails.package_id, onCouponApplied, onInvalidCoupon);
+//     }
+//     else {
+//         couponSubmitSelector.innerText = "Redeem";
+//         updatePaymentInfo();
+//     }
+// });
 
 function onPaymentFailure(place) {
     console.error("Payment failed at", place);
@@ -1288,85 +1290,85 @@ function onPaymentFailure(place) {
     showElements([orderOverlay, orderErrorSelector]);
 }
 
-hideOverlay.addEventListener('click', function (e) {
-    hideElements([orderOverlay, orderErrorSelector]);
-});
+// hideOverlay.addEventListener('click', function (e) {
+//     hideElements([orderOverlay, orderErrorSelector]);
+// });
 
-payNowButtonSelector.addEventListener('click', function (e) {
-    e.preventDefault();
-    hideElements([orderErrorSelector]);
-    showElements([orderOverlay, orderLoader]);
-    if (verifiedUser && verifiedUser.phoneNumber && verifiedUser.displayName && verifiedUser.email) {
-        function onPaymentComplete(response) {
-            hideElements([orderErrorSelector]);
-            showElements([orderOverlay, orderLoader]);
-            pkDetails['totalPrice'] = totalPrice;
-            pkDetails['order_id'] = response.razorpay_order_id;
-            triggerPurchase(pkDetails);
-            function goToThankYouPage() {
-                // redirect('/thankyou');   
-                hideElements([orderOverlay, orderLoader, checkoutModal]);
-                showElements([thankyouModal], "flex");
-                var redirectingText = getElement('redirecting-text');
-                let count = 10;
-                let initialText = redirectingText.innerText;
-                redirectingText.innerText = initialText + ' ' + count-- + ' secs'
-                setInterval(() => {
-                    redirectingText.innerText = initialText + ' ' + count + (count > 1 ? ' secs' : ' sec');
-                    count--;
-                    if (count === 0) {
-                        redirect('/dashboard', true);
-                    }
-                }, 1000);
-            }
-            updateOrder({
-                "order_id": response.razorpay_order_id,
-                "payment_id": response.razorpay_payment_id || "",
-                "signature": response.razorpay_signature || ""
-            }, goToThankYouPage, function () { onPaymentFailure("update-order") });
-        }
-        function onOrderCreated(responseData) {
-            let order = responseData.razorpay_order_object;
-            if (!!order) {
-                var options = {
-                    "key": responseData.key || "rzp_test_sPcDgJ2yGLxdzT", // Enter the Key ID generated from the Dashboard
-                    "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-                    "currency": order.currency,
-                    "name": "Preplaced Education Pvt. Ltd",
-                    "description": packageMap[pkDetails.package_id],
-                    "order_id": order.id,
-                    "handler": function (response) {
-                        onPaymentComplete(response);
-                    },
-                    "prefill": {
-                        "name": verifiedUser.displayName,
-                        "email": verifiedUser.email,
-                        "contact": verifiedUser.phoneNumber
-                    },
-                    "notes": {
-                        "Package": `${packageMap[pkDetails.package_id]}`,
-                        "Domain": responseData.Domain
-                    }
-                };
-                var rzp1 = new Razorpay(options);
-                rzp1.on('payment.failed', function (response) {
-                    onPaymentFailure("razorpay");
-                    console.error("razorpay_error:", response.error);
-                });
-                hideElements([orderOverlay, orderErrorSelector]);
-                rzp1.open();
-            }
-            else {
-                onPaymentComplete({
-                    'razorpay_order_id': `${responseData.orderId}`
-                })
-            }
-        }
+// payNowButtonSelector.addEventListener('click', function (e) {
+//     e.preventDefault();
+//     hideElements([orderErrorSelector]);
+//     showElements([orderOverlay, orderLoader]);
+//     if (verifiedUser && verifiedUser.phoneNumber && verifiedUser.displayName && verifiedUser.email) {
+//         function onPaymentComplete(response) {
+//             hideElements([orderErrorSelector]);
+//             showElements([orderOverlay, orderLoader]);
+//             pkDetails['totalPrice'] = totalPrice;
+//             pkDetails['order_id'] = response.razorpay_order_id;
+//             triggerPurchase(pkDetails);
+//             function goToThankYouPage() {
+//                 // redirect('/thankyou');   
+//                 hideElements([orderOverlay, orderLoader, checkoutModal]);
+//                 showElements([thankyouModal], "flex");
+//                 var redirectingText = getElement('redirecting-text');
+//                 let count = 10;
+//                 let initialText = redirectingText.innerText;
+//                 redirectingText.innerText = initialText + ' ' + count-- + ' secs'
+//                 setInterval(() => {
+//                     redirectingText.innerText = initialText + ' ' + count + (count > 1 ? ' secs' : ' sec');
+//                     count--;
+//                     if (count === 0) {
+//                         redirect('/dashboard', true);
+//                     }
+//                 }, 1000);
+//             }
+//             updateOrder({
+//                 "order_id": response.razorpay_order_id,
+//                 "payment_id": response.razorpay_payment_id || "",
+//                 "signature": response.razorpay_signature || ""
+//             }, goToThankYouPage, function () { onPaymentFailure("update-order") });
+//         }
+//         function onOrderCreated(responseData) {
+//             let order = responseData.razorpay_order_object;
+//             if (!!order) {
+//                 var options = {
+//                     "key": responseData.key || "rzp_test_sPcDgJ2yGLxdzT", // Enter the Key ID generated from the Dashboard
+//                     "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+//                     "currency": order.currency,
+//                     "name": "Preplaced Education Pvt. Ltd",
+//                     "description": packageMap[pkDetails.package_id],
+//                     "order_id": order.id,
+//                     "handler": function (response) {
+//                         onPaymentComplete(response);
+//                     },
+//                     "prefill": {
+//                         "name": verifiedUser.displayName,
+//                         "email": verifiedUser.email,
+//                         "contact": verifiedUser.phoneNumber
+//                     },
+//                     "notes": {
+//                         "Package": `${packageMap[pkDetails.package_id]}`,
+//                         "Domain": responseData.Domain
+//                     }
+//                 };
+//                 var rzp1 = new Razorpay(options);
+//                 rzp1.on('payment.failed', function (response) {
+//                     onPaymentFailure("razorpay");
+//                     console.error("razorpay_error:", response.error);
+//                 });
+//                 hideElements([orderOverlay, orderErrorSelector]);
+//                 rzp1.open();
+//             }
+//             else {
+//                 onPaymentComplete({
+//                     'razorpay_order_id': `${responseData.orderId}`
+//                 })
+//             }
+//         }
 
-        pkDetails["coupon"] = coupon;
-        createOrder(pkDetails, onOrderCreated, function () { onPaymentFailure("create-order") });
-    }
-});
+//         pkDetails["coupon"] = coupon;
+//         createOrder(pkDetails, onOrderCreated, function () { onPaymentFailure("create-order") });
+//     }
+// });
 
 ///////////////////////////////////////////////////////////////
 
@@ -1433,11 +1435,6 @@ if (loginLink01) {
     }
 }
 
-closeLoginModalIcon.onclick = function (event) {
-    event.preventDefault();
-    event.stopPropagation();
-    closeLoginModal();
-}
 
 
 if (footerLogin) {
