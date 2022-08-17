@@ -69,7 +69,7 @@ let [
   "gst-label",
   "gst-price",
   "close-checkout-new",
-  "Specific-Instructions-2",
+  "specific-instructions-new",
 ]);
 let targetRoleSelector = getElement("target-role-new");
 let targetCompaniesSelector = getElement("company-selector-new");
@@ -89,7 +89,7 @@ let experienceList = [
   "4-6 years",
   "7-10 years",
   "10-15 years",
-  "15+ years",
+  "15+ years"
 ];
 let country = "India";
 let locationUpdated = false;
@@ -100,7 +100,7 @@ let currentPrice = "7999";
 let currentPackageId = "Interview Preparation Program";
 var currentRole = "0-3 years";
 var currentDomain = "backend_developer";
-var currentUpcomingInterviewSchedule = "";
+var currentUpcomingInterviewSchedule = "No";
 var currentMentorExperience = "";
 var currenTargetCompanies = [];
 var currentMentorInstruction = "";
@@ -134,13 +134,14 @@ let addGST = false;
 /*                              Select2 Register                              */
 /* -------------------------------------------------------------------------- */
 targetCompaniesSelector.setAttribute("multiple", "multiple");
-$targetCompaniesSelector = $("#company-selector-new").select2({
-  width: "100%",
-  placeholder: "Your Target Company",
-  tags: true,
-  matcher: matchMaker,
-  minimumInputLength: 3,
-});
+  $targetCompaniesSelector = $("#company-selector-new").select2({width: "100%",
+    placeholder: "Your Target Company",
+    tags: true,
+    matcher: matchMaker,
+    minimumInputLength: 3,
+  });
+
+  
 
 const explainers = {
   "ipp-explainer": [
@@ -354,6 +355,7 @@ function commonSaveInfoToLocalStorage(package_id) {
     package_type:currentCountOrDuration,
     target_companies: currenTargetCompanies,
     mentor_instructions: currentMentorInstruction,
+    version:"default"
   };
   localStorage.setItem("packageDetails", JSON.stringify(packageDetails));
 }
@@ -435,7 +437,7 @@ function setCurrentPrice() {
       currentPrice = currentPackageDetail.pricing[i].inr_pricing;
       break;
     } else if (
-      currentCurrency === "USD" &&
+      currentCurrency !== "INR" &&
       currentPackageDetail.pricing[i].experience_level ===
         currentMentorExperience
     ) {
@@ -523,13 +525,24 @@ function bubbleButtonClicks(){
   })
 }
 
+function openCheckoutModal(package_id,modalText){
+  currentPackageId = package_id;
+  if(bubbleButtonsFlag){
+    createBubbleButtons();
+    bubbleButtonsFlag = false;
+  }
+  bubbleButtonClicks();
+  commonUpdatePricing();
+  commonPaymentCheckout(currentPackageId, modalText);
+}
+
 paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
   paymentCheckoutSelector.addEventListener("click", function (event) {
     // currentPackageId = paymentCheckoutSelector.getAttribute("package-id");
-    currentPackageId = "Interview Preparation Program";
+    let package_id = "Interview Preparation Program";
     currentMentorExperience =
       paymentCheckoutSelector.getAttribute("mentor-experience");
-    currentCountOrDuration = "2 months";
+    // currentCountOrDuration = "2 months";
     let role = paymentCheckoutSelector.getAttribute("role");
     let domain = paymentCheckoutSelector.getAttribute("domain");
     let loginTextSelector = paymentCheckoutSelector.getAttribute("login-text");
@@ -545,17 +558,18 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
       package_id: currentPackageId,
       mentor_experience: currentMentorExperience,
     };
-    if(bubbleButtonsFlag){
-      createBubbleButtons();
-      bubbleButtonsFlag = false;
-    }
-    bubbleButtonClicks();
+    openCheckoutModal(package_id,modalText);
+    // if(bubbleButtonsFlag){
+    //   createBubbleButtons();
+    //   bubbleButtonsFlag = false;
+    // }
+    // bubbleButtonClicks();
     // setSelectedValue(selectList,currentPackageId);
     // setSelectedValue(targetRoleSelector, role);
     // setSelectedValue(domainSelector, domain);
     // setSelectedValue(mentorExperienceSelector, currentMentorExperience);
-    commonUpdatePricing();
-    commonPaymentCheckout(currentPackageId, modalText);
+    // commonUpdatePricing();
+    // commonPaymentCheckout(currentPackageId, modalText);
   });
 });
 
@@ -585,12 +599,18 @@ function commonSetGSTFlag(gstEnabled) {
 }
 
 function commonGetPricingData() {
-
   getAllPricing(function (response) {
     pricing = response;
     commonUpdatePricing();
     currentCurrency = country === "India" ? "INR" : "USD";
+    // currentCurrency = "USD"; // to change currency manually for testing.
     commonSetGSTFlag(false);
+
+    let params = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+    let package_id = "Interview Preparation Program";
+    if(params.checkout && pricing){
+      openCheckoutModal(package_id);
+    }
   })
 
 }
@@ -631,7 +651,6 @@ function checkCoupon(coupon, successCallback, errorCallback) {
   })
 }
 
-
 couponSubmitSelector.addEventListener("click", function (e) {
   e.preventDefault();
   couponSubmitSelector.innerText = "Checking";
@@ -639,7 +658,7 @@ couponSubmitSelector.addEventListener("click", function (e) {
   coupon = couponSelector.value.toUpperCase().trim();
   if (coupon) {
     checkCoupon(coupon, onCouponApplied, onInvalidCoupon);
-  } else {
+  }else{
     couponSubmitSelector.innerText = "Redeem";
     updatePaymentInfo();
   }
@@ -648,14 +667,17 @@ couponSubmitSelector.addEventListener("click", function (e) {
 /* -------------------------------------------------------------------------- */
 /*                             Pay - Now - Button                             */
 /* -------------------------------------------------------------------------- */
-payNowButtonSelector.addEventListener("click", function (e) {
+function payNowButtonLoader() {
   var text = payNowButtonSelector.firstChild.firstChild;
   var loader = payNowButtonSelector.lastElementChild;
   var arrow = loader.previousElementSibling;
   text.innerText = "Loading...";
   arrow.style.display = "none";
   loader.style.display = "block";
+}
+payNowButtonSelector.addEventListener("click", function (e) {
   e.preventDefault();
+  payNowButtonLoader();
   hideElements([orderErrorSelector]);
   showElements([orderOverlay, orderLoader]);
   if (
@@ -736,6 +758,9 @@ payNowButtonSelector.addEventListener("click", function (e) {
       }
     }
     pkDetails["coupon"] = coupon;
+    pkDetails["target_companies"] = $targetCompaniesSelector.val();
+    pkDetails["mentor_instructions"] = mentorInstructionSelector.value;
+    pkDetails["upcoming_interview"] = currentUpcomingInterviewSchedule;
     createOrder(pkDetails, onOrderCreated, function () {
       onPaymentFailure("create-order");
     });
@@ -744,48 +769,7 @@ payNowButtonSelector.addEventListener("click", function (e) {
 
 //put all these stuff onclick of paymentcheckout button
 document.addEventListener("DOMContentLoaded", (event) => {
-  // $targetCompaniesSelector = $("#company-selector-new").select2({
-  //   width: "100%",
-  //   placeholder: "Your Target Company",
-  //   tags: true,
-  //   matcher: matchMaker,
-  // });
-  // let paymentCheckoutSelector = document.getElementById("hi");
-  // currentPackageId = paymentCheckoutSelector.getAttribute("package-id") || "interview-preparation-bundle-trial";
-  // currentRole = paymentCheckoutSelector.getAttribute("role") || "ten_plus";
-  // currentDomain = paymentCheckoutSelector.getAttribute("domain") || "backend_developer";
-  // currentUpcomingInterviewSchedule = paymentCheckoutSelector.getAttribute("upcoming-interview-schedule") || "Yes";
-  // currentMentorExperience = paymentCheckoutSelector.getAttribute("mentor-experience") || "ten_plus";
-  // // currenTargetCompanies = ["amazon"];
-  // currentMentorInstruction = "Please join before the meeting"
-  // currentPackageId = "interview-preparation-bundle-trial";
-  // currentRole = "";
-  // currentDomain = "";
-  // currentUpcomingInterviewSchedule = "";
-  // currentMentorExperience = "";
-  // currenTargetCompanies = ["amazon"];
-  // currentMentorInstruction = ""
-  //modal text changes
-  // let loginTextSelector = paymentCheckoutSelector.getAttribute("login-text");
-  // let loginSubtextSelector = paymentCheckoutSelector.getAttribute("login-subtext");
-  // let modalText = {
-  //   loginTextSelector: "login text",
-  //   loginSubtextSelector: "login sub text"
-  // };
-  //selector value giving
-  // targetRoleSelector.value = currentRole;
-  // domainSelector.value = currentDomain;
-  // upcomingInterviewSelector = currentUpcomingInterviewSchedule;
-  // mentorExperienceSelector.value = currentMentorExperience;
-  // // setSelectedValue(selectList,currentPackageId);
-  // setSelectedValue(targetRoleSelector, role);
-  // setSelectedValue(domainSelector, domain);
-  // setSelectedValue(mentorExperienceSelector, currentMentorExperience);
-  // currentPackageId = "interview-preparation-program-trial";
-  // setTimeout(()=>{
-  //     commonUpdatePricing();
-  //     commonPaymentCheckout(currentPackageId, modalText);
-  // },2000)
+
 });
 
 upcomingInterviewSelectors.forEach((upcomingInterviewSelector) => {

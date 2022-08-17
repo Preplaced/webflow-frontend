@@ -2,9 +2,6 @@ try {
     document.domain = 'preplaced.in';
 }
 catch (e) { }
-// Comment out After testing;
-loadFile("select2.min.css",false);
-loadFile("select2.min.js",false);
 loadFile("styles/style.js",false);
 loadFile("checkout.js", false);
 
@@ -168,16 +165,16 @@ function triggerEvent(eventName, params) {
 }
 
 function triggerPurchase(packageDetails) {
-    packageDetails['item_name'] = packageMap[packageDetails.package_id];
-    packageDetails['item_id'] = packageDetails.package_id;
+    packageDetails['item_name'] = packageDetails.package;
+    packageDetails['item_id'] = packageDetails.package;
     let eventParams = {
         'coupon': packageDetails.coupon,
         'currency': packageDetails.currency,
         'transaction_id': packageDetails.order_id,
         'value': packageDetails.totalPrice,
         'items': packageDetails,
-        'item_name': packageMap[packageDetails.package_id],
-        'item_id': packageDetails.package_id,
+        'item_name': packageDetails.package,
+        'item_id': packageDetails.package,
         'experience': packageDetails.experience,
         'domain': packageDetails.domain,
         'designation': packageDetails.designation,
@@ -188,15 +185,15 @@ function triggerPurchase(packageDetails) {
 }
 
 function triggerPurchaseInitiation(packageDetails) {
-    packageDetails['item_name'] = packageMap[packageDetails.package_id];
-    packageDetails['item_id'] = packageDetails.package_id;
+    packageDetails['item_name'] = packageDetails.package;
+    packageDetails['item_id'] = packageDetails.package;
     let eventParams = {
         'coupon': packageDetails.coupon,
         'currency': packageDetails.currency,
         'value': packageDetails.totalPrice,
         'items': packageDetails,
-        'item_name': packageMap[packageDetails.package_id],
-        'item_id': packageDetails.package_id,
+        'item_name': packageDetails.package,
+        'item_id': packageDetails.package,
         'experience': packageDetails.experience,
         'domain': packageDetails.domain,
         'designation': packageDetails.designation,
@@ -228,14 +225,14 @@ function logAPIError(params) {
     let { api, error, data } = params;
     let errorCode = error.response ? error.response.status : "";
     let errorText = error.response ? error.response.statusText : "";
-    _LTracker.push({
-        requestData: data,
-        api: api,
-        error: error,
-        errorCode: errorCode,
-        errorText: errorText,
-        user: verifiedUser ? verifiedUser.displayName : "notSignedIn",
-    })
+    // _LTracker.push({
+    //     requestData: data,
+    //     api: api,
+    //     error: error,
+    //     errorCode: errorCode,
+    //     errorText: errorText,
+    //     user: verifiedUser ? verifiedUser.displayName : "notSignedIn",
+    // })
 }
 
 function getAPI(url, successCallback, errorCallback) {
@@ -473,7 +470,7 @@ function getAllCompanies(callback) {
             callback(response.data);
         }
     }, function (error) {
-        console.error("error getting company list");
+        console.error("error getting company list",error);
     });
 }
 
@@ -574,7 +571,7 @@ function addUserDetails(details, successCallback, errorCallback) {
 function createOrder(packageDetails, successCallback, errorCallback) {
     triggerPurchaseInitiation(packageDetails);
     packageDetails["version"] = "default";
-    packageDetails["package_type"] = packageMap[pkDetails.package_id];
+    packageDetails["package_type"] = currentCountOrDuration;
     let url = apiBaseURL + "user/create-order/v2";
     postAPI(url, packageDetails, function (response) {
         if (response.status === 200) {
