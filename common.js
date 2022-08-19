@@ -153,6 +153,7 @@ function triggerEvent(eventName, params) {
         delete fbParams.items;
         fbParams["value"] = fbParams.totalPrice || fbParams.price;
     }
+    Sentry.captureException("eventName  fbParams ", eventName, fbParams)
     if (analytics) {
         analytics.track(eventName, fbParams);
     }
