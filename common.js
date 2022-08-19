@@ -155,7 +155,7 @@ function triggerEvent(eventName, params) {
     }
     if (eventName === 'Payment Completed' || eventName === 'Payment Started') {
         let fbParamsString = JSON.stringify(fbParams)
-        Sentry.captureException(`${verifiedUser.displayName} ${eventName}  ${fbParams}`, verifiedUser.displayName, eventName, fbParamsString)
+        Sentry.captureException(`${verifiedUser.displayName} ${eventName}  ${fbParamsString}`, verifiedUser.displayName, eventName, fbParamsString)
     }
     if (analytics) {
         analytics.track(eventName, fbParams);
