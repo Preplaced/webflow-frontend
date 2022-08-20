@@ -75,15 +75,6 @@ var afterCheckoutClosedMethod = function () {
 var isMobile = window.innerWidth <= 425;
 var menuLogin = document.getElementsByClassName("login-button");
 
-// try {
-//     if(Intercom && isMobile){
-//         Intercom('update', {
-//             "hide_default_launcher": true
-//         });
-//     }
-// } catch (error) {
-//     console.log(error);
-// }
 
 // To check if a user is on mobile device or not
 let details = navigator.userAgent;
@@ -93,36 +84,6 @@ let isMobileDevice = regexp.test(details);
 // Wait for Intercom to boot (max 30 seconds)
 // const timeout = setTimeout(() => clearInterval(interval), 30000);
 
-// const interval = setInterval(() => {
-//   if (window.Intercom.booted) {
-//     // Intercom is booted!
-//     try {
-//         if(isMobileDevice){
-//             Intercom('update', {
-//                 "hide_default_launcher": true
-//             });
-//         }
-//     } catch (error) {
-//         console.log(error);
-//     }
-//     clearInterval(interval);
-//     clearTimeout(timeout);
-//   }
-// }, 100);
-
-// timeout();
-
-// setTimeout(()=>{
-//     try {
-//         if(window.Intercom.booted && (isMobile || isMobileDevice)){
-//             Intercom('update', {
-//                 "hide_default_launcher": true
-//             });
-//         }
-//     } catch (error) {
-//         console.log(error);
-//     }
-// }, 6000)
 
 
 /*******************************************************************\
@@ -225,7 +186,7 @@ function logAPIError(params) {
     let { api, error, data } = params;
     let errorCode = error.response ? error.response.status : "";
     let errorText = error.response ? error.response.statusText : "";
-    // _LTracker.push({
+    // _LTracker.push({ 
     //     requestData: data,
     //     api: api,
     //     error: error,
@@ -250,6 +211,7 @@ function getAPI(url, successCallback, errorCallback) {
 }
 
 function postAPI(url, data, successCallback, errorCallback) {
+    console.log("data=====>",data);
     axios.post(url, data, getDefaultConfig())
         .then(function (response) {
             successCallback(response);
@@ -551,22 +513,6 @@ function addUserDetails(details, successCallback, errorCallback) {
     });
 }
 
-// function checkCoupon(coupon, successCallback, errorCallback) {
-//     triggerEvent('Coupon Applied', { 'coupon': coupon });
-//     let url = apiBaseURL + `pricing/validate-coupon/v2/${coupon}`;
-//     getAPI(url, function (response) {
-//         if (response.status === 200) {
-//             var discount = response.data
-//             successCallback(discount);
-//         }
-//         else {
-//             errorCallback(false);
-//         }
-//     }, function (error) {
-//         console.error("checkCoupon: ", error);
-//         errorCallback(false)
-//     })
-// }
 
 function createOrder(packageDetails, successCallback, errorCallback) {
     triggerPurchaseInitiation(packageDetails);
@@ -774,30 +720,6 @@ let lastScrollTop = 0;
 
 let isNavbarChangeNeeded = true;
 
-// function changeNavbarDisplay() {
-//     if (isNavbarChangeNeeded){
-//         let currentScrollTop = document.body.scrollTop || document.documentElement.scrollTop;
-//         if (currentScrollTop > lastScrollTop){ //scroll down
-//             navbarSelector.classList.remove("popNav");
-//         }
-//         else if (currentScrollTop < lastScrollTop - 50){ //scroll up
-//             if (currentScrollTop > 105) {
-//                 navbarSelector.classList.add("popNav");
-//             } else {
-//                 navbarSelector.classList.remove("popNav");
-//             }
-//         }
-//         lastScrollTop = currentScrollTop <= 0 ? 0 : currentScrollTop;
-//     }
-// }
-
-// if (navbarSelector){ 
-//     window.onscroll = function() {
-//         throttle(function(){
-//             changeNavbarDisplay();
-//         },200);
-//     }
-// }
 
 
 if (downloadEbookButton) {
@@ -1104,182 +1026,8 @@ input.addEventListener('blur', function () {
 
 input.addEventListener('change', reset);
 input.addEventListener('keyup', reset);
-/////////////////////////////////////////////////////////////////////
 
 
-
-/*******************************************************************\
-|                                                                   |
-|                   CHECKOUT LOGIC                                  |
-|                                                                   |
-\*******************************************************************/
-// let [
-//     changeDomainSelector,
-//     domainTitleSelector,
-//     experienceTitleSelector,
-//     packageTitleSelector,
-//     couponSelector,
-//     couponSubmitSelector,
-//     couponSuccessSelector,
-//     couponErrorSelector,
-//     totalAmountTextSelector,
-//     payNowButtonSelector,
-//     userDetailsSelector,
-//     nameDetailsSelector,
-//     phoneDetailsSelector,
-//     emailDetailsSelector,
-//     payNowOverlay,
-//     payNowWrapper,
-//     packagePriceSelector,
-//     discountPriceSelector,
-//     totalPriceSelector,
-//     orderOverlay,
-//     orderErrorSelector,
-//     orderLoader,
-//     hideOverlay,
-//     gstContainer,
-//     gstLabel,
-//     gstPriceDiv,
-//     closeCheckout
-// ] = getElements([
-//     'change-domain',
-//     'domain-title',
-//     'experience-title',
-//     'package-title',
-//     'coupon-field',
-//     'coupon-submit',
-//     'coupon-success',
-//     'coupon-error',
-//     'total-amount-text',
-//     'pay-now-button',
-//     'user-details-section',
-//     'verified-user-name',
-//     'verified-user-phone',
-//     'verified-user-email',
-//     'pay-now-overlay',
-//     'pay-now-wrapper',
-//     'package-price',
-//     'coupon-discount-price',
-//     'total-price',
-//     'order-overlay',
-//     'order-error',
-//     'order-loader',
-//     'hide-overlay',
-//     'gst-addition-container',
-//     'gst-label',
-//     'gst-price',
-//     'close-checkout'
-// ])
-
-// let pkDetails = JSON.parse(localStorage.getItem('packageDetails'));
-
-// let totalPrice = 0;
-// let coupon = "";
-// let gstAdded = (pkDetails && pkDetails.addGST) || false;
-// let gstPrice = 0;
-
-// function updateCheckoutValuesOnShown() {
-//     pkDetails = JSON.parse(localStorage.getItem('packageDetails'));
-//     totalPrice = 0;
-//     coupon = "";
-//     gstAdded = pkDetails.addGST || false;
-//     gstPrice = 0;
-//     updateUI();
-// }
-
-
-// function handlePaymentSectionUI() {
-//     updatePaymentInfo();
-//     packagePriceSelector.innerText = `${currencyMap[pkDetails.currency]} ${pkDetails.price}`;
-//     discountPriceSelector.innerText = `${currencyMap[pkDetails.currency]} 0`;
-//     hideElements([couponErrorSelector, couponSuccessSelector]);
-//     if (gstAdded) {
-//         if (pkDetails.currency !== "INR") {
-//             gstLabel.innerText = "IGST (18%)";
-//         }
-//         // showElements([gstContainer]);
-//     }
-//     else {
-//         hideElements([gstContainer]);
-//     }
-//     if (accessToken) {
-//         showElements([payNowWrapper]);
-//         hideElements([payNowOverlay]);
-//     } else {
-//         hideElements([payNowWrapper]);
-//     }
-// }
-
-// function updatePaymentInfo(couponDiscount) {
-//     let packagePrice = pkDetails.price;
-//     let discount = couponDiscount || 0;
-//     let discountedPrice = Math.ceil(discount * packagePrice).toFixed(2); // fixed to 2 decimal
-//     let priceAfterDiscount = packagePrice - discountedPrice;
-//     gstPrice = (gstAdded ? priceAfterDiscount * 0.18 : 0);
-//     totalPrice = (priceAfterDiscount + gstPrice).toFixed(2);
-//     pkDetails['totalPrice'] = totalPrice;
-//     gstPriceDiv.innerText = `${currencyMap[pkDetails.currency]} ${gstPrice.toFixed(2)} `;
-//     discountPriceSelector.innerText = `- ${currencyMap[pkDetails.currency]} ${discountedPrice}`
-//     totalPriceSelector.innerText = `${currencyMap[pkDetails.currency]} ${totalPrice}`;
-//     if (discount) {
-//         couponSuccessSelector.innerText = `Coupon Applied! You are saving ${currencyMap[pkDetails.currency]} ${discountedPrice} `;
-//     }
-// }
-
-// function updateUI() {
-//     domainTitleSelector.innerText = pkDetails.domain;
-//     packageTitleSelector.innerText = packageMap[pkDetails.package_id];
-//     experienceTitleSelector.innerText = pkDetails.experience !== "Fresher" ? pkDetails.experience + " Experience" : "Fresher";
-//     // handleUserDetailsUI();
-//     handlePaymentSectionUI();
-// }
-
-
-
-// function onCouponApplied(discount) {
-//     updatePaymentInfo(discount);
-//     showElements([couponSuccessSelector]);
-//     couponSubmitSelector.innerText = "Redeem";
-// }
-
-// function onInvalidCoupon() {
-//     showElements([couponErrorSelector]);
-//     couponSubmitSelector.innerText = "Redeem";
-//     updatePaymentInfo();
-//     coupon = "";
-//     // discountPriceSelector.innerText=`${currencyMap[pkDetails.currency]} 0`;
-//     // totalPriceSelector.innerText=`${currencyMap[pkDetails.currency]} ${totalPrice}`;
-// }
-
-// changeDomainSelector.addEventListener('click', function (e) {
-//     e.preventDefault();
-//     // redirect("/"+pkDetails.package_id);
-//     closeCheckoutModal();
-//     if (callAfterCheckout) {
-//         afterCheckoutClosedMethod && afterCheckoutClosedMethod();
-//     }
-
-// })
-
-// closeCheckout.addEventListener('click', function (e) {
-//     e.preventDefault();
-//     // redirect("/"+pkDetails.package_id);
-//     closeCheckoutModal();
-// })
-
-// couponSubmitSelector.addEventListener('click', function (e) {
-//     e.preventDefault();
-//     couponSubmitSelector.innerText = "Checking";
-//     hideElements([couponErrorSelector, couponSuccessSelector]);
-//     coupon = couponSelector.value.toUpperCase().trim();
-//     if (coupon) {
-//         checkCoupon(coupon, pkDetails.package_id, onCouponApplied, onInvalidCoupon);
-//     }
-//     else {
-//         couponSubmitSelector.innerText = "Redeem";
-//         updatePaymentInfo();
-//     }
-// });
 
 function onPaymentFailure(place) {
     console.error("Payment failed at", place);
@@ -1287,87 +1035,6 @@ function onPaymentFailure(place) {
     showElements([orderOverlay, orderErrorSelector]);
 }
 
-// hideOverlay.addEventListener('click', function (e) {
-//     hideElements([orderOverlay, orderErrorSelector]);
-// });
-
-// payNowButtonSelector.addEventListener('click', function (e) {
-//     e.preventDefault();
-//     hideElements([orderErrorSelector]);
-//     showElements([orderOverlay, orderLoader]);
-//     if (verifiedUser && verifiedUser.phoneNumber && verifiedUser.displayName && verifiedUser.email) {
-//         function onPaymentComplete(response) {
-//             hideElements([orderErrorSelector]);
-//             showElements([orderOverlay, orderLoader]);
-//             pkDetails['totalPrice'] = totalPrice;
-//             pkDetails['order_id'] = response.razorpay_order_id;
-//             triggerPurchase(pkDetails);
-//             function goToThankYouPage() {
-//                 // redirect('/thankyou');   
-//                 hideElements([orderOverlay, orderLoader, checkoutModal]);
-//                 showElements([thankyouModal], "flex");
-//                 var redirectingText = getElement('redirecting-text');
-//                 let count = 10;
-//                 let initialText = redirectingText.innerText;
-//                 redirectingText.innerText = initialText + ' ' + count-- + ' secs'
-//                 setInterval(() => {
-//                     redirectingText.innerText = initialText + ' ' + count + (count > 1 ? ' secs' : ' sec');
-//                     count--;
-//                     if (count === 0) {
-//                         redirect('/dashboard', true);
-//                     }
-//                 }, 1000);
-//             }
-//             updateOrder({
-//                 "order_id": response.razorpay_order_id,
-//                 "payment_id": response.razorpay_payment_id || "",
-//                 "signature": response.razorpay_signature || ""
-//             }, goToThankYouPage, function () { onPaymentFailure("update-order") });
-//         }
-//         function onOrderCreated(responseData) {
-//             let order = responseData.razorpay_order_object;
-//             if (!!order) {
-//                 var options = {
-//                     "key": responseData.key || "rzp_test_sPcDgJ2yGLxdzT", // Enter the Key ID generated from the Dashboard
-//                     "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-//                     "currency": order.currency,
-//                     "name": "Preplaced Education Pvt. Ltd",
-//                     "description": packageMap[pkDetails.package_id],
-//                     "order_id": order.id,
-//                     "handler": function (response) {
-//                         onPaymentComplete(response);
-//                     },
-//                     "prefill": {
-//                         "name": verifiedUser.displayName,
-//                         "email": verifiedUser.email,
-//                         "contact": verifiedUser.phoneNumber
-//                     },
-//                     "notes": {
-//                         "Package": `${packageMap[pkDetails.package_id]}`,
-//                         "Domain": responseData.Domain
-//                     }
-//                 };
-//                 var rzp1 = new Razorpay(options);
-//                 rzp1.on('payment.failed', function (response) {
-//                     onPaymentFailure("razorpay");
-//                     console.error("razorpay_error:", response.error);
-//                 });
-//                 hideElements([orderOverlay, orderErrorSelector]);
-//                 rzp1.open();
-//             }
-//             else {
-//                 onPaymentComplete({
-//                     'razorpay_order_id': `${responseData.orderId}`
-//                 })
-//             }
-//         }
-
-//         pkDetails["coupon"] = coupon;
-//         createOrder(pkDetails, onOrderCreated, function () { onPaymentFailure("create-order") });
-//     }
-// });
-
-///////////////////////////////////////////////////////////////
 
 function closeCheckoutModal() {
     hideElements([checkoutModal])
@@ -1383,23 +1050,6 @@ function closeLoginModal() {
     hideElements([loginModal]);
 }
 
-// if (menuLoginButton) {
-//     menuLoginButton.onclick = function (event) {
-//         event.preventDefault();
-//         event.stopPropagation();
-//         event.returnValue = false;
-//         showLoginModal();
-//     }
-// }
-
-// menuLogin.forEach((logBtn)=>{
-//     logBtn.onclick = function (event) {
-//         event.preventDefault();
-//         event.stopPropagation();
-//         event.returnValue = false;
-//         showLoginModal();
-//     }
-// })
 
 for(let i=0;i<menuLogin.length;i++){
     menuLogin[i].onclick = function (event) {

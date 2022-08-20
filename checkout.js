@@ -79,7 +79,9 @@ let mentorExperienceSelector = getElement("mentor-experience-new");
 let totalPriceSelector = document.querySelector("#checkout-new #total-price");
 var loginTextSelector = getElement("login-text");
 var loginSubtextSelector = getElement("login-subtext");
-var selectDurationOrCountSelector = document.getElementsByClassName("duration-count-selector-grid")[0];
+var selectDurationOrCountSelector = document.getElementsByClassName(
+  "duration-count-selector-grid"
+)[0];
 var bubbleButtonsSelectors;
 
 //variables
@@ -89,7 +91,7 @@ let experienceList = [
   "4-6 years",
   "7-10 years",
   "10-15 years",
-  "15+ years"
+  "15+ years",
 ];
 let country = "India";
 let locationUpdated = false;
@@ -134,29 +136,25 @@ let addGST = false;
 /*                              Select2 Register                              */
 /* -------------------------------------------------------------------------- */
 targetCompaniesSelector.setAttribute("multiple", "multiple");
-  $targetCompaniesSelector = $("#company-selector-new").select2({width: "100%",
-    placeholder: "Your Target Company",
-    tags: true,
-    matcher: matchMaker,
-    minimumInputLength: 3,
-  });
-
-  
+$targetCompaniesSelector = $("#company-selector-new").select2({
+  width: "100%",
+  placeholder: "Your Target Company",
+  tags: true,
+  matcher: matchMaker,
+  minimumInputLength: 3,
+});
 
 const explainers = {
-  "ipp-explainer": [
-    "interview-preparation-bundle",
-    "interview-preparation-bundle-trial",
-    "interview-preparation-program",
-    "interview-preparation-program-trial",
-    "interview-simulation-package",
+  "wwyg-trial" : [""],
+  "wwyg-ipp": [
+    "Interview Preparation Program"
   ],
-  "mi-explainer": ["mock-interview", "mock-interview-bundle"],
-  "cs-explainer": ["consulting-session", "consulting-session-trial"],
+  "wwyg-mi": ["Mock Interview"],
+  "wwyg-cs": ["Consulting Session"]
 };
 
 for (let explainer in explainers) {
-  if (explainers[explainer].includes(currentPackageId)) {
+  if (explainers[explainer].includes(`${currentPackageId}-${currentPackageDetail.name}`)) {
     getElement(explainer).style.display = "block";
     break;
   }
@@ -352,10 +350,10 @@ function commonSaveInfoToLocalStorage(package_id) {
     country: country,
     addGST: addGST,
     upcoming_interview: currentUpcomingInterviewSchedule,
-    package_type:currentCountOrDuration,
+    package_type: currentCountOrDuration,
     target_companies: currenTargetCompanies,
     mentor_instructions: currentMentorInstruction,
-    version:"default"
+    version: "default",
   };
   localStorage.setItem("packageDetails", JSON.stringify(packageDetails));
 }
@@ -387,7 +385,7 @@ function commonDisableLowerMentorDesignationOptions() {
   }
 }
 
-const creatBubbleButton = (name,discountText,preference_order) => `
+const creatBubbleButton = (name, discountText, preference_order) => `
 <label id="w-node-_60605411-097f-b674-15a6-b170c86ed9${preference_order}8-b4e2d655" class="duration-count-radio-field-parent w-radio">
   <h3 class="duration-count-text">${name}</h3>
   <input type="radio" name="Type-Options" id="${name}" value="${name}" data-name="Type Options" required="" class="w-form-formradioinput actual-radio-button w-radio-input">
@@ -395,15 +393,22 @@ const creatBubbleButton = (name,discountText,preference_order) => `
   <h3 class="save_text">${discountText}</h3>
 </label>`;
 
-function createBubbleButtons(){
+function createBubbleButtons() {
   for (let i = 0; i < pricing.length; i++) {
     if (pricing[i].name === currentPackageId) {
       for (let j = 0; j < pricing[i].type.length; j++) {
         let discountText = pricing[i].type[j].DiscountText;
         let name = pricing[i].type[j].name;
         let preference_order = pricing[i].type[j].preference_order;
-        let bubble_button = creatBubbleButton(name,discountText,preference_order);
-        selectDurationOrCountSelector.insertAdjacentHTML("beforeend",bubble_button);
+        let bubble_button = creatBubbleButton(
+          name,
+          discountText,
+          preference_order
+        );
+        selectDurationOrCountSelector.insertAdjacentHTML(
+          "beforeend",
+          bubble_button
+        );
       }
     }
   }
@@ -413,12 +418,14 @@ function setCurrentPrice() {
   for (let i = 0; i < pricing.length; i++) {
     if (pricing[i].name === currentPackageId) {
       currentPackageDetails = pricing[i];
-      for (let j = 0; j < pricing[i].type.length; j++) { 
+      for (let j = 0; j < pricing[i].type.length; j++) {
         if (pricing[i].type[j].name === currentCountOrDuration) {
           currentPackageDetail = pricing[i].type[j];
           break;
-        } 
-        else if (pricing[i].type[j].preference_order === 1 && !currentCountOrDuration) {
+        } else if (
+          pricing[i].type[j].preference_order === 1 &&
+          !currentCountOrDuration
+        ) {
           currentPackageDetail = pricing[i].type[j];
           currentCountOrDuration = pricing[i].type[j].name;
           break;
@@ -500,34 +507,34 @@ function setSelectedValue(selectObj, valueToSet) {
   return selectObj;
 }
 
-function bubbleButtonClicks(){
-  bubbleButtonsSelectors = document.querySelectorAll("[name=Type-Options]")
-  bubbleButtonsSelectors.forEach((bubbleButtonsSelector)=>{
-    if(bubbleButtonsSelector.value === currentCountOrDuration){
+function bubbleButtonClicks() {
+  bubbleButtonsSelectors = document.querySelectorAll("[name=Type-Options]");
+  bubbleButtonsSelectors.forEach((bubbleButtonsSelector) => {
+    if (bubbleButtonsSelector.value === currentCountOrDuration) {
       let currentlabel = bubbleButtonsSelector.parentElement;
       let currentspan = currentlabel.lastElementChild.previousElementSibling;
       currentspan.classList.add("bubble-button-border");
     }
-    bubbleButtonsSelector.addEventListener("click",function (event) {
+    bubbleButtonsSelector.addEventListener("click", function (event) {
       currentCountOrDuration = bubbleButtonsSelector.value;
       commonUpdatePricing();
       commonSaveInfoToLocalStorage(currentPackageId);
       updateCheckoutValuesOnShown();
-      bubbleButtonsSelectors.forEach((bubbleButtonsSelector2)=>{
+      bubbleButtonsSelectors.forEach((bubbleButtonsSelector2) => {
         let label = bubbleButtonsSelector2.parentElement;
         let span = label.lastElementChild.previousElementSibling;
         span.classList.remove("bubble-button-border");
-      })
+      });
       let currentlabel = bubbleButtonsSelector.parentElement;
       let currentspan = currentlabel.lastElementChild.previousElementSibling;
       currentspan.classList.toggle("bubble-button-border");
-    })
-  })
+    });
+  });
 }
 
-function openCheckoutModal(package_id,modalText){
+function openCheckoutModal(package_id, modalText) {
   currentPackageId = package_id;
-  if(bubbleButtonsFlag){
+  if (bubbleButtonsFlag) {
     createBubbleButtons();
     bubbleButtonsFlag = false;
   }
@@ -538,13 +545,13 @@ function openCheckoutModal(package_id,modalText){
 
 paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
   paymentCheckoutSelector.addEventListener("click", function (event) {
-    // currentPackageId = paymentCheckoutSelector.getAttribute("package-id");
-    let package_id = "Interview Preparation Program";
+    currentPackageId = paymentCheckoutSelector.getAttribute("package-id");
+    currentCountOrDuration = paymentCheckoutSelector.getAttribute("count-duration") || "1 session";
     currentMentorExperience =
       paymentCheckoutSelector.getAttribute("mentor-experience");
     // currentCountOrDuration = "2 months";
-    let role = paymentCheckoutSelector.getAttribute("role");
-    let domain = paymentCheckoutSelector.getAttribute("domain");
+    let currentRole = paymentCheckoutSelector.getAttribute("role");
+    let currentDomain = paymentCheckoutSelector.getAttribute("domain");
     let loginTextSelector = paymentCheckoutSelector.getAttribute("login-text");
     let loginSubtextSelector =
       paymentCheckoutSelector.getAttribute("login-subtext");
@@ -552,24 +559,24 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
       loginTextSelector,
       loginSubtextSelector,
     };
-    let analytics_gtag = {
-      role,
-      domain,
-      package_id: currentPackageId,
-      mentor_experience: currentMentorExperience,
-    };
-    openCheckoutModal(package_id,modalText);
-    // if(bubbleButtonsFlag){
-    //   createBubbleButtons();
-    //   bubbleButtonsFlag = false;
-    // }
-    // bubbleButtonClicks();
-    // setSelectedValue(selectList,currentPackageId);
-    // setSelectedValue(targetRoleSelector, role);
-    // setSelectedValue(domainSelector, domain);
-    // setSelectedValue(mentorExperienceSelector, currentMentorExperience);
-    // commonUpdatePricing();
-    // commonPaymentCheckout(currentPackageId, modalText);
+    // let analytics_gtag = {
+    //   role,
+    //   domain,
+    //   package_id: currentPackageId,
+    //   mentor_experience: currentMentorExperience,
+    // };
+
+    //explainer showcase on button click
+    
+    for (let explainer in explainers) {
+      if (explainers[explainer].includes(currentPackageId)) {
+        getElement(explainer).style.display = "block";
+      }else{
+        getElement(explainer).style.display = "none";
+      }
+    }
+    
+    openCheckoutModal(currentPackageId, modalText);
   });
 });
 
@@ -578,20 +585,18 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
 /* -------------------------------------------------------------------------- */
 
 function getAllPricing(callback) {
-  let url =
-    apiBaseURL +
-    "pricing/get-price/v2";
-    getAPI(
-      url,
-      function (response) {
-        if (response.status === 200) {
-          callback(response.data);
-        }
-      },
-      function (error) {
-        console.error("error getting Price", error);
+  let url = apiBaseURL + "pricing/get-price/v2";
+  getAPI(
+    url,
+    function (response) {
+      if (response.status === 200) {
+        callback(response.data);
       }
-    );
+    },
+    function (error) {
+      console.error("error getting Price", error);
+    }
+  );
 }
 
 function commonSetGSTFlag(gstEnabled) {
@@ -606,13 +611,14 @@ function commonGetPricingData() {
     // currentCurrency = "USD"; // to change currency manually for testing.
     commonSetGSTFlag(false);
 
-    let params = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+    let params = Object.fromEntries(
+      new URLSearchParams(window.location.search).entries()
+    );
     let package_id = "Interview Preparation Program";
-    if(params.checkout && pricing){
+    if (params.checkout && pricing) {
       openCheckoutModal(package_id);
     }
-  })
-
+  });
 }
 
 /* -------------------------------------------------------------------------- */
@@ -635,20 +641,23 @@ function onInvalidCoupon() {
 }
 
 function checkCoupon(coupon, successCallback, errorCallback) {
-  triggerEvent('Coupon Applied', { 'coupon': coupon });
+  triggerEvent("Coupon Applied", { coupon: coupon });
   let url = apiBaseURL + `pricing/validate-coupon/v2/${coupon}`;
-  getAPI(url, function (response) {
+  getAPI(
+    url,
+    function (response) {
       if (response.status === 200) {
-          var discount = response.data
-          successCallback(discount);
+        var discount = response.data;
+        successCallback(discount);
+      } else {
+        errorCallback(false);
       }
-      else {
-          errorCallback(false);
-      }
-  }, function (error) {
+    },
+    function (error) {
       console.error("checkCoupon: ", error);
-      errorCallback(false)
-  })
+      errorCallback(false);
+    }
+  );
 }
 
 couponSubmitSelector.addEventListener("click", function (e) {
@@ -658,7 +667,7 @@ couponSubmitSelector.addEventListener("click", function (e) {
   coupon = couponSelector.value.toUpperCase().trim();
   if (coupon) {
     checkCoupon(coupon, onCouponApplied, onInvalidCoupon);
-  }else{
+  } else {
     couponSubmitSelector.innerText = "Redeem";
     updatePaymentInfo();
   }
@@ -678,6 +687,7 @@ function payNowButtonLoader() {
 payNowButtonSelector.addEventListener("click", function (e) {
   e.preventDefault();
   payNowButtonLoader();
+  console.log(" pkDetails in createOrder ", pkDetails);
   hideElements([orderErrorSelector]);
   showElements([orderOverlay, orderLoader]);
   if (
@@ -758,7 +768,7 @@ payNowButtonSelector.addEventListener("click", function (e) {
       }
     }
     pkDetails["coupon"] = coupon;
-    pkDetails["target_companies"] = $targetCompaniesSelector.val();
+    pkDetails["target_companies"] = $targetCompaniesSelector.val().join(",");
     pkDetails["mentor_instructions"] = mentorInstructionSelector.value;
     pkDetails["upcoming_interview"] = currentUpcomingInterviewSchedule;
     createOrder(pkDetails, onOrderCreated, function () {
@@ -768,15 +778,12 @@ payNowButtonSelector.addEventListener("click", function (e) {
 });
 
 //put all these stuff onclick of paymentcheckout button
-document.addEventListener("DOMContentLoaded", (event) => {
-
-});
+document.addEventListener("DOMContentLoaded", (event) => {});
 
 upcomingInterviewSelectors.forEach((upcomingInterviewSelector) => {
   upcomingInterviewSelector.addEventListener("click", (event) => {
     currentUpcomingInterviewSchedule =
       upcomingInterviewSelector.getAttribute("value");
-    
   });
 });
 
