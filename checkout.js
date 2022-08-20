@@ -158,10 +158,10 @@ const explainers = {
     "Mock Interview - 10 sessions"
   ],
   "wwyg-cs": [
-    "Consulting Session -  1 session",
-    "Consulting Session -  3 sessions",
-    "Consulting Session -  5 sessions",
-    "Consulting Session -  10 sessions"
+    "Consulting Session - 1 session",
+    "Consulting Session - 3 sessions",
+    "Consulting Session - 5 sessions",
+    "Consulting Session - 10 sessions"
   ],
 };
 
