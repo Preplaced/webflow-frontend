@@ -106,7 +106,7 @@ var currentUpcomingInterviewSchedule = "No";
 var currentMentorExperience = "";
 var currenTargetCompanies = [];
 var currentMentorInstruction = "";
-var currentCountOrDuration = "";
+var currentPackageType = "trial";
 var currentPackageDetails = {};
 var currentPackageDetail = {};
 
@@ -145,16 +145,32 @@ $targetCompaniesSelector = $("#company-selector-new").select2({
 });
 
 const explainers = {
-  "wwyg-trial" : [""],
+  "wwyg-trial": ["Interview Preparation Program - trial"],
   "wwyg-ipp": [
-    "Interview Preparation Program"
+    "Interview Preparation Program - 1 month",
+    "Interview Preparation Program - 2 months",
+    "Interview Preparation Program - 3 months"
   ],
-  "wwyg-mi": ["Mock Interview"],
-  "wwyg-cs": ["Consulting Session"]
+  "wwyg-mi": [
+    "Mock Interview - 1 session",
+    "Mock Interview - 3 sessions",
+    "Mock Interview - 5 sessions",
+    "Mock Interview - 10 sessions"
+  ],
+  "wwyg-cs": [
+    "Consulting Session -  1 session",
+    "Consulting Session -  3 sessions",
+    "Consulting Session -  5 sessions",
+    "Consulting Session -  10 sessions"
+  ],
 };
 
 for (let explainer in explainers) {
-  if (explainers[explainer].includes(`${currentPackageId}-${currentPackageDetail.name}`)) {
+  if (
+    explainers[explainer].includes(
+      `${currentPackageId} - ${currentPackageDetail.name}`
+    )
+  ) {
     getElement(explainer).style.display = "block";
     break;
   }
@@ -350,7 +366,7 @@ function commonSaveInfoToLocalStorage(package_id) {
     country: country,
     addGST: addGST,
     upcoming_interview: currentUpcomingInterviewSchedule,
-    package_type: currentCountOrDuration,
+    package_type: currentPackageType,
     target_companies: currenTargetCompanies,
     mentor_instructions: currentMentorInstruction,
     version: "default",
@@ -419,15 +435,15 @@ function setCurrentPrice() {
     if (pricing[i].name === currentPackageId) {
       currentPackageDetails = pricing[i];
       for (let j = 0; j < pricing[i].type.length; j++) {
-        if (pricing[i].type[j].name === currentCountOrDuration) {
+        if (pricing[i].type[j].name === currentPackageType) {
           currentPackageDetail = pricing[i].type[j];
           break;
         } else if (
           pricing[i].type[j].preference_order === 1 &&
-          !currentCountOrDuration
+          !currentPackageType
         ) {
           currentPackageDetail = pricing[i].type[j];
-          currentCountOrDuration = pricing[i].type[j].name;
+          currentPackageType = pricing[i].type[j].name;
           break;
         }
       }
@@ -510,13 +526,13 @@ function setSelectedValue(selectObj, valueToSet) {
 function bubbleButtonClicks() {
   bubbleButtonsSelectors = document.querySelectorAll("[name=Type-Options]");
   bubbleButtonsSelectors.forEach((bubbleButtonsSelector) => {
-    if (bubbleButtonsSelector.value === currentCountOrDuration) {
+    if (bubbleButtonsSelector.value === currentPackageType) {
       let currentlabel = bubbleButtonsSelector.parentElement;
       let currentspan = currentlabel.lastElementChild.previousElementSibling;
       currentspan.classList.add("bubble-button-border");
     }
     bubbleButtonsSelector.addEventListener("click", function (event) {
-      currentCountOrDuration = bubbleButtonsSelector.value;
+      currentPackageType = bubbleButtonsSelector.value;
       commonUpdatePricing();
       commonSaveInfoToLocalStorage(currentPackageId);
       updateCheckoutValuesOnShown();
@@ -532,12 +548,20 @@ function bubbleButtonClicks() {
   });
 }
 
+function emptyBubbleButtons(){
+  const parent = document.getElementsByClassName("duration-count-selector-grid")[0];
+  while (parent.lastChild) {
+    parent.removeChild(parent.lastChild);
+}
+}
+
 function openCheckoutModal(package_id, modalText) {
   currentPackageId = package_id;
-  if (bubbleButtonsFlag) {
+  // if (bubbleButtonsFlag) {
+    emptyBubbleButtons();
     createBubbleButtons();
-    bubbleButtonsFlag = false;
-  }
+    // bubbleButtonsFlag = false;
+  // }
   bubbleButtonClicks();
   commonUpdatePricing();
   commonPaymentCheckout(currentPackageId, modalText);
@@ -545,19 +569,28 @@ function openCheckoutModal(package_id, modalText) {
 
 paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
   paymentCheckoutSelector.addEventListener("click", function (event) {
+
+    // Mandatory
     currentPackageId = paymentCheckoutSelector.getAttribute("package-id");
-    currentCountOrDuration = paymentCheckoutSelector.getAttribute("count-duration") || "1 session";
+    currentPackageType =
+      paymentCheckoutSelector.getAttribute("package-type");
+
+    // Optional
     currentMentorExperience =
       paymentCheckoutSelector.getAttribute("mentor-experience");
-    // currentCountOrDuration = "2 months";
-    let currentRole = paymentCheckoutSelector.getAttribute("role");
-    let currentDomain = paymentCheckoutSelector.getAttribute("domain");
-    let loginTextSelector = paymentCheckoutSelector.getAttribute("login-text");
-    let loginSubtextSelector =
+
+    currentRole = paymentCheckoutSelector.getAttribute("role");
+
+    currentDomain = paymentCheckoutSelector.getAttribute("domain");
+
+    loginTextSelector = paymentCheckoutSelector.getAttribute("login-text");
+
+    loginSubtextSelector =
       paymentCheckoutSelector.getAttribute("login-subtext");
+
     let modalText = {
       loginTextSelector,
-      loginSubtextSelector,
+      loginSubtextSelector
     };
     // let analytics_gtag = {
     //   role,
@@ -567,15 +600,18 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
     // };
 
     //explainer showcase on button click
-    
+
     for (let explainer in explainers) {
-      if (explainers[explainer].includes(currentPackageId)) {
+      getElement(explainer).style.display = "none";
+      if (
+        explainers[explainer].includes(
+          `${currentPackageId} - ${currentPackageType}`
+        )
+      ) {
         getElement(explainer).style.display = "block";
-      }else{
-        getElement(explainer).style.display = "none";
       }
     }
-    
+
     openCheckoutModal(currentPackageId, modalText);
   });
 });
