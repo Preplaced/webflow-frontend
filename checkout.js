@@ -533,6 +533,7 @@ function bubbleButtonClicks() {
     }
     bubbleButtonsSelector.addEventListener("click", function (event) {
       currentPackageType = bubbleButtonsSelector.value;
+      packageTypeShow();
       commonUpdatePricing();
       commonSaveInfoToLocalStorage(currentPackageId);
       updateCheckoutValuesOnShown();
@@ -559,15 +560,33 @@ function emptyBubbleButtons() {
 
 function openCheckoutModal(package_id, modalText) {
   currentPackageId = package_id;
-  // if (bubbleButtonsFlag) {
   emptyBubbleButtons();
   createBubbleButtons();
-  // bubbleButtonsFlag = false;
-  // }
   bubbleButtonClicks();
   commonUpdatePricing();
   commonPaymentCheckout(currentPackageId, modalText);
 }
+
+/* -------------------------------------------------------------------------- */
+/*                            Package-Type Visible                            */
+/* -------------------------------------------------------------------------- */
+function packageTypeShow(){
+  for (let explainer in explainers) {
+    getElement(explainer).style.display = "none";
+    if (
+      explainers[explainer].includes(
+        `${currentPackageId} - ${currentPackageType}`
+      )
+    ) {
+      getElement(explainer).style.display = "block";
+    }
+  }
+}
+
+
+/* -------------------------------------------------------------------------- */
+/*                              Payment-Checkout                              */
+/* -------------------------------------------------------------------------- */
 
 paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
   paymentCheckoutSelector.addEventListener("click", function (event) {
@@ -600,17 +619,7 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
     // };
 
     //explainer showcase on button click
-
-    for (let explainer in explainers) {
-      getElement(explainer).style.display = "none";
-      if (
-        explainers[explainer].includes(
-          `${currentPackageId} - ${currentPackageType}`
-        )
-      ) {
-        getElement(explainer).style.display = "block";
-      }
-    }
+    packageTypeShow()
 
     openCheckoutModal(currentPackageId, modalText);
   });
