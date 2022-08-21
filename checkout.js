@@ -735,6 +735,16 @@ function payNowButtonLoader() {
   arrow.style.display = "none";
   loader.style.display = "block";
 }
+
+function payNowButtonIdealState(){
+  var text = payNowButtonSelector.firstChild.firstChild;
+  var loader = payNowButtonSelector.lastElementChild;
+  var arrow = loader.previousElementSibling;
+  text.innerText = "START PREPARING NOW";
+  arrow.style.display = "block";
+  loader.style.display = "none";
+}
+
 payNowButtonSelector.addEventListener("click", function (e) {
   e.preventDefault();
   payNowButtonLoader();
@@ -804,6 +814,11 @@ payNowButtonSelector.addEventListener("click", function (e) {
             Package: `${packageMap[pkDetails.package]}`,
             Domain: responseData.Domain,
           },
+          "modal": {
+            "ondismiss": function(){
+              payNowButtonIdealState()
+            }
+        }
         };
         var rzp1 = new Razorpay(options);
         rzp1.on("payment.failed", function (response) {
