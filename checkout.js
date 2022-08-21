@@ -149,19 +149,19 @@ const explainers = {
   "wwyg-ipp": [
     "Interview Preparation Program - 1 month",
     "Interview Preparation Program - 2 months",
-    "Interview Preparation Program - 3 months"
+    "Interview Preparation Program - 3 months",
   ],
   "wwyg-mi": [
     "Mock Interview - 1 session",
     "Mock Interview - 3 sessions",
     "Mock Interview - 5 sessions",
-    "Mock Interview - 10 sessions"
+    "Mock Interview - 10 sessions",
   ],
   "wwyg-cs": [
     "Consulting Session - 1 session",
     "Consulting Session - 3 sessions",
     "Consulting Session - 5 sessions",
-    "Consulting Session - 10 sessions"
+    "Consulting Session - 10 sessions",
   ],
 };
 
@@ -548,19 +548,21 @@ function bubbleButtonClicks() {
   });
 }
 
-function emptyBubbleButtons(){
-  const parent = document.getElementsByClassName("duration-count-selector-grid")[0];
+function emptyBubbleButtons() {
+  const parent = document.getElementsByClassName(
+    "duration-count-selector-grid"
+  )[0];
   while (parent.lastChild) {
     parent.removeChild(parent.lastChild);
-}
+  }
 }
 
 function openCheckoutModal(package_id, modalText) {
   currentPackageId = package_id;
   // if (bubbleButtonsFlag) {
-    emptyBubbleButtons();
-    createBubbleButtons();
-    // bubbleButtonsFlag = false;
+  emptyBubbleButtons();
+  createBubbleButtons();
+  // bubbleButtonsFlag = false;
   // }
   bubbleButtonClicks();
   commonUpdatePricing();
@@ -569,11 +571,9 @@ function openCheckoutModal(package_id, modalText) {
 
 paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
   paymentCheckoutSelector.addEventListener("click", function (event) {
-
     // Mandatory
     currentPackageId = paymentCheckoutSelector.getAttribute("package-id");
-    currentPackageType =
-      paymentCheckoutSelector.getAttribute("package-type");
+    currentPackageType = paymentCheckoutSelector.getAttribute("package-type");
 
     // Optional
     currentMentorExperience =
@@ -590,7 +590,7 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
 
     let modalText = {
       loginTextSelector,
-      loginSubtextSelector
+      loginSubtextSelector,
     };
     // let analytics_gtag = {
     //   role,
@@ -708,6 +708,12 @@ couponSubmitSelector.addEventListener("click", function (e) {
     updatePaymentInfo();
   }
 });
+
+/* -------------------------------------------------------------------------- */
+  /*                             RazorPayModalClosed                            */
+  /* -------------------------------------------------------------------------- */
+  // var RazorpayModalClosedSelector = document.getElementById("modal-close");
+  // RazorpayModalClosedSelector.addEventListener("click", () => {console.log("close button clicked")});
 
 /* -------------------------------------------------------------------------- */
 /*                             Pay - Now - Button                             */

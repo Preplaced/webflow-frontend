@@ -517,7 +517,7 @@ function addUserDetails(details, successCallback, errorCallback) {
 function createOrder(packageDetails, successCallback, errorCallback) {
     triggerPurchaseInitiation(packageDetails);
     packageDetails["version"] = "default";
-    packageDetails["package_type"] = currentCountOrDuration;
+    packageDetails["package_type"] = currentPackageType;
     let url = apiBaseURL + "user/create-order/v2";
     postAPI(url, packageDetails, function (response) {
         if (response.status === 200) {
