@@ -659,9 +659,11 @@ function commonGetPricingData() {
     let params = Object.fromEntries(
       new URLSearchParams(window.location.search).entries()
     );
-    let package_id = "Interview Preparation Program";
-    if (params.checkout && pricing) {
-      openCheckoutModal(package_id);
+    if ( params.checkout && params["package-id"] && params["package-type"] && response ) {
+      currentPackageId = params["package-id"];
+      currentPackageType = params["package-type"];
+      packageTypeShow()
+      openCheckoutModal(currentPackageId);
     }
   });
 }
@@ -883,3 +885,15 @@ function getLocation() {
 }
 
 getLocation();
+
+/* -------------------------------------------------------------------------- */
+/*                            Coupon Hit Enter Fix                            */
+/* -------------------------------------------------------------------------- */
+$(function () {
+  $(window).keydown(function (event) {
+     if (event.keyCode == 13) {
+           event.preventDefault();
+            return false;
+      }
+  });
+})
