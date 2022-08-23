@@ -41,6 +41,7 @@ let [
   gstPriceDiv,
   closeCheckout,
   mentorInstructionSelector,
+  letsAssignTextSelector
 ] = getElements([
   "change-domain",
   "domain-title",
@@ -70,6 +71,7 @@ let [
   "gst-price",
   "close-checkout-new",
   "specific-instructions-new",
+  "lets-assign-text"
 ]);
 let targetRoleSelector = getElement("target-role-new");
 let targetCompaniesSelector = getElement("company-selector-new");
@@ -82,6 +84,7 @@ var loginSubtextSelector = getElement("login-subtext");
 var selectDurationOrCountSelector = document.getElementsByClassName(
   "duration-count-selector-grid"
 )[0];
+var tC_ErrorSelector = getElement("tc-error");
 var bubbleButtonsSelectors;
 
 //variables
@@ -590,6 +593,7 @@ function packageTypeShow(){
 
 paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
   paymentCheckoutSelector.addEventListener("click", function (event) {
+    var letsAssignText = "Let's assign you the perfect mentor for ";
     // Mandatory
     currentPackageId = paymentCheckoutSelector.getAttribute("package-id");
     currentPackageType = paymentCheckoutSelector.getAttribute("package-type");
@@ -611,6 +615,8 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
       loginTextSelector,
       loginSubtextSelector,
     };
+
+    letsAssignTextSelector.innerText = letsAssignText + currentPackageId;
     // let analytics_gtag = {
     //   role,
     //   domain,
@@ -653,15 +659,15 @@ function commonGetPricingData() {
     pricing = response;
     commonUpdatePricing();
     currentCurrency = country === "India" ? "INR" : "USD";
-    // currentCurrency = "USD"; // to change currency manually for testing.
     commonSetGSTFlag(false);
-
     let params = Object.fromEntries(
       new URLSearchParams(window.location.search).entries()
     );
-    let package_id = "Interview Preparation Program";
-    if (params.checkout && pricing) {
-      openCheckoutModal(package_id);
+    if ( params.checkout && params["package-id"] && params["package-type"] && response ) {
+      currentPackageId = params["package-id"];
+      currentPackageType = params["package-type"];
+      packageTypeShow()
+      openCheckoutModal(currentPackageId);
     }
   });
 }
@@ -719,12 +725,6 @@ couponSubmitSelector.addEventListener("click", function (e) {
 });
 
 /* -------------------------------------------------------------------------- */
-  /*                             RazorPayModalClosed                            */
-  /* -------------------------------------------------------------------------- */
-  // var RazorpayModalClosedSelector = document.getElementById("modal-close");
-  // RazorpayModalClosedSelector.addEventListener("click", () => {console.log("close button clicked")});
-
-/* -------------------------------------------------------------------------- */
 /*                             Pay - Now - Button                             */
 /* -------------------------------------------------------------------------- */
 function payNowButtonLoader() {
@@ -745,7 +745,12 @@ function payNowButtonIdealState(){
   loader.style.display = "none";
 }
 
+
 payNowButtonSelector.addEventListener("click", function (e) {
+  if($targetCompaniesSelector.val().length === 0){
+    targetCompaniesSelector.focus();
+    showElements([tC_ErrorSelector]);
+  }else{
   e.preventDefault();
   payNowButtonLoader();
   console.log(" pkDetails in createOrder ", pkDetails);
@@ -841,10 +846,9 @@ payNowButtonSelector.addEventListener("click", function (e) {
       onPaymentFailure("create-order");
     });
   }
-});
-
-//put all these stuff onclick of paymentcheckout button
-document.addEventListener("DOMContentLoaded", (event) => {});
+  }
+}
+);
 
 upcomingInterviewSelectors.forEach((upcomingInterviewSelector) => {
   upcomingInterviewSelector.addEventListener("click", (event) => {
@@ -883,3 +887,25 @@ function getLocation() {
 }
 
 getLocation();
+
+/* -------------------------------------------------------------------------- */
+/*                            Coupon Hit Enter Fix                            */
+/* -------------------------------------------------------------------------- */
+$(function () {
+  $(window).keydown(function (event) {
+     if (event.keyCode == 13) {
+           event.preventDefault();
+            return false;
+      }
+  });
+})
+
+$('#company-selector-new').select2({
+  width: "100%",
+  placeholder: "Your Target Company",
+  tags: true,
+  matcher: matchMaker,
+  minimumInputLength: 3,
+}).on('change', function(){
+  hideElements([tC_ErrorSelector])
+});
