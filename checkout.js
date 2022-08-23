@@ -41,6 +41,7 @@ let [
   gstPriceDiv,
   closeCheckout,
   mentorInstructionSelector,
+  letsAssignTextSelector
 ] = getElements([
   "change-domain",
   "domain-title",
@@ -70,6 +71,7 @@ let [
   "gst-price",
   "close-checkout-new",
   "specific-instructions-new",
+  "lets-assign-text"
 ]);
 let targetRoleSelector = getElement("target-role-new");
 let targetCompaniesSelector = getElement("company-selector-new");
@@ -591,6 +593,7 @@ function packageTypeShow(){
 
 paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
   paymentCheckoutSelector.addEventListener("click", function (event) {
+    var letsAssignText = "Let's assign you the perfect mentor for ";
     // Mandatory
     currentPackageId = paymentCheckoutSelector.getAttribute("package-id");
     currentPackageType = paymentCheckoutSelector.getAttribute("package-type");
@@ -612,6 +615,8 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
       loginTextSelector,
       loginSubtextSelector,
     };
+
+    letsAssignTextSelector.innerText = letsAssignText + currentPackageId;
     // let analytics_gtag = {
     //   role,
     //   domain,
@@ -655,7 +660,6 @@ function commonGetPricingData() {
     commonUpdatePricing();
     currentCurrency = country === "India" ? "INR" : "USD";
     commonSetGSTFlag(false);
-
     let params = Object.fromEntries(
       new URLSearchParams(window.location.search).entries()
     );
