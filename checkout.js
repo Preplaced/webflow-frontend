@@ -109,7 +109,7 @@ var currentUpcomingInterviewSchedule = "No";
 var currentMentorExperience = "";
 var currenTargetCompanies = [];
 var currentMentorInstruction = "";
-var currentPackageType = "trial";
+var currentPackageType = "Trial";
 var currentPackageDetails = {};
 var currentPackageDetail = {};
 
@@ -148,7 +148,7 @@ $targetCompaniesSelector = $("#company-selector-new").select2({
 });
 
 const explainers = {
-  "wwyg-trial": ["Interview Preparation Program - trial"],
+  "wwyg-trial": ["Interview Preparation Program - Trial"],
   "wwyg-ipp": [
     "Interview Preparation Program - 1 month",
     "Interview Preparation Program - 2 months",
