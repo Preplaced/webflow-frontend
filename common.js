@@ -2,7 +2,11 @@ try {
     document.domain = 'preplaced.in';
 }
 catch (e) { }
+
+// console.log("%cWelcome to Preplaced LocalHost Server", "color: red; font-size:2rem;padding: 2px");
+
 loadFile("styles/style.js",false);
+loadFile("variables.js",false);
 loadFile("checkout.js", false);
 
 var firebaseConfig = {
@@ -129,6 +133,16 @@ function triggerEvent(eventName, params) {
     fbq('track', eventName, fbParams);
 }
 
+const sendAnalyticsToSegment = {
+    track: (eventName,properties) => {
+        console.log("eventName: ", eventName, "\n properties: ", properties);
+        analytics && analytics.track(eventName,properties)
+    },
+    identify: (email,identities) => {
+        analytics && analytics.identify(email,identities);
+    }
+}
+
 function triggerPurchase(packageDetails) {
     packageDetails['item_name'] = packageDetails.package;
     packageDetails['item_id'] = packageDetails.package;
@@ -215,7 +229,6 @@ function getAPI(url, successCallback, errorCallback) {
 }
 
 function postAPI(url, data, successCallback, errorCallback) {
-    console.log("data=====>",data);
     axios.post(url, data, getDefaultConfig())
         .then(function (response) {
             successCallback(response);
@@ -699,27 +712,6 @@ firebase.auth().onAuthStateChanged(function (user) {
     }
 });
 
-let debounceTimer;
-let timerId;
-var throttle = function (func, delay) {
-    // If setTimeout is already scheduled, no need to do anything
-    if (timerId) {
-        return
-    }
-    // Schedule a setTimeout after delay seconds
-    timerId = setTimeout(function () {
-        func()
-
-        // Once setTimeout function execution is finished, timerId = undefined so that in <br>
-        // the next scroll event function execution can be scheduled by the setTimeout
-        timerId = undefined;
-    }, delay);
-}
-const debounce = (func, delay) => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => func(), delay)
-}
-
 let lastScrollTop = 0;
 
 let isNavbarChangeNeeded = true;
@@ -796,7 +788,11 @@ function verifyAndSendOTP(phoneNumber) {
     showElements([recaptchaSelector]);
 
     var onOTPSent = function () {
-        console.log("otp Sent");
+        const properties = {
+            "phone_number":phoneNumber,
+            "button_name":currentButtonName
+        }
+        sendAnalyticsToSegment.track("send_otp",properties);
         showElements([otpFieldSelector, resendOTPContainerSelector]);
         startResendTimer(resendOTPContainerSelector);
         otpSent = true;
@@ -893,6 +889,16 @@ formButtonSelector.addEventListener('click', function (e) {
             if (validFields) {
                 function onLogin() {
 
+                    // login Analytics
+                    signInType = "login"; // login signInType
+                    if(signInType === "login"){
+                        const properties = {
+                            'source': 'sign-in',
+                            'method': 'otp',
+                            'button_name':currentButtonName
+                        }
+                        sendAnalyticsToSegment.track("login",properties);
+                    }
                     triggerEvent('Signed In', {
                         'source': 'sign-in',
                         'method': 'phone',
@@ -913,7 +919,7 @@ formButtonSelector.addEventListener('click', function (e) {
                 removeButtonLoading(formButtonSelector, "Verify OTP");
             }
         }
-        else {
+        else {        
             let validFields = checkFieldsAndShowError([otpFieldSelector, userNameSelector, userEmailSelector, acceptTermsSelector], errorFieldSelector)
             if (validFields) {
                 async function onLogin(result) {
@@ -946,6 +952,18 @@ formButtonSelector.addEventListener('click', function (e) {
                                         email: userEmailSelector.value.toLowerCase(),
                                         phone: phoneNumber
                                     });
+                                }
+                                // SignUp Analytics
+                                signInType = 'register';
+                                if(signInType === 'register'){
+                                    let properties = {
+                                        name: userNameValue,
+                                        email: userEmailSelector.value.toLowerCase(),
+                                        phone: phoneNumber,
+                                        button_name:currentButtonName,
+                                        method:"otp"
+                                    }
+                                    sendAnalyticsToSegment.track("signup",properties);
                                 }
 
                                 triggerEvent('Signed Up', {
@@ -1035,6 +1053,11 @@ input.addEventListener('keyup', reset);
 
 function onPaymentFailure(place) {
     console.error("Payment failed at", place);
+    let properties = {
+        place,
+        "button_name":currentButtonName
+    };
+    sendAnalyticsToSegment.track("failed_payment",properties);
     hideElements([orderLoader]);
     showElements([orderOverlay, orderErrorSelector]);
 }
@@ -1057,6 +1080,11 @@ function closeLoginModal() {
 
 for(let i=0;i<menuLogin.length;i++){
     menuLogin[i].onclick = function (event) {
+        currentButtonName = menuLogin[i].getAttribute("button-name");
+        const properties = {
+            "button_name": currentButtonName,
+        }
+        sendAnalyticsToSegment.track("started_login_signup",properties); 
         event.preventDefault();
         event.stopPropagation();
         event.returnValue = false;
