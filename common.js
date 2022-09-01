@@ -135,7 +135,7 @@ function triggerEvent(eventName, params) {
 
 const sendAnalyticsToSegment = {
     track: (eventName,properties) => {
-        // console.log("eventName: ", eventName, "\n properties: ", properties);
+        console.log("eventName: ", eventName, "\n properties: ", properties);
         analytics && analytics.track(eventName,properties)
     },
     identify: (email,identities) => {

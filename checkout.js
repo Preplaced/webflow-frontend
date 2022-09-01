@@ -460,11 +460,13 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
     const properties = {
       "button_name":currentButtonName,
       "trigger_by":currentTriggerBy,
-      "items":[{
-        "item_id":currentSku,
-        "item_name":currentPackageId,
-        "item_variant":currentPackageType,
-      }]
+      "ecommerce":{
+        "items":[{
+          "item_id":currentSku,
+          "item_name":currentPackageId,
+          "item_variant":currentPackageType,
+        }]
+      }
     }
     sendAnalyticsToSegment.track("select_item",properties);
     letsAssignTextSelector.innerText = letsAssignText + currentPackageId;
