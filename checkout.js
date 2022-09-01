@@ -614,7 +614,7 @@ payNowButtonSelector.addEventListener("click", function (e) {
           "package_type": pkDetails.package_type,
           "preferred_mentor_experience": pkDetails.preferred_mentor_experience,
           "price": pkDetails.price,
-          "target_companies": pkDetails.target_companies,
+          "target_companies": currenTargetCompanies,
           "target_role": pkDetails.target_role,
           "value": +pkDetails.totalPrice,
           "upcoming_interview": pkDetails.upcoming_interview,
@@ -862,5 +862,6 @@ $('#company-selector-new').select2({
   matcher: matchMaker,
   minimumInputLength: 3,
 }).on('change', function(){
+  currenTargetCompanies = $targetCompaniesSelector.val().join(",");
   hideElements([tC_ErrorSelector])
 });
