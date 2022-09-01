@@ -963,7 +963,7 @@ formButtonSelector.addEventListener('click', function (e) {
                                         button_name:currentButtonName,
                                         method:"otp"
                                     }
-                                    sendAnalyticsToSegment.track("signup",properties);
+                                    sendAnalyticsToSegment.track("sign_up",properties);
                                 }
 
                                 triggerEvent('Signed Up', {
@@ -1053,10 +1053,41 @@ input.addEventListener('keyup', reset);
 
 function onPaymentFailure(place) {
     console.error("Payment failed at", place);
-    let properties = {
-        place,
-        "button_name":currentButtonName
-    };
+    const properties = {
+        "button_name":currentButtonName,
+        ecommerce: {
+          currency: pkDetails.currency,
+          value: +pkDetails.totalPrice,
+          coupon: pkDetails.coupon,
+          items:[
+            {
+              "item_id":currentSku,
+              "item_name":currentPackageId,
+              "item_category": currentMentorExperience,
+              "item_variant": currentPackageType,
+              "coupon":pkDetails.coupon,
+              "currency":pkDetails.currency,
+              "addGST": pkDetails.addGST,
+              "country": pkDetails.country,
+              "designation": pkDetails.designation,
+              "domain": pkDetails.domain,
+              "domain_id": pkDetails.domain_id,
+              "experience": pkDetails.experience,
+              "experience_id": pkDetails.experience_id,
+              "mentor_instructions": pkDetails.mentor_instructions,
+              "package": pkDetails.package,
+              "package_type": pkDetails.package_type,
+              "preferred_mentor_experience": pkDetails.preferred_mentor_experience,
+              "price": pkDetails.price,
+              "target_companies": pkDetails.target_companies,
+              "target_role": pkDetails.target_role,
+              "value": +pkDetails.totalPrice,
+              "upcoming_interview": pkDetails.upcoming_interview,
+              "version": pkDetails.version
+            }
+          ]
+        }
+      }
     sendAnalyticsToSegment.track("failed_payment",properties);
     hideElements([orderLoader]);
     showElements([orderOverlay, orderErrorSelector]);

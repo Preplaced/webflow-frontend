@@ -110,7 +110,8 @@ var currentMentorInstruction = "";
 var currentPackageType = "Trial";
 var currentPackageDetails = {};
 var currentPackageDetail = {};
-var currentSku = ""
+var currentSku = "";
+var currentCoupon = "";
 
 /* -------------------------------------------------------------------------- */
 /*                            Analytics Properities                           */

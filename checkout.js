@@ -459,7 +459,7 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
 
     const properties = {
       "button_name":currentButtonName,
-      "trigger_by":currentTriggerBy,
+      "triggered_by":currentTriggerBy,
       "ecommerce":{
         "items":[{
           "item_id":currentSku,
@@ -512,12 +512,15 @@ function commonGetPricingData() {
       currentPackageType = params["package-type"];
       currentTriggerBy = "url";
       const properties = {
-      "package_id":currentPackageId,
-      "package_type":currentPackageType,
-      "mentor_experience":currentMentorExperience,
-      "role":currentRole,
-      "domain":currentDomain,
-      "trigger_by":currentTriggerBy
+        "button_name":currentButtonName,
+        "triggered_by":currentTriggerBy,
+        "ecommerce":{
+          "items":[{
+            "item_id":currentSku,
+            "item_name":currentPackageId,
+            "item_variant":currentPackageType,
+          }]
+        }
       }
     sendAnalyticsToSegment.track("select_item",properties);
       packageTypeShow()
@@ -569,6 +572,43 @@ couponSubmitSelector.addEventListener("click", function (e) {
   hideElements([couponErrorSelector, couponSuccessSelector]);
   coupon = couponSelector.value.toUpperCase().trim();
   if (coupon) {
+    currentCoupon = coupon;
+    var properties = {
+      "button_name":currentButtonName,
+      ecommerce: {
+        currency: pkDetails.currency,
+        value: +pkDetails.totalPrice,
+        "promotion_id": coupon,
+        items:[
+          {
+            "item_id":currentSku,
+            "item_name":currentPackageId,
+            "item_variant":currentPackageType,
+            "item_category": currentMentorExperience,
+            "coupon":coupon,
+            "currency":pkDetails.currency,
+            "addGST": pkDetails.addGST,
+            "country": pkDetails.country,
+            "designation": pkDetails.designation,
+            "domain": pkDetails.domain,
+            "domain_id": pkDetails.domain_id,
+            "experience": pkDetails.experience,
+            "experience_id": pkDetails.experience_id,
+            "mentor_instructions": pkDetails.mentor_instructions,
+            "package": pkDetails.package,
+            "package_type": pkDetails.package_type,
+            "preferred_mentor_experience": pkDetails.preferred_mentor_experience,
+            "price": pkDetails.price,
+            "target_companies": currenTargetCompanies,
+            "target_role": pkDetails.target_role,
+            "value": +pkDetails.totalPrice,
+            "upcoming_interview": pkDetails.upcoming_interview,
+            "version": pkDetails.version
+          }
+        ]
+      }
+    }
+    sendAnalyticsToSegment.track("select_promotion",properties)
     checkCoupon(coupon, onCouponApplied, onInvalidCoupon);
   } else {
     couponSubmitSelector.innerText = "Redeem";
@@ -609,12 +649,14 @@ payNowButtonSelector.addEventListener("click", function (e) {
     ecommerce: {
       currency: pkDetails.currency,
       value: +pkDetails.totalPrice,
-      coupon: pkDetails.coupon,
+      coupon: currentCoupon,
       items:[
         {
           "item_id":currentSku,
           "item_name":currentPackageId,
-          "coupon":pkDetails.coupon,
+          "item_variant": currentPackageType,
+          "item_category": currentMentorExperience,
+          "coupon":currentCoupon,
           "currency":pkDetails.currency,
           "addGST": pkDetails.addGST,
           "country": pkDetails.country,
@@ -655,7 +697,6 @@ payNowButtonSelector.addEventListener("click", function (e) {
       pkDetails["totalPrice"] = totalPrice;
       pkDetails["order_id"] = response.razorpay_order_id;
       triggerPurchase(pkDetails);
-      console.log("response of purchase",response);
       const properties = {
         "button_name":currentButtonName,
         ecommerce: {
@@ -667,6 +708,8 @@ payNowButtonSelector.addEventListener("click", function (e) {
             {
               "item_id":currentSku,
               "item_name":currentPackageId,
+              "item_variant": currentPackageType,
+              "item_category": currentMentorExperience,
               "coupon":pkDetails.coupon,
               "currency":pkDetails.currency,
               "addGST": pkDetails.addGST,
@@ -721,17 +764,6 @@ payNowButtonSelector.addEventListener("click", function (e) {
     }
     function onOrderCreated(responseData) {
       let order = responseData.razorpay_order_object;
-      let properties = {
-        ...order,
-        "button_name":currentButtonName
-      };
-      delete properties.notes;
-      properties = {
-        ...properties,
-        ...order.notes
-      }
-      // TODO order Created Analytics Here.
-      sendAnalyticsToSegment.track("create_order",properties);
       if (!!order) {
         var options = {
           key: responseData.key || "rzp_test_sPcDgJ2yGLxdzT", // Enter the Key ID generated from the Dashboard
@@ -754,8 +786,6 @@ payNowButtonSelector.addEventListener("click", function (e) {
           },
           "modal": {
             "ondismiss": function(){
-
-
               const properties = {
                 "button_name":currentButtonName,
                 ecommerce: {
@@ -766,6 +796,8 @@ payNowButtonSelector.addEventListener("click", function (e) {
                     {
                       "item_id":currentSku,
                       "item_name":currentPackageId,
+                      "item_category": currentMentorExperience,
+                      "item_variant": currentPackageType,
                       "coupon":pkDetails.coupon,
                       "currency":pkDetails.currency,
                       "addGST": pkDetails.addGST,
