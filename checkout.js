@@ -573,6 +573,7 @@ couponSubmitSelector.addEventListener("click", function (e) {
     currentCoupon = coupon;
     var properties = {
       "button_name":currentButtonName,
+      "triggered_by":currentTriggerBy,
       ecommerce: {
         currency: pkDetails.currency,
         value: +pkDetails.totalPrice,
@@ -643,6 +644,7 @@ payNowButtonSelector.addEventListener("click", function (e) {
   
   const properties = {
     "button_name":currentButtonName,
+    "triggered_by":currentTriggerBy,
     ecommerce: {
       currency: pkDetails.currency,
       value: +pkDetails.totalPrice,
@@ -695,6 +697,7 @@ payNowButtonSelector.addEventListener("click", function (e) {
       triggerPurchase(pkDetails);
       const properties = {
         "button_name":currentButtonName,
+        "triggered_by":currentTriggerBy,
         ecommerce: {
           transaction_id: response.razorpay_payment_id,
           currency: pkDetails.currency,
@@ -783,6 +786,7 @@ payNowButtonSelector.addEventListener("click", function (e) {
             "ondismiss": function(){
               const properties = {
                 "button_name":currentButtonName,
+                "triggered_by":currentTriggerBy,
                 ecommerce: {
                   currency: pkDetails.currency,
                   value: +pkDetails.totalPrice,
