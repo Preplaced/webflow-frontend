@@ -445,16 +445,28 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
     // Checkout Started Analytics
     currentTriggerBy = "button";
     currentButtonName = paymentCheckoutSelector.getAttribute("button-name");
+
+    //getting current Sku
+    pricing.map((price)=>{
+      if(price.name === currentPackageId){
+        price.type.map((type) => {
+            if(type.name === currentPackageType){
+              currentSku = type.pricing[0].sku
+            }
+        })
+      }
+    })
+
     const properties = {
-      "package_id":currentPackageId,
-      "package_type":currentPackageType,
-      "mentor_experience":currentMentorExperience,
-      "role":currentRole,
-      "domain":currentDomain,
       "button_name":currentButtonName,
-      "trigger_by":currentTriggerBy
+      "trigger_by":currentTriggerBy,
+      "items":[{
+        "item_id":currentSku,
+        "item_name":currentPackageId,
+        "item_variant":currentPackageType,
+      }]
     }
-    sendAnalyticsToSegment.track("open_checkout",properties);
+    sendAnalyticsToSegment.track("select_item",properties);
     letsAssignTextSelector.innerText = letsAssignText + currentPackageId;
     packageTypeShow()
     openCheckoutModal(currentPackageId, modalText);
@@ -505,7 +517,7 @@ function commonGetPricingData() {
       "domain":currentDomain,
       "trigger_by":currentTriggerBy
       }
-    sendAnalyticsToSegment.track("open_checkout",properties);
+    sendAnalyticsToSegment.track("select_item",properties);
       packageTypeShow()
       openCheckoutModal(currentPackageId);
     }
