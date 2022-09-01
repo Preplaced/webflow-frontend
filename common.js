@@ -1063,8 +1063,7 @@ function onPaymentFailure(place) {
             {
               "item_id":currentSku,
               "item_name":currentPackageId,
-              "item_category": currentMentorExperience,
-              "item_variant": currentPackageType,
+              "item_variant": currentMentorExperience,
               "coupon":pkDetails.coupon,
               "currency":pkDetails.currency,
               "addGST": pkDetails.addGST,

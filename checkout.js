@@ -464,7 +464,6 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
         "items":[{
           "item_id":currentSku,
           "item_name":currentPackageId,
-          "item_variant":currentPackageType,
         }]
       }
     }
@@ -518,7 +517,6 @@ function commonGetPricingData() {
           "items":[{
             "item_id":currentSku,
             "item_name":currentPackageId,
-            "item_variant":currentPackageType,
           }]
         }
       }
@@ -583,8 +581,7 @@ couponSubmitSelector.addEventListener("click", function (e) {
           {
             "item_id":currentSku,
             "item_name":currentPackageId,
-            "item_variant":currentPackageType,
-            "item_category": currentMentorExperience,
+            "item_variant":currentMentorExperience,
             "coupon":coupon,
             "currency":pkDetails.currency,
             "addGST": pkDetails.addGST,
@@ -654,8 +651,7 @@ payNowButtonSelector.addEventListener("click", function (e) {
         {
           "item_id":currentSku,
           "item_name":currentPackageId,
-          "item_variant": currentPackageType,
-          "item_category": currentMentorExperience,
+          "item_variant": currentMentorExperience,
           "coupon":currentCoupon,
           "currency":pkDetails.currency,
           "addGST": pkDetails.addGST,
@@ -708,8 +704,7 @@ payNowButtonSelector.addEventListener("click", function (e) {
             {
               "item_id":currentSku,
               "item_name":currentPackageId,
-              "item_variant": currentPackageType,
-              "item_category": currentMentorExperience,
+              "item_variant": currentMentorExperience,
               "coupon":pkDetails.coupon,
               "currency":pkDetails.currency,
               "addGST": pkDetails.addGST,
@@ -796,8 +791,7 @@ payNowButtonSelector.addEventListener("click", function (e) {
                     {
                       "item_id":currentSku,
                       "item_name":currentPackageId,
-                      "item_category": currentMentorExperience,
-                      "item_variant": currentPackageType,
+                      "item_variant": currentMentorExperience,
                       "coupon":pkDetails.coupon,
                       "currency":pkDetails.currency,
                       "addGST": pkDetails.addGST,
