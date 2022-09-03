@@ -3,11 +3,11 @@ try {
 }
 catch (e) { }
 
-// console.log("%cWelcome to Preplaced LocalHost Server", "color: red; font-size:2rem;padding: 2px");
+// console.log("%cWelcome to Preplaced `LocalHost Server", "color: red; font-size:2rem;padding: 2px");
 
 loadFile("styles/style.js",false);
-loadFile("variables.js",false);
-loadFile("checkout.js", false);
+loadFile("variables.min.js",false);
+loadFile("checkout.min.js", false);
 
 var firebaseConfig = {
     apiKey: "AIzaSyDEjje1xnNR_5Ckx27w_8emPFUy5ppC0E8",
@@ -136,7 +136,7 @@ function triggerEvent(eventName, params) {
 const sendAnalyticsToSegment = {
     track: (eventName,properties) => {
         console.log("eventName: ", eventName, "\n properties: ", properties);
-        analytics && analytics.track(eventName,properties)
+        // analytics && analytics.track(eventName,properties)
     },
     identify: (email,identities) => {
         analytics && analytics.identify(email,identities);
@@ -417,6 +417,7 @@ function getLocationData(callback) {
 function getLocationFromStorage(onFetch) {
     let locationData = JSON.parse(localStorage.getItem("locationData"));
     if (!locationData) {
+        console.log("locationData",locationData);
         getLocationData(function (data) {
             locationData = {
                 "country": data.country === "IN" ? "India" : data.country
@@ -1114,7 +1115,7 @@ for(let i=0;i<menuLogin.length;i++){
         const properties = {
             "button_name": currentButtonName,
         }
-        sendAnalyticsToSegment.track("started_login_signup",properties); 
+        sendAnalyticsToSegment.track("started_login_signup",properties);
         event.preventDefault();
         event.stopPropagation();
         event.returnValue = false;
@@ -1125,7 +1126,6 @@ for(let i=0;i<menuLogin.length;i++){
 
 let bookSessionMethod = function () {
     triggerEvent('Sales Session Booking Started', {});
-    //Intercom('trackEvent', 'Sales Session Booking Started');
 }
 
 //intercombot launch
@@ -1156,4 +1156,13 @@ if (footerLogin) {
             showLoginModal();
         }
     }
+}
+
+
+/* -------------------------------------------------------------------------- */
+/*                            Add Class To Element                            */
+/* -------------------------------------------------------------------------- */
+
+function addClassToElements(){
+
 }

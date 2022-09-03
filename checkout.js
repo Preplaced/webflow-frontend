@@ -59,12 +59,12 @@ closeLoginModalIcon.onclick = function (event) {
 closeCheckout.addEventListener("click", function (e) {
   e.preventDefault();
   closeCheckoutModal();
+  scrollBody("scroll");
 });
 
 /* -------------------------------------------------------------------------- */
 /*                           Handle Display Pricing                           */
 /* -------------------------------------------------------------------------- */
-
 function handlePaymentSectionUI() {
   updatePaymentInfo();
   packagePriceSelector.innerText = `${currencyMap[pkDetails.currency]} ${
@@ -140,21 +140,12 @@ function populatePreferredCompanies(companies) {
 }
 
 function getCompanies() {
-  //getCompanies from backend
   getAllCompanies(function (responseData) {
     populatePreferredCompanies(responseData["companyArray"]);
   });
 }
 
 getCompanies();
-
-/* -------------------------------------------------------------------------- */
-/*                      Create Package Selector DropDown                      */
-/* -------------------------------------------------------------------------- */
-// Creating the single select dropdown for selecting different programs
-var divTag = document.createElement("div"); // div for the parent for select list
-var pTag = document.createElement("p"); // p to give label to the list
-pTag.innerText = "Interview package Selection";
 
 var paymentCheckoutSelectors = document.querySelectorAll(".payment-checkout");
 
@@ -204,6 +195,16 @@ function commonSaveInfoToLocalStorage(package_id) {
     target_companies: currenTargetCompanies,
     mentor_instructions: currentMentorInstruction,
     version: "default",
+    "required":{
+      package_type:currentPackageType,
+      role:currentRole,
+      domain:currentDomain,
+      mentor_experience:currentMentorExperience,
+      upcoming_interview: currentUpcomingInterviewSchedule,
+      country:country,
+      addGST:addGST,
+      
+    }
   };
   localStorage.setItem("packageDetails", JSON.stringify(packageDetails));
 }
@@ -230,7 +231,7 @@ function commonDisableLowerMentorDesignationOptions() {
     targetRoleSelector.value
   );
   for (let optionIndex in mentorExperienceSelector.options) {
-    mentorExperienceSelector.options[optionIndex].disabled =
+      mentorExperienceSelector.options[optionIndex].disabled =
       candidateExperienceIndex > optionIndex;
   }
 }
@@ -322,15 +323,23 @@ function commonUpdatePricing() {
 
 targetRoleSelector.onchange = function (event) {
   event.preventDefault();
-  mentorExperienceSelector.value = targetRoleSelector.value;
-  commonUpdatePricing();
+  currentRole = event.target.value;
+  if(event.target.value !== "select_designation"){
+    targetRoleSelector.classList.remove("error");
+    mentorExperienceSelector.removeAttribute("disabled");
+    // mentorExperienceSelector.classList.remove("error");
+  }
+  mentorExperienceSelector.value = 'select_mentor_experience';
   commonDisableLowerMentorDesignationOptions();
+  // commonUpdatePricing();
   commonSaveInfoToLocalStorage(currentPackageId);
   updateCheckoutValuesOnShown();
 };
 
 mentorExperienceSelector.onchange = function (event) {
   event.preventDefault();
+  currentMentorExperience = event.target.value;
+  event.target.value !== "select_mentor_experience" && mentorExperienceSelector.classList.remove("error");
   commonUpdatePricing();
   commonSaveInfoToLocalStorage(currentPackageId);
   updateCheckoutValuesOnShown();
@@ -338,19 +347,12 @@ mentorExperienceSelector.onchange = function (event) {
 
 domainSelector.onchange = function (event) {
   event.preventDefault();
-  commonUpdatePricing();
-  commonSaveInfoToLocalStorage(currentPackageId);
-  updateCheckoutValuesOnShown();
+  currentDomain = event.target.value;
+  event.target.value !== "select_domain" && domainSelector.classList.remove("error");
+  // commonUpdatePricing();
+  // commonSaveInfoToLocalStorage(currentPackageId);
+  // updateCheckoutValuesOnShown();
 };
-
-function setSelectedValue(selectObj, valueToSet) {
-  for (var i = 0; i < selectObj.options.length; i++) {
-    if (selectObj.options[i].value == valueToSet) {
-      selectObj.options[i].selected = true;
-    }
-  }
-  return selectObj;
-}
 
 function bubbleButtonClicks() {
   bubbleButtonsSelectors = document.querySelectorAll("[name=Type-Options]");
@@ -419,6 +421,8 @@ function packageTypeShow(){
 
 paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
   paymentCheckoutSelector.addEventListener("click", function (event) {
+    scrollBody("hidden");
+    mentorExperienceSelector.setAttribute("disabled",true);
     var letsAssignText = "Let's assign you the perfect mentor for ";
     // Mandatory
     currentPackageId = paymentCheckoutSelector.getAttribute("package-id");
@@ -500,7 +504,7 @@ function commonSetGSTFlag(gstEnabled) {
 function commonGetPricingData() {
   getAllPricing(function (response) {
     pricing = response;
-    commonUpdatePricing();
+    // commonUpdatePricing();
     currentCurrency = country === "India" ? "INR" : "USD";
     commonSetGSTFlag(false);
     let params = Object.fromEntries(
@@ -637,11 +641,14 @@ function payNowButtonIdealState(){
 
 
 payNowButtonSelector.addEventListener("click", function (e) {
-  if($targetCompaniesSelector.val().length === 0){
-    targetCompaniesSelector.focus();
-    showElements([tC_ErrorSelector]);
+  if($targetCompaniesSelector.val().length === 0 || targetRoleSelector.value === 'select_designation' || domainSelector.value === 'select_domain' || mentorExperienceSelector.value === 'select_mentor_experience'){
+    targetRoleSelector.value === 'select_designation' && targetRoleSelector.classList.add("error");
+    domainSelector.value === 'select_domain' && domainSelector.classList.add("error");
+    mentorExperienceSelector.value === 'select_mentor_experience' && mentorExperienceSelector.classList.add("error");
+    $targetCompaniesSelector.val().length === 0 && targetCompaniesSelector.parentElement.classList.add("error");
+    $targetCompaniesSelector.val().length === 0 && showElements([tC_ErrorSelector]);
+    $('.error').filter(":first")[0].scrollIntoView();
   }else{
-  
   const properties = {
     "button_name":currentButtonName,
     "triggered_by":currentTriggerBy,
@@ -907,5 +914,10 @@ $('#company-selector-new').select2({
   minimumInputLength: 3,
 }).on('change', function(){
   currenTargetCompanies = $targetCompaniesSelector.val().join(",");
+  targetCompaniesSelector.parentElement.classList.remove("error");
   hideElements([tC_ErrorSelector])
 });
+
+function scrollBody(overflowValue){
+    document.body.style.overflow = overflowValue;
+}

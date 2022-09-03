@@ -1,5 +1,3 @@
-console.log("variables.js");
-
 /* -------------------------------------------------------------------------- */
 /*                            Variable Declarations                           */
 /* -------------------------------------------------------------------------- */
@@ -88,6 +86,7 @@ var bubbleButtonsSelectors;
 //variables
 let pricing = {};
 let experienceList = [
+  "select_mentor_experience",
   "0-3 years",
   "4-6 years",
   "7-10 years",
@@ -99,10 +98,10 @@ let locationUpdated = false;
 
 //current Values
 let currentCurrency = "INR";
-let currentPrice = "7999";
-let currentPackageId = "Interview Preparation Program";
-var currentRole = "0-3 years";
-var currentDomain = "backend_developer";
+let currentPrice = "";
+let currentPackageId = "";
+var currentRole = "";
+var currentDomain = "";
 var currentUpcomingInterviewSchedule = "No";
 var currentMentorExperience = "";
 var currenTargetCompanies = [];
