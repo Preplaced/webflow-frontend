@@ -142,7 +142,7 @@ function triggerEvent(eventName, params) {
 const sendAnalyticsToSegment = {
     track: (eventName,properties) => {
         console.log("eventName: ", eventName, "\n properties: ", properties);
-        // analytics && analytics.track(eventName,properties)
+        analytics && analytics.track(eventName,properties)
     },
     identify: (email,identities) => {
         analytics && analytics.identify(email,identities);
@@ -1161,5 +1161,15 @@ if (footerLogin) {
         else {
             showLoginModal();
         }
+    }
+}
+
+
+
+window.onload = function () {
+    console.log("onload");
+    if (localStorage.getItem("hasCodeRunBefore") === null) {
+       sendAnalyticsToSegment.track
+        localStorage.setItem("hasCodeRunBefore", true);
     }
 }
