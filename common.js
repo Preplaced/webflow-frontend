@@ -1172,11 +1172,10 @@ window.onload = function () {
             new URLSearchParams(window.location.search).entries()
           );
         var properties = {
-            utm_source: params.utm_source,
-            utm_medium: params.utm_medium,
-            utm_campaign: params.utm_campaign,
+            ...params,
+            "referrer":document.referrer
         }
-        sendAnalyticsToSegment.track("first-website",properties)
+        sendAnalyticsToSegment.track("first_website",properties)
         localStorage.setItem("hasVisitedBefore", true);
     }
 }

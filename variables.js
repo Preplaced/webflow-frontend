@@ -38,7 +38,8 @@ let [
   gstPriceDiv,
   closeCheckout,
   mentorInstructionSelector,
-  letsAssignTextSelector
+  programNameSelector,
+  priceCalculationSelector
 ] = getElements([
   "change-domain",
   "domain-title",
@@ -67,7 +68,8 @@ let [
   "gst-price",
   "close-checkout-new",
   "specific-instructions-new",
-  "lets-assign-text"
+  "program-name",
+  "price-calculation"
 ]);
 let targetRoleSelector = getElement("target-role-new");
 let targetCompaniesSelector = getElement("company-selector-new");

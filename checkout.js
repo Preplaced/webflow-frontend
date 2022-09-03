@@ -331,6 +331,13 @@ mentorExperienceSelector.onchange = function (event) {
   currentMentorExperience = event.target.value;
   event.target.value !== "select_mentor_experience" && mentorExperienceSelector.classList.remove("error");
   commonUpdatePricing();
+  if(currentPrice == 0){
+    hideElements([totalPriceSelector]);
+    showElements([priceCalculationSelector]);
+  }else{
+    hideElements([priceCalculationSelector]);
+    showElements([totalPriceSelector]);
+  }
   commonSaveInfoToLocalStorage(currentPackageId);
   updateCheckoutValuesOnShown();
 };
@@ -340,7 +347,7 @@ domainSelector.onchange = function (event) {
   currentDomain = event.target.value;
   event.target.value !== "select_domain" && domainSelector.classList.remove("error");
   // commonUpdatePricing();
-  // commonSaveInfoToLocalStorage(currentPackageId);
+  commonSaveInfoToLocalStorage(currentPackageId);
   // updateCheckoutValuesOnShown();
 };
 
@@ -413,7 +420,6 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
   paymentCheckoutSelector.addEventListener("click", function (event) {
     scrollBody("hidden");
     (mentorExperienceSelector.value === 'select_mentor_experience' && targetRoleSelector.value === 'select_designation') && mentorExperienceSelector.setAttribute("disabled",true);
-    var letsAssignText = "Let's assign you the perfect mentor for ";
     // Mandatory
     currentPackageId = paymentCheckoutSelector.getAttribute("package-id");
     currentPackageType = paymentCheckoutSelector.getAttribute("package-type");
@@ -435,6 +441,16 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
       loginTextSelector,
       loginSubtextSelector,
     };
+
+    programNameSelector.innerText = currentPackageId;
+
+    if(currentPrice == 0){
+      hideElements([totalPriceSelector]);
+      showElements([priceCalculationSelector]);
+    }else{
+      hideElements([priceCalculationSelector]);
+      showElements([totalPriceSelector]);
+    }
 
     // Checkout Started Analytics
     currentTriggerBy = "button";
@@ -462,7 +478,6 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
       }
     }
     sendAnalyticsToSegment.track("select_item",properties);
-    letsAssignTextSelector.innerText = letsAssignText + currentPackageId;
     packageTypeShow()
     openCheckoutModal(currentPackageId, modalText);
   });
