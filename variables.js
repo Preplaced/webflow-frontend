@@ -98,7 +98,7 @@ let locationUpdated = false;
 
 //current Values
 let currentCurrency = "INR";
-let currentPrice = "";
+let currentPrice = "00";
 let currentPackageId = "";
 var currentRole = "";
 var currentDomain = "";

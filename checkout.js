@@ -171,7 +171,7 @@ function commonProceedToCheckout(modalText) {
 function commonSaveInfoToLocalStorage(package_id) {
   let domainText = domainSelector.options[domainSelector.selectedIndex].text; //change selector
   let companies = `${domainText} Domain`;
-  const price = currentPrice;
+  const price = +currentPrice;
   packageDetails = {
     package: package_id,
     experience_id: mentorExperienceSelector.value,
@@ -195,16 +195,6 @@ function commonSaveInfoToLocalStorage(package_id) {
     target_companies: currenTargetCompanies,
     mentor_instructions: currentMentorInstruction,
     version: "default",
-    "required":{
-      package_type:currentPackageType,
-      role:currentRole,
-      domain:currentDomain,
-      mentor_experience:currentMentorExperience,
-      upcoming_interview: currentUpcomingInterviewSchedule,
-      country:country,
-      addGST:addGST,
-      
-    }
   };
   localStorage.setItem("packageDetails", JSON.stringify(packageDetails));
 }

@@ -6,6 +6,12 @@ catch (e) { }
 // console.log("%cWelcome to Preplaced `LocalHost Server", "color: red; font-size:2rem;padding: 2px");
 
 loadFile("styles/style.js",false);
+
+//for development
+// loadFile("variables.js",false);
+// loadFile("checkout.js", false);
+
+//for production
 loadFile("variables.min.js",false);
 loadFile("checkout.min.js", false);
 
@@ -1156,13 +1162,4 @@ if (footerLogin) {
             showLoginModal();
         }
     }
-}
-
-
-/* -------------------------------------------------------------------------- */
-/*                            Add Class To Element                            */
-/* -------------------------------------------------------------------------- */
-
-function addClassToElements(){
-
 }
