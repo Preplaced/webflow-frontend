@@ -412,7 +412,7 @@ function packageTypeShow(){
 paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
   paymentCheckoutSelector.addEventListener("click", function (event) {
     scrollBody("hidden");
-    mentorExperienceSelector.setAttribute("disabled",true);
+    (mentorExperienceSelector.value === 'select_mentor_experience') && mentorExperienceSelector.setAttribute("disabled",true);
     var letsAssignText = "Let's assign you the perfect mentor for ";
     // Mandatory
     currentPackageId = paymentCheckoutSelector.getAttribute("package-id");
