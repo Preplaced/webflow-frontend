@@ -1167,9 +1167,16 @@ if (footerLogin) {
 
 
 window.onload = function () {
-    console.log("onload");
-    if (localStorage.getItem("hasCodeRunBefore") === null) {
-       sendAnalyticsToSegment.track
-        localStorage.setItem("hasCodeRunBefore", true);
+    if (localStorage.getItem("hasVisitedBefore") === null) {
+        let params = Object.fromEntries(
+            new URLSearchParams(window.location.search).entries()
+          );
+        var properties = {
+            utm_source: params.utm_source,
+            utm_medium: params.utm_medium,
+            utm_campaign: params.utm_campaign,
+        }
+        sendAnalyticsToSegment.track("first-website",properties)
+        localStorage.setItem("hasVisitedBefore", true);
     }
 }
