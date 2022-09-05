@@ -1175,7 +1175,7 @@ window.onload = function () {
             ...params,
             "referrer":document.referrer
         }
-        sendAnalyticsToSegment.track("first_website",properties)
+        sendAnalyticsToSegment.track("first_website_session",properties)
         localStorage.setItem("hasVisitedBefore", true);
     }
 }
