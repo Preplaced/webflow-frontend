@@ -3,7 +3,7 @@ try {
 }
 catch (e) { }
 
-// console.log("%cWelcome to Preplaced `LocalHost Server", "color: red; font-size:2rem;padding: 2px");
+console.log("%cWelcome to Preplaced LocalHost Server", "color: red; font-size:2rem;padding: 2px");
 
 loadFile("styles/style.js",false);
 
@@ -140,11 +140,23 @@ function triggerEvent(eventName, params) {
 }
 
 const sendAnalyticsToSegment = {
-    track: (eventName,properties) => {
-        console.log("eventName: ", eventName, "\n properties: ", properties);
-        analytics && analytics.track(eventName,properties)
+    track:(eventName,properties) => {
+        try{
+            var failedTimes = 1;
+            console.log("eventName: ", eventName, "\n properties: ", properties);
+            analytics && analytics.track(eventName,properties)
+            .then((success)=>{
+                if(success.logger.log() && failedTimes <= 5){
+                    analytics.track(eventName,properties)
+                    failedTimes++;
+                }
+            })
+            .catch((error)=>{console.log("Error in sendAnalyticsToSegment.track of analytics.track()",error)});
+        }catch(error){
+            console.error("Error in sendAnalyticsToSegment.track()",error);
+        }
     },
-    identify: (email,identities) => {
+    identify:(email,identities) => {
         analytics && analytics.identify(email,identities);
     }
 }
@@ -798,7 +810,7 @@ function verifyAndSendOTP(phoneNumber) {
         const properties = {
             "phone_number":phoneNumber,
             "button_name":currentButtonName
-        }
+        };
         sendAnalyticsToSegment.track("send_otp",properties);
         showElements([otpFieldSelector, resendOTPContainerSelector]);
         startResendTimer(resendOTPContainerSelector);
@@ -1062,6 +1074,8 @@ function onPaymentFailure(place) {
     console.error("Payment failed at", place);
     const properties = {
         "button_name":currentButtonName,
+        "item_id":currentSku,
+        "value": +pkDetails.totalPrice,
         ecommerce: {
           currency: pkDetails.currency,
           value: +pkDetails.totalPrice,
@@ -1121,7 +1135,7 @@ for(let i=0;i<menuLogin.length;i++){
         const properties = {
             "button_name": currentButtonName,
         }
-        sendAnalyticsToSegment.track("started_login_signup",properties);
+        sendAnalyticsToSegment.track("started_login/signup",properties);
         event.preventDefault();
         event.stopPropagation();
         event.returnValue = false;
@@ -1179,3 +1193,14 @@ window.onload = function () {
         localStorage.setItem("hasVisitedBefore", true);
     }
 }
+
+dashboardButton.addEventListener("click", (event) => {
+    var properties = {
+        "button_name": dashboardButton.getAttribute("button-name")
+    };
+    if(event.currentTarget.innerText.includes("Dashboard")){
+        sendAnalyticsToSegment.track("open_dashboard",properties);
+    }else{
+        sendAnalyticsToSegment.track("logout",properties);
+    }
+});

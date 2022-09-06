@@ -54,12 +54,19 @@ closeLoginModalIcon.onclick = function (event) {
   event.preventDefault();
   event.stopPropagation();
   closeLoginModal();
+  let properties = {
+    "button_name":currentButtonName
+  };
+  sendAnalyticsToSegment.track("close_login",properties);
 };
 
 closeCheckout.addEventListener("click", function (e) {
   e.preventDefault();
   closeCheckoutModal();
   scrollBody("scroll");
+  let properties = {
+  }
+  sendAnalyticsToSegment.track("close_checkout",properties);
 });
 
 /* -------------------------------------------------------------------------- */
@@ -470,6 +477,7 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
     const properties = {
       "button_name":currentButtonName,
       "triggered_by":currentTriggerBy,
+      "item_id":currentSku,
       "ecommerce":{
         "items":[{
           "item_id":currentSku,
@@ -522,6 +530,7 @@ function commonGetPricingData() {
       const properties = {
         "button_name":currentButtonName,
         "triggered_by":currentTriggerBy,
+        "item_id":currentSku,
         "ecommerce":{
           "items":[{
             "item_id":currentSku,
@@ -583,6 +592,8 @@ couponSubmitSelector.addEventListener("click", function (e) {
     var properties = {
       "button_name":currentButtonName,
       "triggered_by":currentTriggerBy,
+      "item_id":currentSku,
+      "value": +pkDetails.totalPrice,
       ecommerce: {
         currency: pkDetails.currency,
         value: +pkDetails.totalPrice,
@@ -657,6 +668,8 @@ payNowButtonSelector.addEventListener("click", function (e) {
   const properties = {
     "button_name":currentButtonName,
     "triggered_by":currentTriggerBy,
+    "item_id":currentSku,
+    "value": +pkDetails.totalPrice,
     ecommerce: {
       currency: pkDetails.currency,
       value: +pkDetails.totalPrice,
@@ -710,6 +723,8 @@ payNowButtonSelector.addEventListener("click", function (e) {
       const properties = {
         "button_name":currentButtonName,
         "triggered_by":currentTriggerBy,
+        "item_id":currentSku,
+        "value": +pkDetails.totalPrice,
         ecommerce: {
           transaction_id: response.razorpay_payment_id,
           currency: pkDetails.currency,
@@ -799,6 +814,8 @@ payNowButtonSelector.addEventListener("click", function (e) {
               const properties = {
                 "button_name":currentButtonName,
                 "triggered_by":currentTriggerBy,
+                "item_id":currentSku,
+                "value": +pkDetails.totalPrice,
                 ecommerce: {
                   currency: pkDetails.currency,
                   value: +pkDetails.totalPrice,
