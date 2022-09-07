@@ -65,6 +65,7 @@ closeCheckout.addEventListener("click", function (e) {
   closeCheckoutModal();
   scrollBody("scroll");
   let properties = {
+    "button_name":currentButtonName
   }
   sendAnalyticsToSegment.track("close_checkout",properties);
 });
