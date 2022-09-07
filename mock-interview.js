@@ -39,8 +39,6 @@ let domainClusters = {
     "sales_roles": "Sales Roles"
   }
 }
-
-
 // Initial variables
 let package_id = "mock-interview-bundle";
 let trial_package_id = "mock-interview";
@@ -70,7 +68,6 @@ var bookButton = getElement('program-book-button');
 var trialBookButton = getElement('trial-book-button');
 var bookNowForm = getElement('book-now-form-container');
 var contentSection = getElement('content-section');
-
 
 //Set initial Package Details
 packageName.innerText = "Mock Interview Bundle";
@@ -135,7 +132,6 @@ function getPricingData() {
     setGSTFlag(responseData.gstEnabled);
   });
 }
-
 
 function saveInfoToLocalStorage(forTrial){
   let domainText = domainSelector.options[domainSelector.selectedIndex].text;

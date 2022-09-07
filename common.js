@@ -2,8 +2,18 @@ try {
     document.domain = 'preplaced.in';
 }
 catch (e) { }
+
+// console.log("%cWelcome to Preplaced LocalHost Server", "color: red; font-size:2rem;padding: 2px");
+
 loadFile("styles/style.js",false);
-loadFile("checkout.js", false);
+
+//for development
+// loadFile("variables.js",false);
+// loadFile("checkout.js", false);
+
+//for production
+loadFile("variables.min.js",false);
+loadFile("checkout.min.js", false);
 
 var firebaseConfig = {
     apiKey: "AIzaSyDEjje1xnNR_5Ckx27w_8emPFUy5ppC0E8",
@@ -129,6 +139,28 @@ function triggerEvent(eventName, params) {
     fbq('track', eventName, fbParams);
 }
 
+const sendAnalyticsToSegment = {
+    track:(eventName,properties) => {
+        try{
+            var failedTimes = 1;
+            console.log("eventName: ", eventName, "\n properties: ", properties);
+            analytics && analytics.track(eventName,properties)
+            .then((success)=>{
+                if(success.logger.log() && failedTimes <= 5){
+                    analytics.track(eventName,properties)
+                    failedTimes++;
+                }
+            })
+            .catch((error)=>{console.log("Error in sendAnalyticsToSegment.track of analytics.track()",error)});
+        }catch(error){
+            console.error("Error in sendAnalyticsToSegment.track()",error);
+        }
+    },
+    identify:(email,identities) => {
+        analytics && analytics.identify(email,identities);
+    }
+}
+
 function triggerPurchase(packageDetails) {
     packageDetails['item_name'] = packageDetails.package;
     packageDetails['item_id'] = packageDetails.package;
@@ -215,7 +247,6 @@ function getAPI(url, successCallback, errorCallback) {
 }
 
 function postAPI(url, data, successCallback, errorCallback) {
-    console.log("data=====>",data);
     axios.post(url, data, getDefaultConfig())
         .then(function (response) {
             successCallback(response);
@@ -404,6 +435,7 @@ function getLocationData(callback) {
 function getLocationFromStorage(onFetch) {
     let locationData = JSON.parse(localStorage.getItem("locationData"));
     if (!locationData) {
+        console.log("locationData",locationData);
         getLocationData(function (data) {
             locationData = {
                 "country": data.country === "IN" ? "India" : data.country
@@ -699,27 +731,6 @@ firebase.auth().onAuthStateChanged(function (user) {
     }
 });
 
-let debounceTimer;
-let timerId;
-var throttle = function (func, delay) {
-    // If setTimeout is already scheduled, no need to do anything
-    if (timerId) {
-        return
-    }
-    // Schedule a setTimeout after delay seconds
-    timerId = setTimeout(function () {
-        func()
-
-        // Once setTimeout function execution is finished, timerId = undefined so that in <br>
-        // the next scroll event function execution can be scheduled by the setTimeout
-        timerId = undefined;
-    }, delay);
-}
-const debounce = (func, delay) => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => func(), delay)
-}
-
 let lastScrollTop = 0;
 
 let isNavbarChangeNeeded = true;
@@ -796,7 +807,11 @@ function verifyAndSendOTP(phoneNumber) {
     showElements([recaptchaSelector]);
 
     var onOTPSent = function () {
-        console.log("otp Sent");
+        const properties = {
+            "phone_number":phoneNumber,
+            "button_name":currentButtonName
+        };
+        sendAnalyticsToSegment.track("send_otp",properties);
         showElements([otpFieldSelector, resendOTPContainerSelector]);
         startResendTimer(resendOTPContainerSelector);
         otpSent = true;
@@ -893,6 +908,16 @@ formButtonSelector.addEventListener('click', function (e) {
             if (validFields) {
                 function onLogin() {
 
+                    // login Analytics
+                    signInType = "login"; // login signInType
+                    if(signInType === "login"){
+                        const properties = {
+                            'source': 'sign-in',
+                            'method': 'otp',
+                            'button_name':currentButtonName
+                        }
+                        sendAnalyticsToSegment.track("login",properties);
+                    }
                     triggerEvent('Signed In', {
                         'source': 'sign-in',
                         'method': 'phone',
@@ -913,7 +938,7 @@ formButtonSelector.addEventListener('click', function (e) {
                 removeButtonLoading(formButtonSelector, "Verify OTP");
             }
         }
-        else {
+        else {        
             let validFields = checkFieldsAndShowError([otpFieldSelector, userNameSelector, userEmailSelector, acceptTermsSelector], errorFieldSelector)
             if (validFields) {
                 async function onLogin(result) {
@@ -946,6 +971,18 @@ formButtonSelector.addEventListener('click', function (e) {
                                         email: userEmailSelector.value.toLowerCase(),
                                         phone: phoneNumber
                                     });
+                                }
+                                // SignUp Analytics
+                                signInType = 'register';
+                                if(signInType === 'register'){
+                                    let properties = {
+                                        name: userNameValue,
+                                        email: userEmailSelector.value.toLowerCase(),
+                                        phone: phoneNumber,
+                                        button_name:currentButtonName,
+                                        method:"otp"
+                                    }
+                                    sendAnalyticsToSegment.track("sign_up",properties);
                                 }
 
                                 triggerEvent('Signed Up', {
@@ -1035,6 +1072,43 @@ input.addEventListener('keyup', reset);
 
 function onPaymentFailure(place) {
     console.error("Payment failed at", place);
+    const properties = {
+        "button_name":currentButtonName,
+        "item_id":currentSku,
+        "value": +pkDetails.totalPrice,
+        ecommerce: {
+          currency: pkDetails.currency,
+          value: +pkDetails.totalPrice,
+          coupon: pkDetails.coupon,
+          items:[
+            {
+              "item_id":currentSku,
+              "item_name":currentPackageId,
+              "item_variant": currentMentorExperience,
+              "coupon":pkDetails.coupon,
+              "currency":pkDetails.currency,
+              "addGST": pkDetails.addGST,
+              "country": pkDetails.country,
+              "designation": pkDetails.designation,
+              "domain": pkDetails.domain,
+              "domain_id": pkDetails.domain_id,
+              "experience": pkDetails.experience,
+              "experience_id": pkDetails.experience_id,
+              "mentor_instructions": pkDetails.mentor_instructions,
+              "package": pkDetails.package,
+              "package_type": pkDetails.package_type,
+              "preferred_mentor_experience": pkDetails.preferred_mentor_experience,
+              "price": pkDetails.price,
+              "target_companies": pkDetails.target_companies,
+              "target_role": pkDetails.target_role,
+              "value": +pkDetails.totalPrice,
+              "upcoming_interview": pkDetails.upcoming_interview,
+              "version": pkDetails.version
+            }
+          ]
+        }
+      }
+    sendAnalyticsToSegment.track("failed_payment",properties);
     hideElements([orderLoader]);
     showElements([orderOverlay, orderErrorSelector]);
 }
@@ -1057,6 +1131,11 @@ function closeLoginModal() {
 
 for(let i=0;i<menuLogin.length;i++){
     menuLogin[i].onclick = function (event) {
+        currentButtonName = menuLogin[i].getAttribute("button-name");
+        const properties = {
+            "button_name": currentButtonName,
+        }
+        sendAnalyticsToSegment.track("started_login/signup",properties);
         event.preventDefault();
         event.stopPropagation();
         event.returnValue = false;
@@ -1067,7 +1146,6 @@ for(let i=0;i<menuLogin.length;i++){
 
 let bookSessionMethod = function () {
     triggerEvent('Sales Session Booking Started', {});
-    //Intercom('trackEvent', 'Sales Session Booking Started');
 }
 
 //intercombot launch
@@ -1099,3 +1177,30 @@ if (footerLogin) {
         }
     }
 }
+
+
+
+window.onload = function () {
+    if (localStorage.getItem("hasVisitedBefore") === null) {
+        let params = Object.fromEntries(
+            new URLSearchParams(window.location.search).entries()
+          );
+        var properties = {
+            ...params,
+            "referrer":document.referrer
+        }
+        sendAnalyticsToSegment.track("first_website_session",properties)
+        localStorage.setItem("hasVisitedBefore", true);
+    }
+}
+
+dashboardButton.addEventListener("click", (event) => {
+    var properties = {
+        "button_name": dashboardButton.getAttribute("button-name")
+    };
+    if(event.currentTarget.innerText.includes("Dashboard")){
+        sendAnalyticsToSegment.track("open_dashboard",properties);
+    }else{
+        sendAnalyticsToSegment.track("logout",properties);
+    }
+});
