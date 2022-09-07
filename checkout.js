@@ -1,140 +1,3 @@
-//remove before upload --> rm -rf
-
-/* -------------------------------------------------------------------------- */
-/*                            Variable Declarations                           */
-/* -------------------------------------------------------------------------- */
-
-let pkDetails = JSON.parse(localStorage.getItem("packageDetails"));
-let totalPrice = 0;
-let coupon = "";
-let gstAdded = (pkDetails && pkDetails.addGST) || false;
-let gstPrice = 0;
-let bubbleButtonsFlag = true;
-
-// Selectors
-let [
-  changeDomainSelector,
-  domainTitleSelector,
-  experienceTitleSelector,
-  packageTitleSelector,
-  couponSelector,
-  couponSubmitSelector,
-  couponSuccessSelector,
-  couponErrorSelector,
-  totalAmountTextSelector,
-  payNowButtonSelector,
-  userDetailsSelector,
-  nameDetailsSelector,
-  phoneDetailsSelector,
-  emailDetailsSelector,
-  payNowOverlay,
-  payNowWrapper,
-  packagePriceSelector,
-  discountPriceSelector,
-  // totalPriceSelector,
-  orderOverlay,
-  orderErrorSelector,
-  orderLoader,
-  hideOverlay,
-  gstContainer,
-  gstLabel,
-  gstPriceDiv,
-  closeCheckout,
-  mentorInstructionSelector,
-  letsAssignTextSelector
-] = getElements([
-  "change-domain",
-  "domain-title",
-  "experience-title",
-  "package-title",
-  "coupon-field-new",
-  "coupon-submit-new",
-  "coupon-success-new",
-  "coupon-error-new",
-  "total-amount-text",
-  "pay-now-button-new",
-  "user-details-section",
-  "verified-user-name",
-  "verified-user-phone",
-  "verified-user-email",
-  "pay-now-overlay",
-  "pay-now-wrapper",
-  "package-price-new",
-  "coupon-discount-price-new",
-  // "total-price",
-  "order-overlay",
-  "order-error",
-  "order-loader",
-  "hide-overlay",
-  "gst-addition-container",
-  "gst-label",
-  "gst-price",
-  "close-checkout-new",
-  "specific-instructions-new",
-  "lets-assign-text"
-]);
-let targetRoleSelector = getElement("target-role-new");
-let targetCompaniesSelector = getElement("company-selector-new");
-let domainSelector = getElement("target-domain-new");
-let upcomingInterviewSelectors = document.getElementsByName("Radio-Options");
-let mentorExperienceSelector = getElement("mentor-experience-new");
-let totalPriceSelector = document.querySelector("#checkout-new #total-price");
-var loginTextSelector = getElement("login-text");
-var loginSubtextSelector = getElement("login-subtext");
-var selectDurationOrCountSelector = document.getElementsByClassName(
-  "duration-count-selector-grid"
-)[0];
-var tC_ErrorSelector = getElement("tc-error");
-var bubbleButtonsSelectors;
-
-//variables
-let pricing = {};
-let experienceList = [
-  "0-3 years",
-  "4-6 years",
-  "7-10 years",
-  "10-15 years",
-  "15+ years",
-];
-let country = "India";
-let locationUpdated = false;
-
-//current Values
-let currentCurrency = "INR";
-let currentPrice = "7999";
-let currentPackageId = "Interview Preparation Program";
-var currentRole = "0-3 years";
-var currentDomain = "backend_developer";
-var currentUpcomingInterviewSchedule = "No";
-var currentMentorExperience = "";
-var currenTargetCompanies = [];
-var currentMentorInstruction = "";
-var currentPackageType = "Trial";
-var currentPackageDetails = {};
-var currentPackageDetail = {};
-
-let packageDetails = {};
-let allTargetDomain = {
-  backend_developer: "Backend Developer",
-  frontend_developer: "Frontend Developer",
-  fullstack_developer: "Fullstack Developer",
-  data_scientist: "Data Scientist",
-  ai_ml_engineer: "AI/ML Engineer",
-  data_analyst: "Data Analyst",
-  data_engineer: "Data Engineer",
-  devops_engineer: "DevOps Engineer",
-  sre: "SRE",
-  cloud_engineer: "Cloud Engineer",
-  project_manager: "Project Manager",
-  finance_roles: "Finance Roles",
-  marketing_roles: "Marketing Roles",
-  hr: "HR",
-  consultant: "Consultant",
-  business_analyst: "Business Analyst",
-  sales_roles: "Sales Roles",
-};
-let addGST = false;
-
 /* -------------------------------------------------------------------------- */
 /*                              Select2 Register                              */
 /* -------------------------------------------------------------------------- */
@@ -146,6 +9,10 @@ $targetCompaniesSelector = $("#company-selector-new").select2({
   matcher: matchMaker,
   minimumInputLength: 3,
 });
+
+/* -------------------------------------------------------------------------- */
+/*                                  Explainer                                 */
+/* -------------------------------------------------------------------------- */
 
 const explainers = {
   "wwyg-trial": ["Interview Preparation Program - Trial"],
@@ -187,18 +54,25 @@ closeLoginModalIcon.onclick = function (event) {
   event.preventDefault();
   event.stopPropagation();
   closeLoginModal();
+  let properties = {
+    "button_name":currentButtonName
+  };
+  sendAnalyticsToSegment.track("close_login",properties);
 };
 
 closeCheckout.addEventListener("click", function (e) {
   e.preventDefault();
-  // redirect("/"+pkDetails.package_id);
   closeCheckoutModal();
+  scrollBody("scroll");
+  let properties = {
+    "button_name":currentButtonName
+  }
+  sendAnalyticsToSegment.track("close_checkout",properties);
 });
 
 /* -------------------------------------------------------------------------- */
 /*                           Handle Display Pricing                           */
 /* -------------------------------------------------------------------------- */
-
 function handlePaymentSectionUI() {
   updatePaymentInfo();
   packagePriceSelector.innerText = `${currencyMap[pkDetails.currency]} ${
@@ -210,7 +84,6 @@ function handlePaymentSectionUI() {
     if (pkDetails.currency !== "INR") {
       gstLabel.innerText = "IGST (18%)";
     }
-    // showElements([gstContainer]);
   } else {
     hideElements([gstContainer]);
   }
@@ -249,10 +122,6 @@ function updatePaymentInfo(couponDiscount) {
 }
 
 function updateUI() {
-  // domainTitleSelector.innerText = pkDetails.domain;
-  // packageTitleSelector.innerText = packageMap[pkDetails.package_id];
-  // experienceTitleSelector.innerText = pkDetails.experience !== "Fresher" ? pkDetails.experience + " Experience" : "Fresher";
-  // handleUserDetailsUI();
   handlePaymentSectionUI();
 }
 
@@ -264,15 +133,6 @@ function updateCheckoutValuesOnShown() {
   gstPrice = 0;
   updateUI();
 }
-
-// function selectOptionCreated(selector, optionsObject) {
-//   for (let option in optionsObject) {
-//     var optionTag = document.createElement("option");
-//     optionTag.value = option;
-//     optionTag.innerText = optionsObject[option];
-//     selector.appendChild(optionTag);
-//   }
-// }
 
 /* -------------------------------------------------------------------------- */
 /*                           Getting Companies List                           */
@@ -288,7 +148,6 @@ function populatePreferredCompanies(companies) {
 }
 
 function getCompanies() {
-  //getCompanies from backend
   getAllCompanies(function (responseData) {
     populatePreferredCompanies(responseData["companyArray"]);
   });
@@ -296,35 +155,6 @@ function getCompanies() {
 
 getCompanies();
 
-/* -------------------------------------------------------------------------- */
-/*                           CheckOut Dynamic Common                          */
-/* -------------------------------------------------------------------------- */
-
-/* -------------------------------------------------------------------------- */
-/*                      Create Package Selector DropDown                      */
-/* -------------------------------------------------------------------------- */
-// Creating the single select dropdown for selecting different programs
-var divTag = document.createElement("div"); // div for the parent for select list
-var pTag = document.createElement("p"); // p to give label to the list
-pTag.innerText = "Interview package Selection";
-
-// Create and append select list
-var selectList = document.createElement("select");
-selectList.id = "interview-package-selection";
-divTag.appendChild(pTag);
-divTag.appendChild(selectList);
-// clonedCheckoutForm.appendChild(divTag);
-
-// Create and append the options
-for (let property in packageMap) {
-  var option = document.createElement("option");
-  option.value = property;
-  option.text = packageMap[property];
-  selectList.appendChild(option);
-}
-
-// Setting the attribute for select list
-selectList.setAttribute("name", "Experience-4");
 var paymentCheckoutSelectors = document.querySelectorAll(".payment-checkout");
 
 const successGetAllPriceForCountry = (response) => {
@@ -349,7 +179,7 @@ function commonProceedToCheckout(modalText) {
 function commonSaveInfoToLocalStorage(package_id) {
   let domainText = domainSelector.options[domainSelector.selectedIndex].text; //change selector
   let companies = `${domainText} Domain`;
-  const price = currentPrice;
+  const price = +currentPrice;
   packageDetails = {
     package: package_id,
     experience_id: mentorExperienceSelector.value,
@@ -399,7 +229,7 @@ function commonDisableLowerMentorDesignationOptions() {
     targetRoleSelector.value
   );
   for (let optionIndex in mentorExperienceSelector.options) {
-    mentorExperienceSelector.options[optionIndex].disabled =
+      mentorExperienceSelector.options[optionIndex].disabled =
       candidateExperienceIndex > optionIndex;
   }
 }
@@ -461,6 +291,7 @@ function setCurrentPrice() {
         currentMentorExperience
     ) {
       currentPrice = currentPackageDetail.pricing[i].inr_pricing;
+      currentSku = currentPackageDetail.pricing[i].sku
       break;
     } else if (
       currentCurrency !== "INR" &&
@@ -468,6 +299,7 @@ function setCurrentPrice() {
         currentMentorExperience
     ) {
       currentPrice = currentPackageDetail.pricing[i].usd_pricing;
+      currentSku = currentPackageDetail.pricing[i].sku
       break;
     }
   }
@@ -483,48 +315,49 @@ function commonUpdatePricing() {
   setCurrentPrice();
 }
 
-selectList.onchange = function (event) {
-  // currentPackageId = selectList.options[selectList.selectedIndex].value;
-  commonUpdatePricing();
-  commonSaveInfoToLocalStorage(currentPackageId);
-  updateCheckoutValuesOnShown();
-};
-
 /* -------------------------------------------------------------------------- */
 /*              onChange of targetRole & mentorExperienceSelector             */
 /* -------------------------------------------------------------------------- */
 
 targetRoleSelector.onchange = function (event) {
   event.preventDefault();
-  mentorExperienceSelector.value = targetRoleSelector.value;
-  commonUpdatePricing();
+  currentRole = event.target.value;
+  if(event.target.value !== "select_designation"){
+    targetRoleSelector.classList.remove("error");
+    mentorExperienceSelector.removeAttribute("disabled");
+    // mentorExperienceSelector.classList.remove("error");
+  }
+  mentorExperienceSelector.value = 'select_mentor_experience';
   commonDisableLowerMentorDesignationOptions();
+  // commonUpdatePricing();
   commonSaveInfoToLocalStorage(currentPackageId);
   updateCheckoutValuesOnShown();
 };
 
 mentorExperienceSelector.onchange = function (event) {
   event.preventDefault();
+  currentMentorExperience = event.target.value;
+  event.target.value !== "select_mentor_experience" && mentorExperienceSelector.classList.remove("error");
   commonUpdatePricing();
+  if(currentPrice == 0){
+    hideElements([totalPriceSelector]);
+    showElements([priceCalculationSelector]);
+  }else{
+    hideElements([priceCalculationSelector]);
+    showElements([totalPriceSelector]);
+  }
   commonSaveInfoToLocalStorage(currentPackageId);
   updateCheckoutValuesOnShown();
 };
 
 domainSelector.onchange = function (event) {
   event.preventDefault();
-  commonUpdatePricing();
+  currentDomain = event.target.value;
+  event.target.value !== "select_domain" && domainSelector.classList.remove("error");
+  // commonUpdatePricing();
   commonSaveInfoToLocalStorage(currentPackageId);
-  updateCheckoutValuesOnShown();
+  // updateCheckoutValuesOnShown();
 };
-
-function setSelectedValue(selectObj, valueToSet) {
-  for (var i = 0; i < selectObj.options.length; i++) {
-    if (selectObj.options[i].value == valueToSet) {
-      selectObj.options[i].selected = true;
-    }
-  }
-  return selectObj;
-}
 
 function bubbleButtonClicks() {
   bubbleButtonsSelectors = document.querySelectorAll("[name=Type-Options]");
@@ -593,7 +426,8 @@ function packageTypeShow(){
 
 paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
   paymentCheckoutSelector.addEventListener("click", function (event) {
-    var letsAssignText = "Let's assign you the perfect mentor for ";
+    scrollBody("hidden");
+    (mentorExperienceSelector.value === 'select_mentor_experience' && targetRoleSelector.value === 'select_designation') && mentorExperienceSelector.setAttribute("disabled",true);
     // Mandatory
     currentPackageId = paymentCheckoutSelector.getAttribute("package-id");
     currentPackageType = paymentCheckoutSelector.getAttribute("package-type");
@@ -616,17 +450,44 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
       loginSubtextSelector,
     };
 
-    letsAssignTextSelector.innerText = letsAssignText + currentPackageId;
-    // let analytics_gtag = {
-    //   role,
-    //   domain,
-    //   package_id: currentPackageId,
-    //   mentor_experience: currentMentorExperience,
-    // };
+    programNameSelector.innerText = currentPackageId;
 
-    //explainer showcase on button click
+    if(currentPrice == 0){
+      hideElements([totalPriceSelector]);
+      showElements([priceCalculationSelector]);
+    }else{
+      hideElements([priceCalculationSelector]);
+      showElements([totalPriceSelector]);
+    }
+
+    // Checkout Started Analytics
+    currentTriggerBy = "button";
+    currentButtonName = paymentCheckoutSelector.getAttribute("button-name");
+
+    //getting current Sku
+    pricing.map((price)=>{
+      if(price.name === currentPackageId){
+        price.type.map((type) => {
+            if(type.name === currentPackageType){
+              currentSku = type.pricing[0].sku
+            }
+        })
+      }
+    })
+
+    const properties = {
+      "button_name":currentButtonName,
+      "triggered_by":currentTriggerBy,
+      "item_id":currentSku,
+      "ecommerce":{
+        "items":[{
+          "item_id":currentSku,
+          "item_name":currentPackageId,
+        }]
+      }
+    }
+    sendAnalyticsToSegment.track("select_item",properties);
     packageTypeShow()
-
     openCheckoutModal(currentPackageId, modalText);
   });
 });
@@ -657,7 +518,7 @@ function commonSetGSTFlag(gstEnabled) {
 function commonGetPricingData() {
   getAllPricing(function (response) {
     pricing = response;
-    commonUpdatePricing();
+    // commonUpdatePricing();
     currentCurrency = country === "India" ? "INR" : "USD";
     commonSetGSTFlag(false);
     let params = Object.fromEntries(
@@ -666,6 +527,19 @@ function commonGetPricingData() {
     if ( params.checkout && params["package-id"] && params["package-type"] && response ) {
       currentPackageId = params["package-id"];
       currentPackageType = params["package-type"];
+      currentTriggerBy = "url";
+      const properties = {
+        "button_name":currentButtonName,
+        "triggered_by":currentTriggerBy,
+        "item_id":currentSku,
+        "ecommerce":{
+          "items":[{
+            "item_id":currentSku,
+            "item_name":currentPackageId,
+          }]
+        }
+      }
+    sendAnalyticsToSegment.track("select_item",properties);
       packageTypeShow()
       openCheckoutModal(currentPackageId);
     }
@@ -687,8 +561,6 @@ function onInvalidCoupon() {
   couponSubmitSelector.innerText = "Redeem";
   updatePaymentInfo();
   coupon = "";
-  // discountPriceSelector.innerText=`${currencyMap[pkDetails.currency]} 0`;
-  // totalPriceSelector.innerText=`${currencyMap[pkDetails.currency]} ${totalPrice}`;
 }
 
 function checkCoupon(coupon, successCallback, errorCallback) {
@@ -717,6 +589,45 @@ couponSubmitSelector.addEventListener("click", function (e) {
   hideElements([couponErrorSelector, couponSuccessSelector]);
   coupon = couponSelector.value.toUpperCase().trim();
   if (coupon) {
+    currentCoupon = coupon;
+    var properties = {
+      "button_name":currentButtonName,
+      "triggered_by":currentTriggerBy,
+      "item_id":currentSku,
+      "value": +pkDetails.totalPrice,
+      ecommerce: {
+        currency: pkDetails.currency,
+        value: +pkDetails.totalPrice,
+        "promotion_id": coupon,
+        items:[
+          {
+            "item_id":currentSku,
+            "item_name":currentPackageId,
+            "item_variant":currentMentorExperience,
+            "coupon":coupon,
+            "currency":pkDetails.currency,
+            "addGST": pkDetails.addGST,
+            "country": pkDetails.country,
+            "designation": pkDetails.designation,
+            "domain": pkDetails.domain,
+            "domain_id": pkDetails.domain_id,
+            "experience": pkDetails.experience,
+            "experience_id": pkDetails.experience_id,
+            "mentor_instructions": pkDetails.mentor_instructions,
+            "package": pkDetails.package,
+            "package_type": pkDetails.package_type,
+            "preferred_mentor_experience": pkDetails.preferred_mentor_experience,
+            "price": pkDetails.price,
+            "target_companies": currenTargetCompanies,
+            "target_role": pkDetails.target_role,
+            "value": +pkDetails.totalPrice,
+            "upcoming_interview": pkDetails.upcoming_interview,
+            "version": pkDetails.version
+          }
+        ]
+      }
+    }
+    sendAnalyticsToSegment.track("select_promotion",properties)
     checkCoupon(coupon, onCouponApplied, onInvalidCoupon);
   } else {
     couponSubmitSelector.innerText = "Redeem";
@@ -747,13 +658,55 @@ function payNowButtonIdealState(){
 
 
 payNowButtonSelector.addEventListener("click", function (e) {
-  if($targetCompaniesSelector.val().length === 0){
-    targetCompaniesSelector.focus();
-    showElements([tC_ErrorSelector]);
+  if($targetCompaniesSelector.val().length === 0 || targetRoleSelector.value === 'select_designation' || domainSelector.value === 'select_domain' || mentorExperienceSelector.value === 'select_mentor_experience'){
+    targetRoleSelector.value === 'select_designation' && targetRoleSelector.classList.add("error");
+    domainSelector.value === 'select_domain' && domainSelector.classList.add("error");
+    mentorExperienceSelector.value === 'select_mentor_experience' && mentorExperienceSelector.classList.add("error");
+    $targetCompaniesSelector.val().length === 0 && targetCompaniesSelector.parentElement.classList.add("error");
+    $targetCompaniesSelector.val().length === 0 && showElements([tC_ErrorSelector]);
+    $('.error').filter(":first")[0].scrollIntoView();
   }else{
+  const properties = {
+    "button_name":currentButtonName,
+    "triggered_by":currentTriggerBy,
+    "item_id":currentSku,
+    "value": +pkDetails.totalPrice,
+    ecommerce: {
+      currency: pkDetails.currency,
+      value: +pkDetails.totalPrice,
+      coupon: currentCoupon,
+      items:[
+        {
+          "item_id":currentSku,
+          "item_name":currentPackageId,
+          "item_variant": currentMentorExperience,
+          "coupon":currentCoupon,
+          "currency":pkDetails.currency,
+          "addGST": pkDetails.addGST,
+          "country": pkDetails.country,
+          "designation": pkDetails.designation,
+          "domain": pkDetails.domain,
+          "domain_id": pkDetails.domain_id,
+          "experience": pkDetails.experience,
+          "experience_id": pkDetails.experience_id,
+          "mentor_instructions": pkDetails.mentor_instructions,
+          "package": pkDetails.package,
+          "package_type": pkDetails.package_type,
+          "preferred_mentor_experience": pkDetails.preferred_mentor_experience,
+          "price": pkDetails.price,
+          "target_companies": currenTargetCompanies,
+          "target_role": pkDetails.target_role,
+          "value": +pkDetails.totalPrice,
+          "upcoming_interview": pkDetails.upcoming_interview,
+          "version": pkDetails.version
+        }
+      ]
+    }
+  }
+  sendAnalyticsToSegment.track("begin_checkout",properties);
+
   e.preventDefault();
   payNowButtonLoader();
-  console.log(" pkDetails in createOrder ", pkDetails);
   hideElements([orderErrorSelector]);
   showElements([orderOverlay, orderLoader]);
   if (
@@ -768,8 +721,47 @@ payNowButtonSelector.addEventListener("click", function (e) {
       pkDetails["totalPrice"] = totalPrice;
       pkDetails["order_id"] = response.razorpay_order_id;
       triggerPurchase(pkDetails);
+      const properties = {
+        "button_name":currentButtonName,
+        "triggered_by":currentTriggerBy,
+        "item_id":currentSku,
+        "value": +pkDetails.totalPrice,
+        transaction_id: response.razorpay_payment_id,
+        ecommerce: {
+          transaction_id: response.razorpay_payment_id,
+          currency: pkDetails.currency,
+          value: +pkDetails.totalPrice,
+          coupon: pkDetails.coupon,
+          items:[
+            {
+              "item_id":currentSku,
+              "item_name":currentPackageId,
+              "item_variant": currentMentorExperience,
+              "coupon":pkDetails.coupon,
+              "currency":pkDetails.currency,
+              "addGST": pkDetails.addGST,
+              "country": pkDetails.country,
+              "designation": pkDetails.designation,
+              "domain": pkDetails.domain,
+              "domain_id": pkDetails.domain_id,
+              "experience": pkDetails.experience,
+              "experience_id": pkDetails.experience_id,
+              "mentor_instructions": pkDetails.mentor_instructions,
+              "package": pkDetails.package,
+              "package_type": pkDetails.package_type,
+              "preferred_mentor_experience": pkDetails.preferred_mentor_experience,
+              "price": pkDetails.price,
+              "target_companies": pkDetails.target_companies,
+              "target_role": pkDetails.target_role,
+              "value": +pkDetails.totalPrice,
+              "upcoming_interview": pkDetails.upcoming_interview,
+              "version": pkDetails.version
+            }
+          ]
+        }
+      }
+      sendAnalyticsToSegment.track("purchase",properties); // TODO 
       function goToThankYouPage() {
-        // redirect('/thankyou');
         hideElements([orderOverlay, orderLoader, checkoutModal]);
         showElements([thankyouModal], "flex");
         var redirectingText = getElement("redirecting-text");
@@ -821,6 +813,44 @@ payNowButtonSelector.addEventListener("click", function (e) {
           },
           "modal": {
             "ondismiss": function(){
+              const properties = {
+                "button_name":currentButtonName,
+                "triggered_by":currentTriggerBy,
+                "item_id":currentSku,
+                "value": +pkDetails.totalPrice,
+                ecommerce: {
+                  currency: pkDetails.currency,
+                  value: +pkDetails.totalPrice,
+                  coupon: pkDetails.coupon,
+                  items:[
+                    {
+                      "item_id":currentSku,
+                      "item_name":currentPackageId,
+                      "item_variant": currentMentorExperience,
+                      "coupon":pkDetails.coupon,
+                      "currency":pkDetails.currency,
+                      "addGST": pkDetails.addGST,
+                      "country": pkDetails.country,
+                      "designation": pkDetails.designation,
+                      "domain": pkDetails.domain,
+                      "domain_id": pkDetails.domain_id,
+                      "experience": pkDetails.experience,
+                      "experience_id": pkDetails.experience_id,
+                      "mentor_instructions": pkDetails.mentor_instructions,
+                      "package": pkDetails.package,
+                      "package_type": pkDetails.package_type,
+                      "preferred_mentor_experience": pkDetails.preferred_mentor_experience,
+                      "price": pkDetails.price,
+                      "target_companies": pkDetails.target_companies,
+                      "target_role": pkDetails.target_role,
+                      "value": +pkDetails.totalPrice,
+                      "upcoming_interview": pkDetails.upcoming_interview,
+                      "version": pkDetails.version
+                    }
+                  ]
+                }
+              }
+              sendAnalyticsToSegment.track("dismiss_payment",properties);
               payNowButtonIdealState()
             }
         }
@@ -907,5 +937,11 @@ $('#company-selector-new').select2({
   matcher: matchMaker,
   minimumInputLength: 3,
 }).on('change', function(){
+  currenTargetCompanies = $targetCompaniesSelector.val().join(",");
+  targetCompaniesSelector.parentElement.classList.remove("error");
   hideElements([tC_ErrorSelector])
 });
+
+function scrollBody(overflowValue){
+    document.body.style.overflow = overflowValue;
+}
