@@ -726,6 +726,7 @@ payNowButtonSelector.addEventListener("click", function (e) {
         "triggered_by":currentTriggerBy,
         "item_id":currentSku,
         "value": +pkDetails.totalPrice,
+        transaction_id: response.razorpay_payment_id,
         ecommerce: {
           transaction_id: response.razorpay_payment_id,
           currency: pkDetails.currency,
