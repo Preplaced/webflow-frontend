@@ -57,7 +57,7 @@ closeLoginModalIcon.onclick = function (event) {
   let properties = {
     "button_name":currentButtonName
   };
-  sendAnalyticsToSegment.track("close_login",properties);
+  sendAnalyticsToSegment.track("Login/Signup Cancelled",properties);
 };
 
 closeCheckout.addEventListener("click", function (e) {
@@ -67,7 +67,7 @@ closeCheckout.addEventListener("click", function (e) {
   let properties = {
     "button_name":currentButtonName
   }
-  sendAnalyticsToSegment.track("close_checkout",properties);
+  sendAnalyticsToSegment.track("Checkout Cancelled",properties);
 });
 
 /* -------------------------------------------------------------------------- */
@@ -210,14 +210,14 @@ function commonSaveInfoToLocalStorage(package_id) {
 function commonPaymentCheckout(package_id, modalText) {
   try {
     commonSaveInfoToLocalStorage(package_id); //save the form Info here to local Storage which will be used in the checkout page
-    triggerEvent("Checkout Started", {
-      experience: packageDetails.experience,
-      domain: packageDetails.domain,
-      designation: packageDetails.designation,
-      target_companies: packageDetails.target_companies,
-      logged_in: !!accessToken,
-      items: packageDetails,
-    });
+    // REMIND triggerEvent("Checkout Started", {
+    //   experience: packageDetails.experience,
+    //   domain: packageDetails.domain,
+    //   designation: packageDetails.designation,
+    //   target_companies: packageDetails.target_companies,
+    //   logged_in: !!accessToken,
+    //   items: packageDetails,
+    // });
     commonProceedToCheckout(modalText);
   } catch (error) {
     console.error("error in commonPaymentCheckout()", error);
@@ -479,6 +479,9 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
       "button_name":currentButtonName,
       "triggered_by":currentTriggerBy,
       "item_id":currentSku,
+    "package_name":currentPackageId,
+    "package_type":currentPackageType,
+    logged_in: !!accessToken,
       "ecommerce":{
         "items":[{
           "item_id":currentSku,
@@ -486,7 +489,7 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
         }]
       }
     }
-    sendAnalyticsToSegment.track("select_item",properties);
+    sendAnalyticsToSegment.track("Checkout Started",properties);
     packageTypeShow()
     openCheckoutModal(currentPackageId, modalText);
   });
@@ -532,6 +535,9 @@ function commonGetPricingData() {
         "button_name":currentButtonName,
         "triggered_by":currentTriggerBy,
         "item_id":currentSku,
+        "package_name":currentPackageId,
+        "package_type":currentPackageType,
+        logged_in: !!accessToken,
         "ecommerce":{
           "items":[{
             "item_id":currentSku,
@@ -539,7 +545,7 @@ function commonGetPricingData() {
           }]
         }
       }
-    sendAnalyticsToSegment.track("select_item",properties);
+    sendAnalyticsToSegment.track("Checkout Started",properties);
       packageTypeShow()
       openCheckoutModal(currentPackageId);
     }
@@ -564,13 +570,55 @@ function onInvalidCoupon() {
 }
 
 function checkCoupon(coupon, successCallback, errorCallback) {
-  triggerEvent("Coupon Applied", { coupon: coupon });
+// REMIND   triggerEvent("Coupon Applied", { coupon: coupon });
   let url = apiBaseURL + `pricing/validate-coupon/v2/${coupon}`;
   getAPI(
     url,
     function (response) {
       if (response.status === 200) {
         var discount = response.data;
+        var properties = {
+            "button_name":currentButtonName,
+            "triggered_by":currentTriggerBy,
+            "item_id":currentSku,
+            "value": +pkDetails.totalPrice,
+            "coupon_code": coupon,
+            package_name:currentPackageId,
+            package_type:currentPackageType,
+            package_amount:currentPrice,
+            ecommerce: {
+              currency: pkDetails.currency,
+              value: +pkDetails.totalPrice,
+              "promotion_id": coupon,
+              items:[
+                {
+                  "item_id":currentSku,
+                  "item_name":currentPackageId,
+                  "item_variant":currentMentorExperience,
+                  "coupon":coupon,
+                  "currency":pkDetails.currency,
+                  "addGST": pkDetails.addGST,
+                  "country": pkDetails.country,
+                  "designation": pkDetails.designation,
+                  "domain": pkDetails.domain,
+                  "domain_id": pkDetails.domain_id,
+                  "experience": pkDetails.experience,
+                  "experience_id": pkDetails.experience_id,
+                  "mentor_instructions": pkDetails.mentor_instructions,
+                  "package": pkDetails.package,
+                  "package_type": pkDetails.package_type,
+                  "preferred_mentor_experience": pkDetails.preferred_mentor_experience,
+                  "price": pkDetails.price,
+                  "target_companies": currenTargetCompanies,
+                  "target_role": pkDetails.target_role,
+                  "value": +pkDetails.totalPrice,
+                  "upcoming_interview": pkDetails.upcoming_interview,
+                  "version": pkDetails.version
+                }
+              ]
+            }
+          }
+          sendAnalyticsToSegment.track("Coupon Applied",properties)
         successCallback(discount);
       } else {
         errorCallback(false);
@@ -590,44 +638,6 @@ couponSubmitSelector.addEventListener("click", function (e) {
   coupon = couponSelector.value.toUpperCase().trim();
   if (coupon) {
     currentCoupon = coupon;
-    var properties = {
-      "button_name":currentButtonName,
-      "triggered_by":currentTriggerBy,
-      "item_id":currentSku,
-      "value": +pkDetails.totalPrice,
-      ecommerce: {
-        currency: pkDetails.currency,
-        value: +pkDetails.totalPrice,
-        "promotion_id": coupon,
-        items:[
-          {
-            "item_id":currentSku,
-            "item_name":currentPackageId,
-            "item_variant":currentMentorExperience,
-            "coupon":coupon,
-            "currency":pkDetails.currency,
-            "addGST": pkDetails.addGST,
-            "country": pkDetails.country,
-            "designation": pkDetails.designation,
-            "domain": pkDetails.domain,
-            "domain_id": pkDetails.domain_id,
-            "experience": pkDetails.experience,
-            "experience_id": pkDetails.experience_id,
-            "mentor_instructions": pkDetails.mentor_instructions,
-            "package": pkDetails.package,
-            "package_type": pkDetails.package_type,
-            "preferred_mentor_experience": pkDetails.preferred_mentor_experience,
-            "price": pkDetails.price,
-            "target_companies": currenTargetCompanies,
-            "target_role": pkDetails.target_role,
-            "value": +pkDetails.totalPrice,
-            "upcoming_interview": pkDetails.upcoming_interview,
-            "version": pkDetails.version
-          }
-        ]
-      }
-    }
-    sendAnalyticsToSegment.track("select_promotion",properties)
     checkCoupon(coupon, onCouponApplied, onInvalidCoupon);
   } else {
     couponSubmitSelector.innerText = "Redeem";
@@ -671,9 +681,14 @@ payNowButtonSelector.addEventListener("click", function (e) {
     "triggered_by":currentTriggerBy,
     "item_id":currentSku,
     "value": +pkDetails.totalPrice,
-    ecommerce: {
-      currency: pkDetails.currency,
-      value: +pkDetails.totalPrice,
+    "package_name":currentPackageId,
+    "package_type":currentPackageType,
+    "coupon_code": currentCoupon,
+    "package_amount":+pkDetails.totalPrice,
+    currency: pkDetails.currency,
+    // ecommerce: {
+    //   currency: pkDetails.currency,
+    //   value: +pkDetails.totalPrice,
       coupon: currentCoupon,
       items:[
         {
@@ -701,10 +716,9 @@ payNowButtonSelector.addEventListener("click", function (e) {
           "version": pkDetails.version
         }
       ]
-    }
+    // }
   }
-  sendAnalyticsToSegment.track("begin_checkout",properties);
-
+  sendAnalyticsToSegment.track("Payment Started",properties);
   e.preventDefault();
   payNowButtonLoader();
   hideElements([orderErrorSelector]);
@@ -726,6 +740,10 @@ payNowButtonSelector.addEventListener("click", function (e) {
         "triggered_by":currentTriggerBy,
         "item_id":currentSku,
         "value": +pkDetails.totalPrice,
+        "package_name":currentPackageId,
+        "package_type":currentPackageType,
+        "coupon_code": currentCoupon,
+        "package_amount":+pkDetails.totalPrice,
         transaction_id: response.razorpay_payment_id,
         ecommerce: {
           transaction_id: response.razorpay_payment_id,
@@ -760,7 +778,7 @@ payNowButtonSelector.addEventListener("click", function (e) {
           ]
         }
       }
-      sendAnalyticsToSegment.track("purchase",properties); // TODO 
+      sendAnalyticsToSegment.track("Payment Completed",properties); // TODO 
       function goToThankYouPage() {
         hideElements([orderOverlay, orderLoader, checkoutModal]);
         showElements([thankyouModal], "flex");
@@ -818,6 +836,10 @@ payNowButtonSelector.addEventListener("click", function (e) {
                 "triggered_by":currentTriggerBy,
                 "item_id":currentSku,
                 "value": +pkDetails.totalPrice,
+                "package_name":currentPackageId,
+                "package_type":currentPackageType,
+                "coupon_code": currentCoupon,
+                "package_amount":+pkDetails.totalPrice,
                 ecommerce: {
                   currency: pkDetails.currency,
                   value: +pkDetails.totalPrice,
@@ -850,7 +872,7 @@ payNowButtonSelector.addEventListener("click", function (e) {
                   ]
                 }
               }
-              sendAnalyticsToSegment.track("dismiss_payment",properties);
+              sendAnalyticsToSegment.track("Payment Cancelled",properties);
               payNowButtonIdealState()
             }
         }
