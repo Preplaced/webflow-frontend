@@ -182,14 +182,14 @@ bookButton.onclick = function(event){
   event.preventDefault();
   const forTrial = false;
   saveInfoToLocalStorage(forTrial); //save the form Info here to local Storage which will be used in the checkout page
-  triggerEvent('Checkout Started', {
-    'experience': packageDetails.experience,
-    'domain': packageDetails.domain,
-    'designation': packageDetails.designation,
-    'target_companies': packageDetails.target_companies,
-    'logged_in': !!accessToken,
-    'items': packageDetails
-  })
+  // REMIND triggerEvent('Checkout Started', {
+  //   'experience': packageDetails.experience,
+  //   'domain': packageDetails.domain,
+  //   'designation': packageDetails.designation,
+  //   'target_companies': packageDetails.target_companies,
+  //   'logged_in': !!accessToken,
+  //   'items': packageDetails
+  // })
   proceedToCheckout();
 }
 
@@ -197,14 +197,14 @@ trialBookButton.onclick = function(event){
   event.preventDefault();
   const forTrial = true;
   saveInfoToLocalStorage(forTrial); //save the form Info here to local Storage which will be used in the checkout page
-  triggerEvent('Checkout Started', {
-    'experience': packageDetails.experience,
-    'domain': packageDetails.domain,
-    'designation': packageDetails.designation,
-    'target_companies': packageDetails.target_companies,
-    'logged_in': !!accessToken,
-    'items': packageDetails
-  })
+  // REMIND triggerEvent('Checkout Started', {
+  //   'experience': packageDetails.experience,
+  //   'domain': packageDetails.domain,
+  //   'designation': packageDetails.designation,
+  //   'target_companies': packageDetails.target_companies,
+  //   'logged_in': !!accessToken,
+  //   'items': packageDetails
+  // })
   proceedToCheckout();
 }
 
