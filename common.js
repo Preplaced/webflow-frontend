@@ -109,7 +109,7 @@ if (analytics) {
             window.sessionStorage.setItem(key, value)
             pageVisitParams[key] = value
         });
-        analytics.track('New Website Session', pageVisitParams)
+        // REMIND analytics.track('New Website Session', pageVisitParams) - Old Event Because for testing
         window.sessionStorage.setItem("page_visited", true)
     }
 }
@@ -178,7 +178,7 @@ function triggerPurchase(packageDetails) {
         'target_companies': packageDetails.target_companies,
         'logged_in': !!accessToken,
     }
-    triggerEvent('Payment Completed', eventParams);
+    // REMIND triggerEvent('Payment Completed', eventParams);
 }
 
 function triggerPurchaseInitiation(packageDetails) {
@@ -197,7 +197,7 @@ function triggerPurchaseInitiation(packageDetails) {
         'target_companies': packageDetails.target_companies,
         'logged_in': !!accessToken,
     }
-    triggerEvent('Payment Started', eventParams);
+    // REMIND triggerEvent('Payment Started', eventParams);
 }
 //////////////////////////////////////////////////////////////////////
 
@@ -809,9 +809,9 @@ function verifyAndSendOTP(phoneNumber) {
     var onOTPSent = function () {
         const properties = {
             "phone_number":phoneNumber,
-            "button_name":currentButtonName
+            "button_name":currentButtonName,
         };
-        sendAnalyticsToSegment.track("send_otp",properties);
+        sendAnalyticsToSegment.track("OTP Sent",properties);
         showElements([otpFieldSelector, resendOTPContainerSelector]);
         startResendTimer(resendOTPContainerSelector);
         otpSent = true;
@@ -916,7 +916,7 @@ formButtonSelector.addEventListener('click', function (e) {
                             'method': 'otp',
                             'button_name':currentButtonName
                         }
-                        sendAnalyticsToSegment.track("login",properties);
+                        sendAnalyticsToSegment.track("Login Completed",properties);
                     }
                     triggerEvent('Signed In', {
                         'source': 'sign-in',
@@ -982,7 +982,7 @@ formButtonSelector.addEventListener('click', function (e) {
                                         button_name:currentButtonName,
                                         method:"otp"
                                     }
-                                    sendAnalyticsToSegment.track("sign_up",properties);
+                                    sendAnalyticsToSegment.track("Signup Completed",properties);
                                 }
 
                                 triggerEvent('Signed Up', {
@@ -1076,6 +1076,10 @@ function onPaymentFailure(place) {
         "button_name":currentButtonName,
         "item_id":currentSku,
         "value": +pkDetails.totalPrice,
+        "package_name":currentPackageId,
+        "package_type":currentPackageType,
+        "coupon_code": currentCoupon,
+        "package_amount":+pkDetails.totalPrice,
         ecommerce: {
           currency: pkDetails.currency,
           value: +pkDetails.totalPrice,
@@ -1108,7 +1112,7 @@ function onPaymentFailure(place) {
           ]
         }
       }
-    sendAnalyticsToSegment.track("failed_payment",properties);
+    sendAnalyticsToSegment.track("Payment Failed",properties);
     hideElements([orderLoader]);
     showElements([orderOverlay, orderErrorSelector]);
 }
@@ -1135,7 +1139,7 @@ for(let i=0;i<menuLogin.length;i++){
         const properties = {
             "button_name": currentButtonName,
         }
-        sendAnalyticsToSegment.track("started_login/signup",properties);
+        sendAnalyticsToSegment.track("Login/Signup Started",properties);
         event.preventDefault();
         event.stopPropagation();
         event.returnValue = false;
@@ -1181,16 +1185,18 @@ if (footerLogin) {
 
 
 window.onload = function () {
+    let params = Object.fromEntries(
+        new URLSearchParams(window.location.search).entries()
+      );
+    let properties = {
+        ...params,
+        "referrer":document.referrer
+    };
     if (localStorage.getItem("hasVisitedBefore") === null) {
-        let params = Object.fromEntries(
-            new URLSearchParams(window.location.search).entries()
-          );
-        var properties = {
-            ...params,
-            "referrer":document.referrer
-        }
-        sendAnalyticsToSegment.track("first_website_session",properties)
+        sendAnalyticsToSegment.track("First Website Session",properties);
         localStorage.setItem("hasVisitedBefore", true);
+    }else{
+        sendAnalyticsToSegment.track("New Website Session",properties);
     }
 }
 
@@ -1199,8 +1205,8 @@ dashboardButton.addEventListener("click", (event) => {
         "button_name": dashboardButton.getAttribute("button-name")
     };
     if(event.currentTarget.innerText.includes("Dashboard")){
-        sendAnalyticsToSegment.track("open_dashboard",properties);
+        sendAnalyticsToSegment.track("Dashboard Opened",properties);
     }else{
-        sendAnalyticsToSegment.track("logout",properties);
+        sendAnalyticsToSegment.track("Logout",properties);
     }
 });
