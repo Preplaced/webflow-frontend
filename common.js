@@ -154,10 +154,19 @@ const sendAnalyticsToSegment = {
             .catch((error)=>{console.log("Error in sendAnalyticsToSegment.track of analytics.track()",error)});
         }catch(error){
             console.error("Error in sendAnalyticsToSegment.track()",error);
+            setTimeout(()=>{
+                console.log("InCatch - eventName: ", eventName, "\n properties: ", properties);
+                analytics && analytics.track(eventName,properties)
+            },1000)
         }
     },
     identify:(email,identities) => {
-        analytics && analytics.identify(email,identities);
+        try{
+            console.log("email :",email, " identities :", identities);
+            analytics && analytics.identify(email,identities);
+        }catch(error){
+            console.error("Error in sendAnalyticsToSegment identify",error);
+        }
     }
 }
 
@@ -520,7 +529,7 @@ function login(code, successCallback, errorCallback) {
     credential = firebase.auth.PhoneAuthProvider.credential(window.confirmationResult.verificationId, code);
     firebase.auth().signInWithCredential(credential)
         .then(function (result) {
-            console.log("trying to identify user");
+            console.log("trying to identify user",result);
             if (analytics) {
                 console.log("identifying user");
                 analytics.identify(result.user.email);
@@ -702,6 +711,7 @@ firebase.auth().onAuthStateChanged(function (user) {
         // User is signed in.
         verifiedUser = user;
         console.log('User is logged in!');
+        console.log('User First time logged on',user.metadata.creationTime);
         console.log('phone: ' + user.phoneNumber);
         console.log('UID: ' + user.uid);
         updateAccessToken();
@@ -911,10 +921,22 @@ formButtonSelector.addEventListener('click', function (e) {
                     // login Analytics
                     signInType = "login"; // login signInType
                     if(signInType === "login"){
-                        const properties = {
+                        let properties = {
                             'source': 'sign-in',
                             'method': 'otp',
                             'button_name':currentButtonName
+                        }
+
+                        if(localStorage.getItem("hasVisitedBefore") !== null){
+                            var FirstWebsitedVisitedOn = new Date(JSON.parse(localStorage.getItem("hasVisitedBefore"))["visited-date"])
+                            var creationDate = new Date(verifiedUser.metadata.creationTime);
+                            if(creationDate < FirstWebsitedVisitedOn){
+                                properties = {
+                                    ...properties,
+                                    ...JSON.parse(localStorage.getItem("hasVisitedBefore"))
+                                }
+                                sendAnalyticsToSegment.identify(verifiedUser.email,properties)
+                            }  
                         }
                         sendAnalyticsToSegment.track("Login Completed",properties);
                     }
@@ -980,8 +1002,10 @@ formButtonSelector.addEventListener('click', function (e) {
                                         email: userEmailSelector.value.toLowerCase(),
                                         phone: phoneNumber,
                                         button_name:currentButtonName,
-                                        method:"otp"
+                                        method:"otp",
+                                        ...JSON.parse(localStorage.getItem("hasVisitedBefore"))
                                     }
+                                    sendAnalyticsToSegment.identify(properties.email,properties);
                                     sendAnalyticsToSegment.track("Signup Completed",properties);
                                 }
 
@@ -1125,6 +1149,10 @@ function closeCheckoutModal() {
 function showLoginModal() {
     if (!verifiedUser) {
         showElements([loginModal], "flex");
+        const properties = {
+            "button_name": currentButtonName,
+        }
+        sendAnalyticsToSegment.track("Login/Signup Started",properties);
     }
 }
 
@@ -1139,7 +1167,8 @@ for(let i=0;i<menuLogin.length;i++){
         const properties = {
             "button_name": currentButtonName,
         }
-        sendAnalyticsToSegment.track("Login/Signup Started",properties);
+        sendAnalyticsToSegment.track("Login/Signup Button Clicked",properties);
+        // sendAnalyticsToSegment.track("Login/Signup Started",properties);
         event.preventDefault();
         event.stopPropagation();
         event.returnValue = false;
@@ -1182,24 +1211,6 @@ if (footerLogin) {
     }
 }
 
-
-
-window.onload = function () {
-    let params = Object.fromEntries(
-        new URLSearchParams(window.location.search).entries()
-      );
-    let properties = {
-        ...params,
-        "referrer":document.referrer
-    };
-    if (localStorage.getItem("hasVisitedBefore") === null) {
-        sendAnalyticsToSegment.track("First Website Session",properties);
-        localStorage.setItem("hasVisitedBefore", true);
-    }else{
-        sendAnalyticsToSegment.track("New Website Session",properties);
-    }
-}
-
 dashboardButton.addEventListener("click", (event) => {
     var properties = {
         "button_name": dashboardButton.getAttribute("button-name")
@@ -1210,3 +1221,22 @@ dashboardButton.addEventListener("click", (event) => {
         sendAnalyticsToSegment.track("Logout",properties);
     }
 });
+
+function onReady() {
+    let params = Object.fromEntries(
+        new URLSearchParams(window.location.search).entries()
+      );
+    let properties = {
+        ...params,
+        "referrer":document.referrer
+    };
+    sendAnalyticsToSegment.track("Page Visit",properties);
+    if (localStorage.getItem("hasVisitedBefore") === null) {
+        sendAnalyticsToSegment.track("First Website Visit",properties);
+        properties["hasVisitedBefore"] = true;
+        properties["visited-date"] = new Date();
+        localStorage.setItem("hasVisitedBefore", JSON.stringify(properties));
+    }
+}
+
+onReady();
