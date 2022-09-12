@@ -711,7 +711,7 @@ firebase.auth().onAuthStateChanged(function (user) {
         // User is signed in.
         verifiedUser = user;
         console.log('User is logged in!');
-        console.log('User First time logged on',user.metadata.creationTime);
+        //console.log('User First time logged on',user.metadata.creationTime);
         console.log('phone: ' + user.phoneNumber);
         console.log('UID: ' + user.uid);
         updateAccessToken();
