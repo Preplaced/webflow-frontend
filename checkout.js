@@ -564,23 +564,6 @@ function commonGetPricingData() {
       currentPackageId = params["package-id"];
       currentPackageType = params["package-type"];
       currentTriggerBy = "url";
-      const properties = {
-        button_name: currentButtonName,
-        triggered_by: currentTriggerBy,
-        item_id: currentSku,
-        package_name: currentPackageId,
-        package_type: currentPackageType,
-        logged_in: !!accessToken,
-        ecommerce: {
-          items: [
-            {
-              item_id: currentSku,
-              item_name: currentPackageId,
-            },
-          ],
-        },
-      };
-    //   sendAnalyticsToSegment.track("Checkout Started", properties);
       packageTypeShow();
       openCheckoutModal(currentPackageId);
     }

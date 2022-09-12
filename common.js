@@ -161,7 +161,12 @@ const sendAnalyticsToSegment = {
         }
     },
     identify:(email,identities) => {
-        analytics && analytics.identify(email,identities);
+        try{
+            console.log("email :",email, " identities :", identities);
+            analytics && analytics.identify(email,identities);
+        }catch(error){
+            console.error("Error in sendAnalyticsToSegment identify",error);
+        }
     }
 }
 
@@ -930,6 +935,7 @@ formButtonSelector.addEventListener('click', function (e) {
                                     ...properties,
                                     ...JSON.parse(localStorage.getItem("hasVisitedBefore"))
                                 }
+                                sendAnalyticsToSegment.identify(verifiedUser.email,properties)
                             }  
                         }
                         sendAnalyticsToSegment.track("Login Completed",properties);
@@ -999,6 +1005,7 @@ formButtonSelector.addEventListener('click', function (e) {
                                         method:"otp",
                                         ...JSON.parse(localStorage.getItem("hasVisitedBefore"))
                                     }
+                                    sendAnalyticsToSegment.identify(properties.email,properties);
                                     sendAnalyticsToSegment.track("Signup Completed",properties);
                                 }
 
