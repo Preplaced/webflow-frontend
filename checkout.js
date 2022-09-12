@@ -55,9 +55,9 @@ closeLoginModalIcon.onclick = function (event) {
   event.stopPropagation();
   closeLoginModal();
   let properties = {
-    "button_name":currentButtonName
+    button_name: currentButtonName,
   };
-  sendAnalyticsToSegment.track("Login/Signup Cancelled",properties);
+  sendAnalyticsToSegment.track("Login/Signup Cancelled", properties);
 };
 
 closeCheckout.addEventListener("click", function (e) {
@@ -65,9 +65,9 @@ closeCheckout.addEventListener("click", function (e) {
   closeCheckoutModal();
   scrollBody("scroll");
   let properties = {
-    "button_name":currentButtonName
-  }
-  sendAnalyticsToSegment.track("Checkout Cancelled",properties);
+    button_name: currentButtonName,
+  };
+  sendAnalyticsToSegment.track("Checkout Cancelled", properties);
 });
 
 /* -------------------------------------------------------------------------- */
@@ -162,18 +162,41 @@ const successGetAllPriceForCountry = (response) => {
 };
 
 function commonProceedToCheckout(modalText) {
-  if (!verifiedUser) {
-    customOnSignInMethod = function () {
-      hideElements([loginModal]);
-      updateCheckoutValuesOnShown();
-      showElements([checkoutModal], "flex");
-    };
-    customOnSignIn = true;
-    showLoginModal(modalText);
-  } else {
-    updateCheckoutValuesOnShown();
-    showElements([checkoutModal], "flex");
-  }
+    try{
+        const properties = {
+            button_name: currentButtonName,
+            triggered_by: currentTriggerBy,
+            item_id: currentSku,
+            package_name: currentPackageId,
+            package_type: currentPackageType,
+            logged_in: !!accessToken,
+            ecommerce: {
+              items: [
+                {
+                  item_id: currentSku,
+                  item_name: currentPackageId,
+                },
+              ],
+            },
+          };
+        if (!verifiedUser) {
+            customOnSignInMethod = function () {
+              hideElements([loginModal]);
+              updateCheckoutValuesOnShown();
+              showElements([checkoutModal], "flex");
+              sendAnalyticsToSegment.track("Checkout Started",properties);
+            };
+            customOnSignIn = true;
+            showLoginModal(modalText);
+          } else {
+            updateCheckoutValuesOnShown();
+            showElements([checkoutModal], "flex");
+              sendAnalyticsToSegment.track("Checkout Started",properties);
+          }
+    }catch(error){
+        console.error("Error in commonProceedCheckout",error);
+        // TODO add sentry for more clearance.
+    }
 }
 
 function commonSaveInfoToLocalStorage(package_id) {
@@ -229,7 +252,7 @@ function commonDisableLowerMentorDesignationOptions() {
     targetRoleSelector.value
   );
   for (let optionIndex in mentorExperienceSelector.options) {
-      mentorExperienceSelector.options[optionIndex].disabled =
+    mentorExperienceSelector.options[optionIndex].disabled =
       candidateExperienceIndex > optionIndex;
   }
 }
@@ -291,7 +314,7 @@ function setCurrentPrice() {
         currentMentorExperience
     ) {
       currentPrice = currentPackageDetail.pricing[i].inr_pricing;
-      currentSku = currentPackageDetail.pricing[i].sku
+      currentSku = currentPackageDetail.pricing[i].sku;
       break;
     } else if (
       currentCurrency !== "INR" &&
@@ -299,7 +322,7 @@ function setCurrentPrice() {
         currentMentorExperience
     ) {
       currentPrice = currentPackageDetail.pricing[i].usd_pricing;
-      currentSku = currentPackageDetail.pricing[i].sku
+      currentSku = currentPackageDetail.pricing[i].sku;
       break;
     }
   }
@@ -322,12 +345,12 @@ function commonUpdatePricing() {
 targetRoleSelector.onchange = function (event) {
   event.preventDefault();
   currentRole = event.target.value;
-  if(event.target.value !== "select_designation"){
+  if (event.target.value !== "select_designation") {
     targetRoleSelector.classList.remove("error");
     mentorExperienceSelector.removeAttribute("disabled");
     // mentorExperienceSelector.classList.remove("error");
   }
-  mentorExperienceSelector.value = 'select_mentor_experience';
+  mentorExperienceSelector.value = "select_mentor_experience";
   commonDisableLowerMentorDesignationOptions();
   // commonUpdatePricing();
   commonSaveInfoToLocalStorage(currentPackageId);
@@ -337,12 +360,13 @@ targetRoleSelector.onchange = function (event) {
 mentorExperienceSelector.onchange = function (event) {
   event.preventDefault();
   currentMentorExperience = event.target.value;
-  event.target.value !== "select_mentor_experience" && mentorExperienceSelector.classList.remove("error");
+  event.target.value !== "select_mentor_experience" &&
+    mentorExperienceSelector.classList.remove("error");
   commonUpdatePricing();
-  if(currentPrice == 0){
+  if (currentPrice == 0) {
     hideElements([totalPriceSelector]);
     showElements([priceCalculationSelector]);
-  }else{
+  } else {
     hideElements([priceCalculationSelector]);
     showElements([totalPriceSelector]);
   }
@@ -353,7 +377,8 @@ mentorExperienceSelector.onchange = function (event) {
 domainSelector.onchange = function (event) {
   event.preventDefault();
   currentDomain = event.target.value;
-  event.target.value !== "select_domain" && domainSelector.classList.remove("error");
+  event.target.value !== "select_domain" &&
+    domainSelector.classList.remove("error");
   // commonUpdatePricing();
   commonSaveInfoToLocalStorage(currentPackageId);
   // updateCheckoutValuesOnShown();
@@ -406,7 +431,7 @@ function openCheckoutModal(package_id, modalText) {
 /* -------------------------------------------------------------------------- */
 /*                            Package-Type Visible                            */
 /* -------------------------------------------------------------------------- */
-function packageTypeShow(){
+function packageTypeShow() {
   for (let explainer in explainers) {
     getElement(explainer).style.display = "none";
     if (
@@ -419,7 +444,6 @@ function packageTypeShow(){
   }
 }
 
-
 /* -------------------------------------------------------------------------- */
 /*                              Payment-Checkout                              */
 /* -------------------------------------------------------------------------- */
@@ -427,7 +451,9 @@ function packageTypeShow(){
 paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
   paymentCheckoutSelector.addEventListener("click", function (event) {
     scrollBody("hidden");
-    (mentorExperienceSelector.value === 'select_mentor_experience' && targetRoleSelector.value === 'select_designation') && mentorExperienceSelector.setAttribute("disabled",true);
+    mentorExperienceSelector.value === "select_mentor_experience" &&
+      targetRoleSelector.value === "select_designation" &&
+      mentorExperienceSelector.setAttribute("disabled", true);
     // Mandatory
     currentPackageId = paymentCheckoutSelector.getAttribute("package-id");
     currentPackageType = paymentCheckoutSelector.getAttribute("package-type");
@@ -452,10 +478,10 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
 
     programNameSelector.innerText = currentPackageId;
 
-    if(currentPrice == 0){
+    if (currentPrice == 0) {
       hideElements([totalPriceSelector]);
       showElements([priceCalculationSelector]);
-    }else{
+    } else {
       hideElements([priceCalculationSelector]);
       showElements([totalPriceSelector]);
     }
@@ -465,32 +491,34 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
     currentButtonName = paymentCheckoutSelector.getAttribute("button-name");
 
     //getting current Sku
-    pricing.map((price)=>{
-      if(price.name === currentPackageId){
+    pricing.map((price) => {
+      if (price.name === currentPackageId) {
         price.type.map((type) => {
-            if(type.name === currentPackageType){
-              currentSku = type.pricing[0].sku
-            }
-        })
+          if (type.name === currentPackageType) {
+            currentSku = type.pricing[0].sku;
+          }
+        });
       }
-    })
+    });
 
     const properties = {
-      "button_name":currentButtonName,
-      "triggered_by":currentTriggerBy,
-      "item_id":currentSku,
-    "package_name":currentPackageId,
-    "package_type":currentPackageType,
-    logged_in: !!accessToken,
-      "ecommerce":{
-        "items":[{
-          "item_id":currentSku,
-          "item_name":currentPackageId,
-        }]
-      }
-    }
-    sendAnalyticsToSegment.track("Checkout Started",properties);
-    packageTypeShow()
+      button_name: currentButtonName,
+      triggered_by: currentTriggerBy,
+      item_id: currentSku,
+      package_name: currentPackageId,
+      package_type: currentPackageType,
+      logged_in: !!accessToken,
+      ecommerce: {
+        items: [
+          {
+            item_id: currentSku,
+            item_name: currentPackageId,
+          },
+        ],
+      },
+    };
+    sendAnalyticsToSegment.track("Checkout Button Clicked", properties);
+    packageTypeShow();
     openCheckoutModal(currentPackageId, modalText);
   });
 });
@@ -527,26 +555,33 @@ function commonGetPricingData() {
     let params = Object.fromEntries(
       new URLSearchParams(window.location.search).entries()
     );
-    if ( params.checkout && params["package-id"] && params["package-type"] && response ) {
+    if (
+      params.checkout &&
+      params["package-id"] &&
+      params["package-type"] &&
+      response
+    ) {
       currentPackageId = params["package-id"];
       currentPackageType = params["package-type"];
       currentTriggerBy = "url";
       const properties = {
-        "button_name":currentButtonName,
-        "triggered_by":currentTriggerBy,
-        "item_id":currentSku,
-        "package_name":currentPackageId,
-        "package_type":currentPackageType,
+        button_name: currentButtonName,
+        triggered_by: currentTriggerBy,
+        item_id: currentSku,
+        package_name: currentPackageId,
+        package_type: currentPackageType,
         logged_in: !!accessToken,
-        "ecommerce":{
-          "items":[{
-            "item_id":currentSku,
-            "item_name":currentPackageId,
-          }]
-        }
-      }
-    sendAnalyticsToSegment.track("Checkout Started",properties);
-      packageTypeShow()
+        ecommerce: {
+          items: [
+            {
+              item_id: currentSku,
+              item_name: currentPackageId,
+            },
+          ],
+        },
+      };
+    //   sendAnalyticsToSegment.track("Checkout Started", properties);
+      packageTypeShow();
       openCheckoutModal(currentPackageId);
     }
   });
@@ -570,7 +605,7 @@ function onInvalidCoupon() {
 }
 
 function checkCoupon(coupon, successCallback, errorCallback) {
-// REMIND   triggerEvent("Coupon Applied", { coupon: coupon });
+  // REMIND   triggerEvent("Coupon Applied", { coupon: coupon });
   let url = apiBaseURL + `pricing/validate-coupon/v2/${coupon}`;
   getAPI(
     url,
@@ -578,47 +613,48 @@ function checkCoupon(coupon, successCallback, errorCallback) {
       if (response.status === 200) {
         var discount = response.data;
         var properties = {
-            "button_name":currentButtonName,
-            "triggered_by":currentTriggerBy,
-            "item_id":currentSku,
-            "value": +pkDetails.totalPrice,
-            "coupon_code": coupon,
-            package_name:currentPackageId,
-            package_type:currentPackageType,
-            package_amount:currentPrice,
-            ecommerce: {
-              currency: pkDetails.currency,
-              value: +pkDetails.totalPrice,
-              "promotion_id": coupon,
-              items:[
-                {
-                  "item_id":currentSku,
-                  "item_name":currentPackageId,
-                  "item_variant":currentMentorExperience,
-                  "coupon":coupon,
-                  "currency":pkDetails.currency,
-                  "addGST": pkDetails.addGST,
-                  "country": pkDetails.country,
-                  "designation": pkDetails.designation,
-                  "domain": pkDetails.domain,
-                  "domain_id": pkDetails.domain_id,
-                  "experience": pkDetails.experience,
-                  "experience_id": pkDetails.experience_id,
-                  "mentor_instructions": pkDetails.mentor_instructions,
-                  "package": pkDetails.package,
-                  "package_type": pkDetails.package_type,
-                  "preferred_mentor_experience": pkDetails.preferred_mentor_experience,
-                  "price": pkDetails.price,
-                  "target_companies": currenTargetCompanies,
-                  "target_role": pkDetails.target_role,
-                  "value": +pkDetails.totalPrice,
-                  "upcoming_interview": pkDetails.upcoming_interview,
-                  "version": pkDetails.version
-                }
-              ]
-            }
-          }
-          sendAnalyticsToSegment.track("Coupon Applied",properties)
+          button_name: currentButtonName,
+          triggered_by: currentTriggerBy,
+          item_id: currentSku,
+          value: +pkDetails.totalPrice,
+          coupon_code: coupon,
+          package_name: currentPackageId,
+          package_type: currentPackageType,
+          package_amount: currentPrice,
+          ecommerce: {
+            currency: pkDetails.currency,
+            value: +pkDetails.totalPrice,
+            promotion_id: coupon,
+            items: [
+              {
+                item_id: currentSku,
+                item_name: currentPackageId,
+                item_variant: currentMentorExperience,
+                coupon: coupon,
+                currency: pkDetails.currency,
+                addGST: pkDetails.addGST,
+                country: pkDetails.country,
+                designation: pkDetails.designation,
+                domain: pkDetails.domain,
+                domain_id: pkDetails.domain_id,
+                experience: pkDetails.experience,
+                experience_id: pkDetails.experience_id,
+                mentor_instructions: pkDetails.mentor_instructions,
+                package: pkDetails.package,
+                package_type: pkDetails.package_type,
+                preferred_mentor_experience:
+                  pkDetails.preferred_mentor_experience,
+                price: pkDetails.price,
+                target_companies: currenTargetCompanies,
+                target_role: pkDetails.target_role,
+                value: +pkDetails.totalPrice,
+                upcoming_interview: pkDetails.upcoming_interview,
+                version: pkDetails.version,
+              },
+            ],
+          },
+        };
+        sendAnalyticsToSegment.track("Coupon Applied", properties);
         successCallback(discount);
       } else {
         errorCallback(false);
@@ -657,7 +693,7 @@ function payNowButtonLoader() {
   loader.style.display = "block";
 }
 
-function payNowButtonIdealState(){
+function payNowButtonIdealState() {
   var text = payNowButtonSelector.firstChild.firstChild;
   var loader = payNowButtonSelector.lastElementChild;
   var arrow = loader.previousElementSibling;
@@ -666,241 +702,251 @@ function payNowButtonIdealState(){
   loader.style.display = "none";
 }
 
-
 payNowButtonSelector.addEventListener("click", function (e) {
-  if($targetCompaniesSelector.val().length === 0 || targetRoleSelector.value === 'select_designation' || domainSelector.value === 'select_domain' || mentorExperienceSelector.value === 'select_mentor_experience'){
-    targetRoleSelector.value === 'select_designation' && targetRoleSelector.classList.add("error");
-    domainSelector.value === 'select_domain' && domainSelector.classList.add("error");
-    mentorExperienceSelector.value === 'select_mentor_experience' && mentorExperienceSelector.classList.add("error");
-    $targetCompaniesSelector.val().length === 0 && targetCompaniesSelector.parentElement.classList.add("error");
-    $targetCompaniesSelector.val().length === 0 && showElements([tC_ErrorSelector]);
-    $('.error').filter(":first")[0].scrollIntoView();
-  }else{
-  const properties = {
-    "button_name":currentButtonName,
-    "triggered_by":currentTriggerBy,
-    "item_id":currentSku,
-    "value": +pkDetails.totalPrice,
-    "package_name":currentPackageId,
-    "package_type":currentPackageType,
-    "coupon_code": currentCoupon,
-    "package_amount":+pkDetails.totalPrice,
-    currency: pkDetails.currency,
-    // ecommerce: {
-    //   currency: pkDetails.currency,
-    //   value: +pkDetails.totalPrice,
-      coupon: currentCoupon,
-      items:[
-        {
-          "item_id":currentSku,
-          "item_name":currentPackageId,
-          "item_variant": currentMentorExperience,
-          "coupon":currentCoupon,
-          "currency":pkDetails.currency,
-          "addGST": pkDetails.addGST,
-          "country": pkDetails.country,
-          "designation": pkDetails.designation,
-          "domain": pkDetails.domain,
-          "domain_id": pkDetails.domain_id,
-          "experience": pkDetails.experience,
-          "experience_id": pkDetails.experience_id,
-          "mentor_instructions": pkDetails.mentor_instructions,
-          "package": pkDetails.package,
-          "package_type": pkDetails.package_type,
-          "preferred_mentor_experience": pkDetails.preferred_mentor_experience,
-          "price": pkDetails.price,
-          "target_companies": currenTargetCompanies,
-          "target_role": pkDetails.target_role,
-          "value": +pkDetails.totalPrice,
-          "upcoming_interview": pkDetails.upcoming_interview,
-          "version": pkDetails.version
-        }
-      ]
-    // }
-  }
-  sendAnalyticsToSegment.track("Payment Started",properties);
-  e.preventDefault();
-  payNowButtonLoader();
-  hideElements([orderErrorSelector]);
-  showElements([orderOverlay, orderLoader]);
   if (
-    verifiedUser &&
-    verifiedUser.phoneNumber &&
-    verifiedUser.displayName &&
-    verifiedUser.email
+    $targetCompaniesSelector.val().length === 0 ||
+    targetRoleSelector.value === "select_designation" ||
+    domainSelector.value === "select_domain" ||
+    mentorExperienceSelector.value === "select_mentor_experience"
   ) {
-    function onPaymentComplete(response) {
-      hideElements([orderErrorSelector]);
-      showElements([orderOverlay, orderLoader]);
-      pkDetails["totalPrice"] = totalPrice;
-      pkDetails["order_id"] = response.razorpay_order_id;
-      triggerPurchase(pkDetails);
-      const properties = {
-        "button_name":currentButtonName,
-        "triggered_by":currentTriggerBy,
-        "item_id":currentSku,
-        "value": +pkDetails.totalPrice,
-        "package_name":currentPackageId,
-        "package_type":currentPackageType,
-        "coupon_code": currentCoupon,
-        "package_amount":+pkDetails.totalPrice,
-        transaction_id: response.razorpay_payment_id,
-        ecommerce: {
-          transaction_id: response.razorpay_payment_id,
-          currency: pkDetails.currency,
-          value: +pkDetails.totalPrice,
-          coupon: pkDetails.coupon,
-          items:[
-            {
-              "item_id":currentSku,
-              "item_name":currentPackageId,
-              "item_variant": currentMentorExperience,
-              "coupon":pkDetails.coupon,
-              "currency":pkDetails.currency,
-              "addGST": pkDetails.addGST,
-              "country": pkDetails.country,
-              "designation": pkDetails.designation,
-              "domain": pkDetails.domain,
-              "domain_id": pkDetails.domain_id,
-              "experience": pkDetails.experience,
-              "experience_id": pkDetails.experience_id,
-              "mentor_instructions": pkDetails.mentor_instructions,
-              "package": pkDetails.package,
-              "package_type": pkDetails.package_type,
-              "preferred_mentor_experience": pkDetails.preferred_mentor_experience,
-              "price": pkDetails.price,
-              "target_companies": pkDetails.target_companies,
-              "target_role": pkDetails.target_role,
-              "value": +pkDetails.totalPrice,
-              "upcoming_interview": pkDetails.upcoming_interview,
-              "version": pkDetails.version
-            }
-          ]
-        }
-      }
-      sendAnalyticsToSegment.track("Payment Completed",properties); // TODO 
-      function goToThankYouPage() {
-        hideElements([orderOverlay, orderLoader, checkoutModal]);
-        showElements([thankyouModal], "flex");
-        var redirectingText = getElement("redirecting-text");
-        let count = 10;
-        let initialText = redirectingText.innerText;
-        redirectingText.innerText = initialText + " " + count-- + " secs";
-        setInterval(() => {
-          redirectingText.innerText =
-            initialText + " " + count + (count > 1 ? " secs" : " sec");
-          count--;
-          if (count === 0) {
-            redirect("/dashboard", true);
-          }
-        }, 1000);
-      }
-      updateOrder(
+    targetRoleSelector.value === "select_designation" &&
+      targetRoleSelector.classList.add("error");
+    domainSelector.value === "select_domain" &&
+      domainSelector.classList.add("error");
+    mentorExperienceSelector.value === "select_mentor_experience" &&
+      mentorExperienceSelector.classList.add("error");
+    $targetCompaniesSelector.val().length === 0 &&
+      targetCompaniesSelector.parentElement.classList.add("error");
+    $targetCompaniesSelector.val().length === 0 &&
+      showElements([tC_ErrorSelector]);
+    $(".error").filter(":first")[0].scrollIntoView();
+  } else {
+    const properties = {
+      button_name: currentButtonName,
+      triggered_by: currentTriggerBy,
+      item_id: currentSku,
+      value: +pkDetails.totalPrice,
+      package_name: currentPackageId,
+      package_type: currentPackageType,
+      coupon_code: currentCoupon,
+      package_amount: +pkDetails.totalPrice,
+      currency: pkDetails.currency,
+      // ecommerce: {
+      //   currency: pkDetails.currency,
+      //   value: +pkDetails.totalPrice,
+      coupon: currentCoupon,
+      items: [
         {
-          order_id: response.razorpay_order_id,
-          payment_id: response.razorpay_payment_id || "",
-          signature: response.razorpay_signature || "",
+          item_id: currentSku,
+          item_name: currentPackageId,
+          item_variant: currentMentorExperience,
+          coupon: currentCoupon,
+          currency: pkDetails.currency,
+          addGST: pkDetails.addGST,
+          country: pkDetails.country,
+          designation: pkDetails.designation,
+          domain: pkDetails.domain,
+          domain_id: pkDetails.domain_id,
+          experience: pkDetails.experience,
+          experience_id: pkDetails.experience_id,
+          mentor_instructions: pkDetails.mentor_instructions,
+          package: pkDetails.package,
+          package_type: pkDetails.package_type,
+          preferred_mentor_experience: pkDetails.preferred_mentor_experience,
+          price: pkDetails.price,
+          target_companies: currenTargetCompanies,
+          target_role: pkDetails.target_role,
+          value: +pkDetails.totalPrice,
+          upcoming_interview: pkDetails.upcoming_interview,
+          version: pkDetails.version,
         },
-        goToThankYouPage,
-        function () {
-          onPaymentFailure("update-order");
-        }
-      );
-    }
-    function onOrderCreated(responseData) {
-      let order = responseData.razorpay_order_object;
-      if (!!order) {
-        var options = {
-          key: responseData.key || "rzp_test_sPcDgJ2yGLxdzT", // Enter the Key ID generated from the Dashboard
-          amount: order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-          currency: order.currency,
-          name: "Preplaced Education Pvt. Ltd",
-          description: packageMap[pkDetails.package],
-          order_id: order.id,
-          handler: function (response) {
-            onPaymentComplete(response);
+      ],
+      // }
+    };
+    sendAnalyticsToSegment.track("Payment Started", properties);
+    e.preventDefault();
+    payNowButtonLoader();
+    hideElements([orderErrorSelector]);
+    showElements([orderOverlay, orderLoader]);
+    if (
+      verifiedUser &&
+      verifiedUser.phoneNumber &&
+      verifiedUser.displayName &&
+      verifiedUser.email
+    ) {
+      function onPaymentComplete(response) {
+        hideElements([orderErrorSelector]);
+        showElements([orderOverlay, orderLoader]);
+        pkDetails["totalPrice"] = totalPrice;
+        pkDetails["order_id"] = response.razorpay_order_id;
+        triggerPurchase(pkDetails);
+        const properties = {
+          button_name: currentButtonName,
+          triggered_by: currentTriggerBy,
+          item_id: currentSku,
+          value: +pkDetails.totalPrice,
+          package_name: currentPackageId,
+          package_type: currentPackageType,
+          coupon_code: currentCoupon,
+          package_amount: +pkDetails.totalPrice,
+          transaction_id: response.razorpay_payment_id,
+          ecommerce: {
+            transaction_id: response.razorpay_payment_id,
+            currency: pkDetails.currency,
+            value: +pkDetails.totalPrice,
+            coupon: pkDetails.coupon,
+            items: [
+              {
+                item_id: currentSku,
+                item_name: currentPackageId,
+                item_variant: currentMentorExperience,
+                coupon: pkDetails.coupon,
+                currency: pkDetails.currency,
+                addGST: pkDetails.addGST,
+                country: pkDetails.country,
+                designation: pkDetails.designation,
+                domain: pkDetails.domain,
+                domain_id: pkDetails.domain_id,
+                experience: pkDetails.experience,
+                experience_id: pkDetails.experience_id,
+                mentor_instructions: pkDetails.mentor_instructions,
+                package: pkDetails.package,
+                package_type: pkDetails.package_type,
+                preferred_mentor_experience:
+                  pkDetails.preferred_mentor_experience,
+                price: pkDetails.price,
+                target_companies: pkDetails.target_companies,
+                target_role: pkDetails.target_role,
+                value: +pkDetails.totalPrice,
+                upcoming_interview: pkDetails.upcoming_interview,
+                version: pkDetails.version,
+              },
+            ],
           },
-          prefill: {
-            name: verifiedUser.displayName,
-            email: verifiedUser.email,
-            contact: verifiedUser.phoneNumber,
-          },
-          notes: {
-            Package: `${packageMap[pkDetails.package]}`,
-            Domain: responseData.Domain,
-          },
-          "modal": {
-            "ondismiss": function(){
-              const properties = {
-                "button_name":currentButtonName,
-                "triggered_by":currentTriggerBy,
-                "item_id":currentSku,
-                "value": +pkDetails.totalPrice,
-                "package_name":currentPackageId,
-                "package_type":currentPackageType,
-                "coupon_code": currentCoupon,
-                "package_amount":+pkDetails.totalPrice,
-                ecommerce: {
-                  currency: pkDetails.currency,
-                  value: +pkDetails.totalPrice,
-                  coupon: pkDetails.coupon,
-                  items:[
-                    {
-                      "item_id":currentSku,
-                      "item_name":currentPackageId,
-                      "item_variant": currentMentorExperience,
-                      "coupon":pkDetails.coupon,
-                      "currency":pkDetails.currency,
-                      "addGST": pkDetails.addGST,
-                      "country": pkDetails.country,
-                      "designation": pkDetails.designation,
-                      "domain": pkDetails.domain,
-                      "domain_id": pkDetails.domain_id,
-                      "experience": pkDetails.experience,
-                      "experience_id": pkDetails.experience_id,
-                      "mentor_instructions": pkDetails.mentor_instructions,
-                      "package": pkDetails.package,
-                      "package_type": pkDetails.package_type,
-                      "preferred_mentor_experience": pkDetails.preferred_mentor_experience,
-                      "price": pkDetails.price,
-                      "target_companies": pkDetails.target_companies,
-                      "target_role": pkDetails.target_role,
-                      "value": +pkDetails.totalPrice,
-                      "upcoming_interview": pkDetails.upcoming_interview,
-                      "version": pkDetails.version
-                    }
-                  ]
-                }
-              }
-              sendAnalyticsToSegment.track("Payment Cancelled",properties);
-              payNowButtonIdealState()
-            }
-        }
         };
-        var rzp1 = new Razorpay(options);
-        rzp1.on("payment.failed", function (response) {
-          onPaymentFailure("razorpay");
-          console.error("razorpay_error:", response.error);
-        });
-        hideElements([orderOverlay, orderErrorSelector]);
-        rzp1.open();
-      } else {
-        onPaymentComplete({
-          razorpay_order_id: `${responseData.orderId}`,
-        });
+        sendAnalyticsToSegment.track("Payment Completed", properties);
+        function goToThankYouPage() {
+          hideElements([orderOverlay, orderLoader, checkoutModal]);
+          showElements([thankyouModal], "flex");
+          var redirectingText = getElement("redirecting-text");
+          let count = 10;
+          let initialText = redirectingText.innerText;
+          redirectingText.innerText = initialText + " " + count-- + " secs";
+          setInterval(() => {
+            redirectingText.innerText =
+              initialText + " " + count + (count > 1 ? " secs" : " sec");
+            count--;
+            if (count === 0) {
+              redirect("/dashboard", true);
+            }
+          }, 1000);
+        }
+        updateOrder(
+          {
+            order_id: response.razorpay_order_id,
+            payment_id: response.razorpay_payment_id || "",
+            signature: response.razorpay_signature || "",
+          },
+          goToThankYouPage,
+          function () {
+            onPaymentFailure("update-order");
+          }
+        );
       }
+      function onOrderCreated(responseData) {
+        let order = responseData.razorpay_order_object;
+        if (!!order) {
+          var options = {
+            key: responseData.key || "rzp_test_sPcDgJ2yGLxdzT", // Enter the Key ID generated from the Dashboard
+            amount: order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+            currency: order.currency,
+            name: "Preplaced Education Pvt. Ltd",
+            description: packageMap[pkDetails.package],
+            order_id: order.id,
+            handler: function (response) {
+              onPaymentComplete(response);
+            },
+            prefill: {
+              name: verifiedUser.displayName,
+              email: verifiedUser.email,
+              contact: verifiedUser.phoneNumber,
+            },
+            notes: {
+              Package: `${packageMap[pkDetails.package]}`,
+              Domain: responseData.Domain,
+            },
+            modal: {
+              ondismiss: function () {
+                const properties = {
+                  button_name: currentButtonName,
+                  triggered_by: currentTriggerBy,
+                  item_id: currentSku,
+                  value: +pkDetails.totalPrice,
+                  package_name: currentPackageId,
+                  package_type: currentPackageType,
+                  coupon_code: currentCoupon,
+                  package_amount: +pkDetails.totalPrice,
+                  ecommerce: {
+                    currency: pkDetails.currency,
+                    value: +pkDetails.totalPrice,
+                    coupon: pkDetails.coupon,
+                    items: [
+                      {
+                        item_id: currentSku,
+                        item_name: currentPackageId,
+                        item_variant: currentMentorExperience,
+                        coupon: pkDetails.coupon,
+                        currency: pkDetails.currency,
+                        addGST: pkDetails.addGST,
+                        country: pkDetails.country,
+                        designation: pkDetails.designation,
+                        domain: pkDetails.domain,
+                        domain_id: pkDetails.domain_id,
+                        experience: pkDetails.experience,
+                        experience_id: pkDetails.experience_id,
+                        mentor_instructions: pkDetails.mentor_instructions,
+                        package: pkDetails.package,
+                        package_type: pkDetails.package_type,
+                        preferred_mentor_experience:
+                          pkDetails.preferred_mentor_experience,
+                        price: pkDetails.price,
+                        target_companies: pkDetails.target_companies,
+                        target_role: pkDetails.target_role,
+                        value: +pkDetails.totalPrice,
+                        upcoming_interview: pkDetails.upcoming_interview,
+                        version: pkDetails.version,
+                      },
+                    ],
+                  },
+                };
+                sendAnalyticsToSegment.track("Payment Cancelled", properties);
+                payNowButtonIdealState();
+              },
+            },
+          };
+          var rzp1 = new Razorpay(options);
+          rzp1.on("payment.failed", function (response) {
+            onPaymentFailure("razorpay");
+            console.error("razorpay_error:", response.error);
+          });
+          hideElements([orderOverlay, orderErrorSelector]);
+          rzp1.open();
+        } else {
+          onPaymentComplete({
+            razorpay_order_id: `${responseData.orderId}`,
+          });
+        }
+      }
+      pkDetails["coupon"] = coupon;
+      pkDetails["target_companies"] = $targetCompaniesSelector.val().join(",");
+      pkDetails["mentor_instructions"] = mentorInstructionSelector.value;
+      pkDetails["upcoming_interview"] = currentUpcomingInterviewSchedule;
+      createOrder(pkDetails, onOrderCreated, function () {
+        onPaymentFailure("create-order");
+      });
     }
-    pkDetails["coupon"] = coupon;
-    pkDetails["target_companies"] = $targetCompaniesSelector.val().join(",");
-    pkDetails["mentor_instructions"] = mentorInstructionSelector.value;
-    pkDetails["upcoming_interview"] = currentUpcomingInterviewSchedule;
-    createOrder(pkDetails, onOrderCreated, function () {
-      onPaymentFailure("create-order");
-    });
   }
-  }
-}
-);
+});
 
 upcomingInterviewSelectors.forEach((upcomingInterviewSelector) => {
   upcomingInterviewSelector.addEventListener("click", (event) => {
@@ -945,25 +991,27 @@ getLocation();
 /* -------------------------------------------------------------------------- */
 $(function () {
   $(window).keydown(function (event) {
-     if (event.keyCode == 13) {
-           event.preventDefault();
-            return false;
-      }
+    if (event.keyCode == 13) {
+      event.preventDefault();
+      return false;
+    }
   });
-})
-
-$('#company-selector-new').select2({
-  width: "100%",
-  placeholder: "Your Target Company",
-  tags: true,
-  matcher: matchMaker,
-  minimumInputLength: 3,
-}).on('change', function(){
-  currenTargetCompanies = $targetCompaniesSelector.val().join(",");
-  targetCompaniesSelector.parentElement.classList.remove("error");
-  hideElements([tC_ErrorSelector])
 });
 
-function scrollBody(overflowValue){
-    document.body.style.overflow = overflowValue;
+$("#company-selector-new")
+  .select2({
+    width: "100%",
+    placeholder: "Your Target Company",
+    tags: true,
+    matcher: matchMaker,
+    minimumInputLength: 3,
+  })
+  .on("change", function () {
+    currenTargetCompanies = $targetCompaniesSelector.val().join(",");
+    targetCompaniesSelector.parentElement.classList.remove("error");
+    hideElements([tC_ErrorSelector]);
+  });
+
+function scrollBody(overflowValue) {
+  document.body.style.overflow = overflowValue;
 }
