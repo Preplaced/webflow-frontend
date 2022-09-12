@@ -929,14 +929,14 @@ formButtonSelector.addEventListener('click', function (e) {
 
                         if(localStorage.getItem("hasVisitedBefore") !== null){
                             var FirstWebsitedVisitedOn = new Date(JSON.parse(localStorage.getItem("hasVisitedBefore"))["visited-date"])
-                            var creationDate = new Date(verifiedUser.metadata.creationTime);
-                            if(creationDate < FirstWebsitedVisitedOn){
-                                properties = {
-                                    ...properties,
-                                    ...JSON.parse(localStorage.getItem("hasVisitedBefore"))
-                                }
-                                sendAnalyticsToSegment.identify(verifiedUser.email,properties)
-                            }  
+                            // var creationDate = new Date(verifiedUser.metadata.creationTime);
+                            // if(creationDate < FirstWebsitedVisitedOn){
+                            //     properties = {
+                            //         ...properties,
+                            //         ...JSON.parse(localStorage.getItem("hasVisitedBefore"))
+                            //     }
+                            //     sendAnalyticsToSegment.identify(verifiedUser.email,properties)
+                            // }  
                         }
                         sendAnalyticsToSegment.track("Login Completed",properties);
                     }
