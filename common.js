@@ -1011,6 +1011,11 @@ formButtonSelector.addEventListener('click', function (e) {
                                     properties["visited-date"] = verifiedUser.metadata.creationTime;
                                     sendAnalyticsToSegment.identify(properties.email,properties);
                                     sendAnalyticsToSegment.track("Signup Completed",properties);
+                                    let localStoragePropeties = {
+                                        ...JSON.parse(localStorage.getItem("hasVisitedBefore"))
+                                    }
+                                    localStoragePropeties["visited-date"] = verifiedUser.metadata.creationTime;
+                                    localStorage.setItem("hasVisitedBefore", JSON.stringify(localStoragePropeties))
                                 }
 
                                 triggerEvent('Signed Up', {
