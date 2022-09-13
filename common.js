@@ -1236,9 +1236,9 @@ function onReady() {
     };
     sendAnalyticsToSegment.track("Page Visit",properties);
     if (localStorage.getItem("hasVisitedBefore") === null) {
-        sendAnalyticsToSegment.track("First Website Visit",properties);
         properties["hasVisitedBefore"] = true;
         properties["visited-date"] = new Date();
+        sendAnalyticsToSegment.track("First Website Visit",properties);
         localStorage.setItem("hasVisitedBefore", JSON.stringify(properties));
     }
 }
