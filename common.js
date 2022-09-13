@@ -529,11 +529,36 @@ function login(code, successCallback, errorCallback) {
     credential = firebase.auth.PhoneAuthProvider.credential(window.confirmationResult.verificationId, code);
     firebase.auth().signInWithCredential(credential)
         .then(function (result) {
-            console.log("trying to identify user",result);
+            console.log("trying to identify user");
             if (analytics) {
                 console.log("identifying user");
                 analytics.identify(result.user.email);
             }
+
+            // login Analytics
+            if(signInType === "login"){
+                let properties = {
+                    'source': 'sign-in',
+                    'method': 'otp',
+                    'button_name':currentButtonName
+                }
+
+                if(localStorage.getItem("hasVisitedBefore") !== null){
+                    var FirstWebsitedVisitedOn = new Date(JSON.parse(localStorage.getItem("hasVisitedBefore"))["visited-date"])
+                    var creationDate = new Date(result.user.metadata.creationTime);
+                    if(creationDate < FirstWebsitedVisitedOn){
+                        properties = {
+                            ...properties,
+                            ...JSON.parse(localStorage.getItem("hasVisitedBefore"))
+                        }
+                        sendAnalyticsToSegment.identify(result.user.email,properties)
+                    }  
+                }
+                sendAnalyticsToSegment.track("Login Completed",properties);
+            }
+
+
+
             console.log("were you able to identify user?");
             successCallback(result);
         })
@@ -711,7 +736,6 @@ firebase.auth().onAuthStateChanged(function (user) {
         // User is signed in.
         verifiedUser = user;
         console.log('User is logged in!');
-        console.log('User First time logged on',user.metadata.creationTime);
         console.log('phone: ' + user.phoneNumber);
         console.log('UID: ' + user.uid);
         updateAccessToken();
@@ -916,30 +940,9 @@ formButtonSelector.addEventListener('click', function (e) {
         if (userExists) {
             let validFields = checkFieldsAndShowError([otpFieldSelector], errorFieldSelector);
             if (validFields) {
+                signInType = "login"; // login signInType
                 function onLogin() {
 
-                    // login Analytics
-                    signInType = "login"; // login signInType
-                    if(signInType === "login"){
-                        let properties = {
-                            'source': 'sign-in',
-                            'method': 'otp',
-                            'button_name':currentButtonName
-                        }
-
-                        if(localStorage.getItem("hasVisitedBefore") !== null){
-                            var FirstWebsitedVisitedOn = new Date(JSON.parse(localStorage.getItem("hasVisitedBefore"))["visited-date"])
-                            var creationDate = new Date(verifiedUser.metadata.creationTime);
-                            if(creationDate < FirstWebsitedVisitedOn){
-                                properties = {
-                                    ...properties,
-                                    ...JSON.parse(localStorage.getItem("hasVisitedBefore"))
-                                }
-                                sendAnalyticsToSegment.identify(verifiedUser.email,properties)
-                            }  
-                        }
-                        sendAnalyticsToSegment.track("Login Completed",properties);
-                    }
                     triggerEvent('Signed In', {
                         'source': 'sign-in',
                         'method': 'phone',
@@ -963,6 +966,7 @@ formButtonSelector.addEventListener('click', function (e) {
         else {        
             let validFields = checkFieldsAndShowError([otpFieldSelector, userNameSelector, userEmailSelector, acceptTermsSelector], errorFieldSelector)
             if (validFields) {
+                signInType = 'register';
                 async function onLogin(result) {
                     verifiedUser = result.user;
                     let userNameValue = capitalize(userNameSelector.value);
@@ -995,7 +999,6 @@ formButtonSelector.addEventListener('click', function (e) {
                                     });
                                 }
                                 // SignUp Analytics
-                                signInType = 'register';
                                 if(signInType === 'register'){
                                     let properties = {
                                         name: userNameValue,
@@ -1005,6 +1008,7 @@ formButtonSelector.addEventListener('click', function (e) {
                                         method:"otp",
                                         ...JSON.parse(localStorage.getItem("hasVisitedBefore"))
                                     }
+                                    properties["visited-date"] = verifiedUser.metadata.creationTime;
                                     sendAnalyticsToSegment.identify(properties.email,properties);
                                     sendAnalyticsToSegment.track("Signup Completed",properties);
                                 }

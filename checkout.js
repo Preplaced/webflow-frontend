@@ -162,41 +162,41 @@ const successGetAllPriceForCountry = (response) => {
 };
 
 function commonProceedToCheckout(modalText) {
-    try{
-        const properties = {
-            button_name: currentButtonName,
-            triggered_by: currentTriggerBy,
+  try {
+    const properties = {
+      button_name: currentButtonName,
+      triggered_by: currentTriggerBy,
+      item_id: currentSku,
+      package_name: currentPackageId,
+      package_type: currentPackageType,
+      logged_in: !!accessToken,
+      ecommerce: {
+        items: [
+          {
             item_id: currentSku,
-            package_name: currentPackageId,
-            package_type: currentPackageType,
-            logged_in: !!accessToken,
-            ecommerce: {
-              items: [
-                {
-                  item_id: currentSku,
-                  item_name: currentPackageId,
-                },
-              ],
-            },
-          };
-        if (!verifiedUser) {
-            customOnSignInMethod = function () {
-              hideElements([loginModal]);
-              updateCheckoutValuesOnShown();
-              showElements([checkoutModal], "flex");
-              sendAnalyticsToSegment.track("Checkout Started",properties);
-            };
-            customOnSignIn = true;
-            showLoginModal(modalText);
-          } else {
-            updateCheckoutValuesOnShown();
-            showElements([checkoutModal], "flex");
-              sendAnalyticsToSegment.track("Checkout Started",properties);
-          }
-    }catch(error){
-        console.error("Error in commonProceedCheckout",error);
-        // TODO add sentry for more clearance.
+            item_name: currentPackageId,
+          },
+        ],
+      },
+    };
+    if (!verifiedUser) {
+      customOnSignInMethod = function () {
+        hideElements([loginModal]);
+        updateCheckoutValuesOnShown();
+        showElements([checkoutModal], "flex");
+        sendAnalyticsToSegment.track("Checkout Started", properties);
+      };
+      customOnSignIn = true;
+      showLoginModal(modalText);
+    } else {
+      updateCheckoutValuesOnShown();
+      showElements([checkoutModal], "flex");
+      sendAnalyticsToSegment.track("Checkout Started", properties);
     }
+  } catch (error) {
+    console.error("Error in commonProceedCheckout", error);
+    // TODO add sentry for more clearance.
+  }
 }
 
 function commonSaveInfoToLocalStorage(package_id) {
@@ -711,40 +711,43 @@ payNowButtonSelector.addEventListener("click", function (e) {
       value: +pkDetails.totalPrice,
       package_name: currentPackageId,
       package_type: currentPackageType,
+      domain: pkDetails.domain,
+      designation: pkDetails.designation,
+      experience: pkDetails.experience,
       coupon_code: currentCoupon,
       package_amount: +pkDetails.totalPrice,
       currency: pkDetails.currency,
-      // ecommerce: {
-      //   currency: pkDetails.currency,
-      //   value: +pkDetails.totalPrice,
-      coupon: currentCoupon,
-      items: [
-        {
-          item_id: currentSku,
-          item_name: currentPackageId,
-          item_variant: currentMentorExperience,
-          coupon: currentCoupon,
-          currency: pkDetails.currency,
-          addGST: pkDetails.addGST,
-          country: pkDetails.country,
-          designation: pkDetails.designation,
-          domain: pkDetails.domain,
-          domain_id: pkDetails.domain_id,
-          experience: pkDetails.experience,
-          experience_id: pkDetails.experience_id,
-          mentor_instructions: pkDetails.mentor_instructions,
-          package: pkDetails.package,
-          package_type: pkDetails.package_type,
-          preferred_mentor_experience: pkDetails.preferred_mentor_experience,
-          price: pkDetails.price,
-          target_companies: currenTargetCompanies,
-          target_role: pkDetails.target_role,
-          value: +pkDetails.totalPrice,
-          upcoming_interview: pkDetails.upcoming_interview,
-          version: pkDetails.version,
-        },
-      ],
-      // }
+      ecommerce: {
+        currency: pkDetails.currency,
+        value: +pkDetails.totalPrice,
+        coupon: currentCoupon,
+        items: [
+          {
+            item_id: currentSku,
+            item_name: currentPackageId,
+            item_variant: currentMentorExperience,
+            coupon: currentCoupon,
+            currency: pkDetails.currency,
+            addGST: pkDetails.addGST,
+            country: pkDetails.country,
+            designation: pkDetails.designation,
+            domain: pkDetails.domain,
+            domain_id: pkDetails.domain_id,
+            experience: pkDetails.experience,
+            experience_id: pkDetails.experience_id,
+            mentor_instructions: pkDetails.mentor_instructions,
+            package: pkDetails.package,
+            package_type: pkDetails.package_type,
+            preferred_mentor_experience: pkDetails.preferred_mentor_experience,
+            price: pkDetails.price,
+            target_companies: currenTargetCompanies,
+            target_role: pkDetails.target_role,
+            value: +pkDetails.totalPrice,
+            upcoming_interview: pkDetails.upcoming_interview,
+            version: pkDetails.version,
+          },
+        ],
+      },
     };
     sendAnalyticsToSegment.track("Payment Started", properties);
     e.preventDefault();
@@ -770,6 +773,9 @@ payNowButtonSelector.addEventListener("click", function (e) {
           value: +pkDetails.totalPrice,
           package_name: currentPackageId,
           package_type: currentPackageType,
+          domain: pkDetails.domain,
+          designation: pkDetails.designation,
+          experience: pkDetails.experience,
           coupon_code: currentCoupon,
           package_amount: +pkDetails.totalPrice,
           transaction_id: response.razorpay_payment_id,
