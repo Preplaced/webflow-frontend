@@ -597,6 +597,9 @@ function createOrder(packageDetails, successCallback, errorCallback) {
             errorCallback(response);
         }
     }, function (error) {
+        if(error.response.status===500){
+            payNowButtonIdealState();
+        }
         console.error("createOrder: ", error);
         errorCallback(error);
     });
