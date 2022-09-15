@@ -1,21 +1,21 @@
 try {
     document.domain = 'preplaced.in';
-}
-catch (e) { }
-
-// console.log("%cWelcome to Preplaced LocalHost Server", "color: red; font-size:2rem;padding: 2px");
-
-loadFile("styles/style.js",false);
-
-//for development
-// loadFile("variables.js",false);
-// loadFile("checkout.js", false);
-
-//for production
-loadFile("variables.min.js",false);
-loadFile("checkout.min.js", false);
-
-var firebaseConfig = {
+  }
+  catch (e) { }
+  
+  // console.log("%cWelcome to Preplaced LocalHost Server", "color: red; font-size:2rem;padding: 2px");
+  
+  loadFile("styles/style.js",false);
+  
+  //for development
+  // loadFile("variables.js",false);
+  // loadFile("checkout.js", false);
+  
+  //for production
+  loadFile("variables.min.js",false);
+  loadFile("checkout.min.js", false);
+  
+  var firebaseConfig = {
     apiKey: "AIzaSyDEjje1xnNR_5Ckx27w_8emPFUy5ppC0E8",
     authDomain: "preplaced-ui.firebaseapp.com",
     databaseURL: "https://preplaced-ui.firebaseio.com",
@@ -24,83 +24,83 @@ var firebaseConfig = {
     messagingSenderId: "779441206847",
     appId: "1:779441206847:web:107bfb3d20f20bd7746a8a",
     measurementId: "G-JBWKVRBC25"
-};
-firebase.initializeApp(firebaseConfig);
-var signOutUser = function (reload = true) {
+  };
+  firebase.initializeApp(firebaseConfig);
+  var signOutUser = function (reload = true) {
     localStorage.removeItem('ACCESS_TOKEN');
     accessToken = undefined;
     verifiedUser = undefined;
     firebase.auth().signOut();
     setInitialDisplays();
     if (reload) window.location.reload();
-}
-
-var signOutWithoutReload = function () {
+  }
+  
+  var signOutWithoutReload = function () {
     signOutUser(false);
-}
-
-function getElement(id, parentId) {
+  }
+  
+  function getElement(id, parentId) {
     if (parentId) {
         return document.getElementById(parentId).querySelector(`#${id}`);
     }
     else {
         return document.getElementById(id);
     }
-}
-
-function getElements(idArray) {
+  }
+  
+  function getElements(idArray) {
     let selectors = [];
     for (let id in idArray) {
         selectors.push(getElement(idArray[id]))
     }
     return selectors;
-}
-
-let apiBaseURL = "https://backend.preplaced.in/";
-let verifiedUser;
-let credential;
-let userLocation;
-let localUserName = localStorage.getItem("Name");
-let accessToken = localStorage.getItem("ACCESS_TOKEN");
-let RecaptchaSelector = getElement('recaptcha');
-// var dashboardButton = getElement('dashboard-button');
-var menuLoginButton = getElement('menuLoginButton');
-var navbarSelector = getElement("navbar-container");
-var loginModal = getElement("login-modal");
-var closeLoginModalIcon = getElement("close-login-modal");
-var checkoutModal = getElement("checkout-new");
-var thankyouModal = getElement("thankyou-modal");
-var userName = getElement('Name');
-var phoneFormatter = getElement('phoneFormatter');
-var downloadEbookButton = getElement('download-ebook-button');
-var footerLogin = getElement('footer-login');
-var currentPath = window.location.pathname;
-var preplacedLogo = "https://uploads-ssl.webflow.com/5fa298c0bded9141021f03fa/5fe8f718a1688547053c318d_preplaced.png";
-var customOnSignIn = false;
-var customOnSignInMethod = function () {
-}
-var callAfterCheckout = false;
-var afterCheckoutClosedMethod = function () {
-}
-var isMobile = window.innerWidth <= 425;
-var menuLogin = document.getElementsByClassName("login-button");
-var dashboardButtons = document.querySelectorAll('.dashboard');
-
-// To check if a user is on mobile device or not
-let details = navigator.userAgent;
-let regexp = /android|iphone|kindle|ipad/i;
-let isMobileDevice = regexp.test(details);
-
-// Wait for Intercom to boot (max 30 seconds)
-// const timeout = setTimeout(() => clearInterval(interval), 30000);
-
-
-/*******************************************************************\
-|                                                                   |
-|                   Analytics Methods                               |
-|                                                                   |
-\*******************************************************************/
-if (analytics) {
+  }
+  
+  let apiBaseURL = "https://backend.preplaced.in/";
+  let verifiedUser;
+  let credential;
+  let userLocation;
+  let localUserName = localStorage.getItem("Name");
+  let accessToken = localStorage.getItem("ACCESS_TOKEN");
+  let RecaptchaSelector = getElement('recaptcha');
+  // var dashboardButton = getElement('dashboard-button');
+  var menuLoginButton = getElement('menuLoginButton');
+  var navbarSelector = getElement("navbar-container");
+  var loginModal = getElement("login-modal");
+  var closeLoginModalIcon = getElement("close-login-modal");
+  var checkoutModal = getElement("checkout-new");
+  var thankyouModal = getElement("thankyou-modal");
+  var userName = getElement('Name');
+  var phoneFormatter = getElement('phoneFormatter');
+  var downloadEbookButton = getElement('download-ebook-button');
+  var footerLogin = getElement('footer-login');
+  var currentPath = window.location.pathname;
+  var preplacedLogo = "https://uploads-ssl.webflow.com/5fa298c0bded9141021f03fa/5fe8f718a1688547053c318d_preplaced.png";
+  var customOnSignIn = false;
+  var customOnSignInMethod = function () {
+  }
+  var callAfterCheckout = false;
+  var afterCheckoutClosedMethod = function () {
+  }
+  var isMobile = window.innerWidth <= 425;
+  var menuLogin = document.getElementsByClassName("login-button");
+  var dashboardButtons = document.querySelectorAll('.dashboard');
+  
+  // To check if a user is on mobile device or not
+  let details = navigator.userAgent;
+  let regexp = /android|iphone|kindle|ipad/i;
+  let isMobileDevice = regexp.test(details);
+  
+  // Wait for Intercom to boot (max 30 seconds)
+  // const timeout = setTimeout(() => clearInterval(interval), 30000);
+  
+  
+  /*******************************************************************\
+  |                                                                   |
+  |                   Analytics Methods                               |
+  |                                                                   |
+  \*******************************************************************/
+  if (analytics) {
     const params = new URLSearchParams(window.location.search)
     if (window.sessionStorage.getItem("page_visited") == null) {
         var pageVisitParams = {}
@@ -111,12 +111,12 @@ if (analytics) {
         // REMIND analytics.track('New Website Session', pageVisitParams) - Old Event Because for testing
         window.sessionStorage.setItem("page_visited", true)
     }
-}
-
-const urlSearchParams = new URLSearchParams(window.location.search);
-const URLQueryParams = Object.fromEntries(urlSearchParams.entries());
-
-function triggerEvent(eventName, params) {
+  }
+  
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  const URLQueryParams = Object.fromEntries(urlSearchParams.entries());
+  
+  function triggerEvent(eventName, params) {
     let eventParams = params || {}
     eventParams["event"] = eventName;
     dataLayer.push(eventParams);
@@ -133,12 +133,12 @@ function triggerEvent(eventName, params) {
     if (analytics) {
         analytics.track(eventName, fbParams);
     }
-
+  
     eventName = eventName[0].toUpperCase() + eventName.substring(1);
     fbq('track', eventName, fbParams);
-}
-
-const sendAnalyticsToSegment = {
+  }
+  
+  const sendAnalyticsToSegment = {
     track:(eventName,properties) => {
         try{
             var failedTimes = 1;
@@ -167,9 +167,9 @@ const sendAnalyticsToSegment = {
             console.error("Error in sendAnalyticsToSegment identify",error);
         }
     }
-}
-
-function triggerPurchase(packageDetails) {
+  }
+  
+  function triggerPurchase(packageDetails) {
     packageDetails['item_name'] = packageDetails.package;
     packageDetails['item_id'] = packageDetails.package;
     let eventParams = {
@@ -187,9 +187,9 @@ function triggerPurchase(packageDetails) {
         'logged_in': !!accessToken,
     }
     // REMIND triggerEvent('Payment Completed', eventParams);
-}
-
-function triggerPurchaseInitiation(packageDetails) {
+  }
+  
+  function triggerPurchaseInitiation(packageDetails) {
     packageDetails['item_name'] = packageDetails.package;
     packageDetails['item_id'] = packageDetails.package;
     let eventParams = {
@@ -206,17 +206,17 @@ function triggerPurchaseInitiation(packageDetails) {
         'logged_in': !!accessToken,
     }
     // REMIND triggerEvent('Payment Started', eventParams);
-}
-//////////////////////////////////////////////////////////////////////
-
-
-/*******************************************************************\
-|                                                                   |
-|                   CRUD  API COMMON METHODS                        |
-|                                                                   |
-\*******************************************************************/
-
-function getDefaultConfig() {
+  }
+  //////////////////////////////////////////////////////////////////////
+  
+  
+  /*******************************************************************\
+  |                                                                   |
+  |                   CRUD  API COMMON METHODS                        |
+  |                                                                   |
+  \*******************************************************************/
+  
+  function getDefaultConfig() {
     let config = {}
     if (accessToken) {
         config["headers"] = {
@@ -224,9 +224,9 @@ function getDefaultConfig() {
         }
     }
     return config
-}
-
-function logAPIError(params) {
+  }
+  
+  function logAPIError(params) {
     let { api, error, data } = params;
     let errorCode = error.response ? error.response.status : "";
     let errorText = error.response ? error.response.statusText : "";
@@ -238,9 +238,9 @@ function logAPIError(params) {
     //     errorText: errorText,
     //     user: verifiedUser ? verifiedUser.displayName : "notSignedIn",
     // })
-}
-
-function getAPI(url, successCallback, errorCallback) {
+  }
+  
+  function getAPI(url, successCallback, errorCallback) {
     axios.get(url, getDefaultConfig())
         .then(function (response) {
             successCallback(response);
@@ -252,9 +252,9 @@ function getAPI(url, successCallback, errorCallback) {
                 error: error
             })
         });
-}
-
-function postAPI(url, data, successCallback, errorCallback) {
+  }
+  
+  function postAPI(url, data, successCallback, errorCallback) {
     axios.post(url, data, getDefaultConfig())
         .then(function (response) {
             successCallback(response);
@@ -267,17 +267,17 @@ function postAPI(url, data, successCallback, errorCallback) {
                 data: data
             });
         });
-}
-//////////////////////////////////////////////////////////////////////
-
-
-/*******************************************************************\
-|                                                                   |
-|                       DOM Manipulations                           |
-|                                                                   |
-\*******************************************************************/
-
-function hideElements(selectorsArray) {
+  }
+  //////////////////////////////////////////////////////////////////////
+  
+  
+  /*******************************************************************\
+  |                                                                   |
+  |                       DOM Manipulations                           |
+  |                                                                   |
+  \*******************************************************************/
+  
+  function hideElements(selectorsArray) {
     for (let index in selectorsArray) {
         try {
             if (selectorsArray[index].type === "checkbox") { //checkbox has label along with it. so hide/show applied on parent
@@ -290,9 +290,9 @@ function hideElements(selectorsArray) {
             console.error("not a valid selector: ", selectorsArray[index]);
         }
     }
-}
-
-function showElements(selectorsArray, displayType = "block") {
+  }
+  
+  function showElements(selectorsArray, displayType = "block") {
     for (let index in selectorsArray) {
         try {
             if (selectorsArray[index].type === "checkbox") { //checkbox has label along with it. so hide/show applied on parent
@@ -306,9 +306,9 @@ function showElements(selectorsArray, displayType = "block") {
             console.error("not a valid selector: ", selectorsArray[index]);
         }
     }
-}
-
-function setInnerText(selectorsArray) {
+  }
+  
+  function setInnerText(selectorsArray) {
     for (let index in selectorsArray) {
         try {
             selectorsArray[index]["s"].innerText = selectorsArray[index]["t"];
@@ -316,18 +316,18 @@ function setInnerText(selectorsArray) {
             console.error("not a valid selector: ", selectorsArray[index]);
         }
     }
-}
-
-function setButtonLoading(buttonSelector, text) {
+  }
+  
+  function setButtonLoading(buttonSelector, text) {
     if (buttonSelector.children.length === 2) {
         buttonSelector.classList.add("loading");
         buttonSelector.children[1].style.display = "none";
         buttonSelector.children[0].style.display = "block";
         buttonSelector.style.cursor = "no-drop";
     }
-}
-
-function removeButtonLoading(buttonSelector, text) {
+  }
+  
+  function removeButtonLoading(buttonSelector, text) {
     if (buttonSelector.children.length === 2) {
         buttonSelector.children[0].style.display = "none";
         buttonSelector.children[1].innerText = text;
@@ -335,9 +335,9 @@ function removeButtonLoading(buttonSelector, text) {
         buttonSelector.classList.remove("loading");
         buttonSelector.style.cursor = "pointer";
     }
-}
-
-function checkFieldsAndShowError(fieldSelectors, errorField) {
+  }
+  
+  function checkFieldsAndShowError(fieldSelectors, errorField) {
     function showErrorBorder(fieldSelector) {
         let borderSelector = fieldSelector.type === "checkbox" ? fieldSelector.parentElement.children[0] : fieldSelector;
         let previousBorder = fieldSelector.style.border;
@@ -373,9 +373,9 @@ function checkFieldsAndShowError(fieldSelectors, errorField) {
         }
     }
     return true;
-}
-
-function startResendTimer(resendContainer) {
+  }
+  
+  function startResendTimer(resendContainer) {
     if (resendContainer.children.length === 2) {
         let resendInText = resendContainer.children[0];
         resendContainer.children[1].style.display = "none";
@@ -397,10 +397,10 @@ function startResendTimer(resendContainer) {
             }
         }, 1000);
     }
-}
-
-// Create a Recaptcha verifier instance globally
-if (RecaptchaSelector) {
+  }
+  
+  // Create a Recaptcha verifier instance globally
+  if (RecaptchaSelector) {
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
         "recaptcha",
         {
@@ -410,18 +410,18 @@ if (RecaptchaSelector) {
             }
         }
     );
-}
-//////////////////////////////////////////////////////////
-
-
-/*******************************************************************\
-|                                                                   |
-|                  OTHER COMMON METHODS                             |
-|                                                                   |
-\*******************************************************************/
-
-
-function sendOTP(phoneNumber, successCallback, errorCallback) {
+  }
+  //////////////////////////////////////////////////////////
+  
+  
+  /*******************************************************************\
+  |                                                                   |
+  |                  OTHER COMMON METHODS                             |
+  |                                                                   |
+  \*******************************************************************/
+  
+  
+  function sendOTP(phoneNumber, successCallback, errorCallback) {
     var appVerifier = window.recaptchaVerifier;
     firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
         .then(function (confirmationResult) {
@@ -432,15 +432,15 @@ function sendOTP(phoneNumber, successCallback, errorCallback) {
             console.log(error);
             errorCallback(error);
         });
-}
-
-function getLocationData(callback) {
+  }
+  
+  function getLocationData(callback) {
     $.getJSON('https://ipinfo.io', function (data) {
         callback && callback(data);
     })
-}
-
-function getLocationFromStorage(onFetch) {
+  }
+  
+  function getLocationFromStorage(onFetch) {
     let locationData = JSON.parse(localStorage.getItem("locationData"));
     if (!locationData) {
         console.log("locationData",locationData);
@@ -455,10 +455,10 @@ function getLocationFromStorage(onFetch) {
     else {
         onFetch && onFetch(locationData);
     }
-
-}
-
-function getAllDomains(callback) {
+  
+  }
+  
+  function getAllDomains(callback) {
     let url = apiBaseURL + "details/get-all-domains";
     getAPI(url, function (response) {
         if (response.status === 200) {
@@ -467,9 +467,9 @@ function getAllDomains(callback) {
     }, function (error) {
         console.error("error getting domains");
     });
-}
-
-function getAllCompanies(callback) {
+  }
+  
+  function getAllCompanies(callback) {
     let url = apiBaseURL + "details/get-all-companies";
     getAPI(url, function (response) {
         if (response.status === 200) {
@@ -478,9 +478,9 @@ function getAllCompanies(callback) {
     }, function (error) {
         console.error("error getting company list",error);
     });
-}
-
-function getPrice(country, package_id, callback) {
+  }
+  
+  function getPrice(country, package_id, callback) {
     let queryString = `?country=${encodeURIComponent(country)}&package=${encodeURIComponent(package_id)}`
     let url = apiBaseURL + "pricing/get-price" + queryString;
     getAPI(url, function (response) {
@@ -490,9 +490,9 @@ function getPrice(country, package_id, callback) {
     }, function (error) {
         console.error("error getting Price");
     });
-}
-
-function checkUserProfile(callback) {
+  }
+  
+  function checkUserProfile(callback) {
     let url = apiBaseURL + "user/check-user-profile-completion";
     getAPI(url, function (response) {
         if (response.status === 200) {
@@ -506,9 +506,9 @@ function checkUserProfile(callback) {
         console.error("checkUser: ", error);
         callback(false);
     });
-}
-
-function checkUser(phoneNumber, callback) {
+  }
+  
+  function checkUser(phoneNumber, callback) {
     let url = apiBaseURL + "details/check-user-exists?phone=" + encodeURIComponent(phoneNumber);
     getAPI(url, function (response) {
         if (response.status === 200) {
@@ -522,9 +522,9 @@ function checkUser(phoneNumber, callback) {
         console.error("checkUser: ", error);
         callback(false)
     });
-}
-
-function login(code, successCallback, errorCallback) {
+  }
+  
+  function login(code, successCallback, errorCallback) {
     credential = firebase.auth.PhoneAuthProvider.credential(window.confirmationResult.verificationId, code);
     firebase.auth().signInWithCredential(credential)
         .then(function (result) {
@@ -533,7 +533,7 @@ function login(code, successCallback, errorCallback) {
                 console.log("identifying user");
                 analytics.identify(result.user.email);
             }
-
+  
             // login Analytics
             if(signInType === "login"){
                 let properties = {
@@ -541,7 +541,7 @@ function login(code, successCallback, errorCallback) {
                     'method': 'otp',
                     'button_name':currentButtonName
                 }
-
+  
                 if(localStorage.getItem("hasVisitedBefore") !== null){
                     var FirstWebsitedVisitedOn = new Date(JSON.parse(localStorage.getItem("hasVisitedBefore"))["visited-date"])
                     var creationDate = new Date(result.user.metadata.creationTime);
@@ -555,35 +555,35 @@ function login(code, successCallback, errorCallback) {
                 }
                 sendAnalyticsToSegment.track("Login Completed",properties);
             }
-
-
-
+  
+  
+  
             console.log("were you able to identify user?");
             successCallback(result);
         })
         .catch(function (error) {
             errorCallback(error);
         })
-}
-
-async function updateAccessToken() {
+  }
+  
+  async function updateAccessToken() {
     if (verifiedUser) {
         accessToken = await verifiedUser.getIdToken().then(function (token) { return token });
         localStorage.setItem("ACCESS_TOKEN", accessToken);
         return accessToken;
     }
-}
-
-function addUserDetails(details, successCallback, errorCallback) {
+  }
+  
+  function addUserDetails(details, successCallback, errorCallback) {
     let url = apiBaseURL + "user/add-user-data"
     postAPI(url, details, successCallback, function (error) {
         console.error("addUserDetails: ", error);
         errorCallback(error);
     });
-}
-
-
-function createOrder(packageDetails, successCallback, errorCallback) {
+  }
+  
+  
+  function createOrder(packageDetails, successCallback, errorCallback) {
     triggerPurchaseInitiation(packageDetails);
     packageDetails["version"] = "default";
     packageDetails["package_type"] = currentPackageType;
@@ -602,28 +602,28 @@ function createOrder(packageDetails, successCallback, errorCallback) {
         console.error("createOrder: ", error);
         errorCallback(error);
     });
-}
-
-function updateOrder(orderObject, successCallback, errorCallback) {
+  }
+  
+  function updateOrder(orderObject, successCallback, errorCallback) {
     let url = apiBaseURL + "user/verify-payment";
     postAPI(url, orderObject, successCallback, function (error) {
         console.error("updateOrder: ", error);
         errorCallback(error);
     });
-}
-
-function capitalize(stringValue) {
+  }
+  
+  function capitalize(stringValue) {
     return stringValue.toLowerCase()
         .split(' ')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
-}
-
-function isValidEmail(email) {
+  }
+  
+  function isValidEmail(email) {
     return (/^\w+([^@]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email))
-}
-
-function redirect(path, replace = true) {
+  }
+  
+  function redirect(path, replace = true) {
     let redirectPath = path ? path : "/";
     if (replace) { // we don't want current tab in the history (e.g no need to have sign-in, checkout in history)
         window.location.replace(redirectPath);
@@ -631,9 +631,9 @@ function redirect(path, replace = true) {
     else {
         window.location.assign(redirectPath);
     }
-}
-
-function redirectTo(path) {
+  }
+  
+  function redirectTo(path) {
     let redirectPath = localStorage.getItem('REDIRECT_TO');
     localStorage.removeItem('REDIRECT_TO');
     if (redirectPath) {
@@ -645,45 +645,45 @@ function redirectTo(path) {
     else {
         redirect("/");
     }
-}
-
-function redirectToDashboard() {
+  }
+  
+  function redirectToDashboard() {
     redirectTo("/dashboard");
-}
-
-var isValidLinkedInURL = function (url) {
+  }
+  
+  var isValidLinkedInURL = function (url) {
     return /((|https?:\/\/)?((www|\w\w)\.)?linkedin\.com\/)((([\w]{2,3})?)|([^\/]+\/(([\w|\d-&#?=])+\/?){1,}))$/.test(url)
-}
-
-var privatePages = [
+  }
+  
+  var privatePages = [
     '/dashboard',
     '/onboarding',
     '/mentor-onboarding',
     '/candidate-onboarding',
     '/welcome'
-];
-
-var publicPages = [
+  ];
+  
+  var publicPages = [
     '/login',
     '/sign-in'
-];
-
-var currencyMap = {
+  ];
+  
+  var currencyMap = {
     INR: '₹',
     USD: '$'
-}
-
-var packageMap = {
+  }
+  
+  var packageMap = {
     'mock-interview': 'Mock Interview',
     'interview-preparation-bundle': 'Interview Preparation Program',
     'mock-interview-bundle': 'Mock Interview Bundle',
     'interview-preparation-bundle-trial': 'Planning Session',
     'consulting-session': 'Consulting Session',
     'consulting-session-trial': "Interview Preparation Program Trial"
-}
-
-// need to set Initial component displays
-var setInitialDisplays = function () {
+  }
+  
+  // need to set Initial component displays
+  var setInitialDisplays = function () {
     if (accessToken) {
         // hideElements([menuLoginButton]);
         hideElements(menuLogin);
@@ -708,13 +708,13 @@ var setInitialDisplays = function () {
       // showElements([menuLoginButton]);
       showElements(menuLogin);
     }
-}
-setInitialDisplays();
-getLocationFromStorage(function (locationData) {
+  }
+  setInitialDisplays();
+  getLocationFromStorage(function (locationData) {
     userLocation = locationData
-});
-
-function matchMaker(params, data) {
+  });
+  
+  function matchMaker(params, data) {
     if ($.trim(params.term) === '') {
         return data;
     }
@@ -724,26 +724,32 @@ function matchMaker(params, data) {
             return null;
     }
     return data;
-};
-
-
-
-/*******************************************************************\
-|                                                                   |
-|                       ON LOGIN VERIFIED                           |
-|                                                                   |
-\*******************************************************************/
-
-firebase.auth().onAuthStateChanged(function (user) {
+  };
+  
+  
+  
+  /*******************************************************************\
+  |                                                                   |
+  |                       ON LOGIN VERIFIED                           |
+  |                                                                   |
+  \*******************************************************************/
+  
+  firebase.auth().onAuthStateChanged(function (user) {
     var logoutUser = function (e) {
         e.preventDefault();
         signOutUser();
     }
-
+  
     if (user) {
         // User is signed in.
         verifiedUser = user;
         console.log('User is logged in!');
+        let properties = {
+            name: user.displayName,
+            email: user.email,
+            phone: user.phoneNumber,
+        }
+        sendAnalyticsToSegment.identify(properties.email,properties);
         console.log('phone: ' + user.phoneNumber);
         console.log('UID: ' + user.uid);
         updateAccessToken();
@@ -761,7 +767,7 @@ firebase.auth().onAuthStateChanged(function (user) {
             hideElements([dashboardButton]);
           })
         }
-
+  
         //changing the footer login text to dashboard
         if (footerLogin) {
             footerLogin.innerText = "Dashboard";
@@ -779,59 +785,59 @@ firebase.auth().onAuthStateChanged(function (user) {
             console.log('No user is logged in');
         }
     }
-});
-
-let lastScrollTop = 0;
-
-let isNavbarChangeNeeded = true;
-
-
-
-if (downloadEbookButton) {
+  });
+  
+  let lastScrollTop = 0;
+  
+  let isNavbarChangeNeeded = true;
+  
+  
+  
+  if (downloadEbookButton) {
     downloadEbookButton.onclick = function () {
         triggerEvent('Ebook Downloaded');
     }
-}
-
-
-/*******************************************************************\
-|                                                                   |
-|                   SIGN IN LOGIC                                   |
-|                                                                   |
-\*******************************************************************/
-
-// Selectors
-var signInTitleSelector = document.getElementById('sign-in-title');
-var countryCodeSelector = document.getElementById('country-code');
-var phoneNumberSelector = document.getElementById('phone');
-var editPhoneSelector = document.getElementById('edit-phone');
-var recaptchaSelector = document.getElementById('recaptcha');
-var otpFieldSelector = document.getElementById('otp-field');
-var resendOTPSelector = document.getElementById('resend-otp');
-var resendOTPContainerSelector = document.getElementById('resend-otp-container');
-var userNameSelector = document.getElementById('user-name');
-var userEmailSelector = document.getElementById('user-email');
-var acceptTermsSelector = document.getElementById('accept-terms');
-var acceptSubscriptionSelector = document.getElementById('accept-subscription');
-var formButtonSelector = document.getElementById('form-button');
-var formSubmitButtonSelector = document.getElementById('form-button-hidden');
-var errorFieldSelector = document.getElementById('error-message');
-
-var code = "+91";
-var otpSent = false;
-var userExists = true;
-var webflowFormSubmitted = false;
-
-function resetUI(resetUser = true) {
+  }
+  
+  
+  /*******************************************************************\
+  |                                                                   |
+  |                   SIGN IN LOGIC                                   |
+  |                                                                   |
+  \*******************************************************************/
+  
+  // Selectors
+  var signInTitleSelector = document.getElementById('sign-in-title');
+  var countryCodeSelector = document.getElementById('country-code');
+  var phoneNumberSelector = document.getElementById('phone');
+  var editPhoneSelector = document.getElementById('edit-phone');
+  var recaptchaSelector = document.getElementById('recaptcha');
+  var otpFieldSelector = document.getElementById('otp-field');
+  var resendOTPSelector = document.getElementById('resend-otp');
+  var resendOTPContainerSelector = document.getElementById('resend-otp-container');
+  var userNameSelector = document.getElementById('user-name');
+  var userEmailSelector = document.getElementById('user-email');
+  var acceptTermsSelector = document.getElementById('accept-terms');
+  var acceptSubscriptionSelector = document.getElementById('accept-subscription');
+  var formButtonSelector = document.getElementById('form-button');
+  var formSubmitButtonSelector = document.getElementById('form-button-hidden');
+  var errorFieldSelector = document.getElementById('error-message');
+  
+  var code = "+91";
+  var otpSent = false;
+  var userExists = true;
+  var webflowFormSubmitted = false;
+  
+  function resetUI(resetUser = true) {
     signInTitleSelector.innerText = "Login";
     removeButtonLoading(formButtonSelector, "Send OTP");
     hideElements([errorFieldSelector, editPhoneSelector, recaptchaSelector, otpFieldSelector, resendOTPContainerSelector, userNameSelector, userEmailSelector, acceptTermsSelector, acceptSubscriptionSelector]);
     otpFieldSelector.value = "";
     otpSent = false;
     if (resetUser) userExists = true;
-}
-
-function onLoginFailed(error) {
+  }
+  
+  function onLoginFailed(error) {
     if (verifiedUser) {
         signOutWithoutReload();
     }
@@ -847,15 +853,15 @@ function onLoginFailed(error) {
     }
     showElements([errorFieldSelector]);
     removeButtonLoading(formButtonSelector, "Verify OTP");
-}
-
-function verifyAndSendOTP(phoneNumber) {
+  }
+  
+  function verifyAndSendOTP(phoneNumber) {
     console.log(phoneNumber);
     localStorage.setItem("Phone", phoneNumber);
     formButtonSelector.disabled = true;
     setButtonLoading(formButtonSelector, "Sending OTP")
     showElements([recaptchaSelector]);
-
+  
     var onOTPSent = function () {
         const properties = {
             "phone_number":phoneNumber,
@@ -876,7 +882,7 @@ function verifyAndSendOTP(phoneNumber) {
             showElements([userNameSelector, userEmailSelector, acceptTermsSelector, acceptSubscriptionSelector]);
         }
     }
-
+  
     var onOTPSendingFailed = function (error) {
         if (error.code === "auth/invalid-phone-number") {
             errorFieldSelector.innerText = "Invalid Phone Number! Please check the Phone Number Entered."
@@ -890,31 +896,31 @@ function verifyAndSendOTP(phoneNumber) {
         otpSent = false;
     }
     sendOTP(phoneNumber, onOTPSent, onOTPSendingFailed);
-}
-
-resendOTPSelector.addEventListener('click', function (event) {
+  }
+  
+  resendOTPSelector.addEventListener('click', function (event) {
     event.preventDefault();
     let resetUser = false;
     resetUI(resetUser);
     let phoneNumber = phoneFormatter.value; //countryCodeSelector.value + phoneNumberSelector.value;
     if (phoneNumber === "") return;
     verifyAndSendOTP(phoneNumber);
-});
-
-editPhoneSelector.addEventListener('click', function () {
+  });
+  
+  editPhoneSelector.addEventListener('click', function () {
     resetUI();
     phoneNumberSelector.disabled = false;
-});
-
-phoneFormatter.addEventListener('change', function () {
+  });
+  
+  phoneFormatter.addEventListener('change', function () {
     resetUI();
     phoneNumberSelector.disabled = false;
-});
-
-// This function runs when the 'form-button' is clicked
-// sends otp to the phone number
-// Verifies the OTP and registers a User when not registered.
-formButtonSelector.addEventListener('click', function (e) {
+  });
+  
+  // This function runs when the 'form-button' is clicked
+  // sends otp to the phone number
+  // Verifies the OTP and registers a User when not registered.
+  formButtonSelector.addEventListener('click', function (e) {
     event.preventDefault();
     if (formButtonSelector.classList.contains("loading")) {
         return;
@@ -958,7 +964,7 @@ formButtonSelector.addEventListener('click', function (e) {
             if (validFields) {
                 signInType = "login"; // login signInType
                 function onLogin() {
-
+  
                     triggerEvent('Signed In', {
                         'source': 'sign-in',
                         'method': 'phone',
@@ -1006,7 +1012,7 @@ formButtonSelector.addEventListener('click', function (e) {
                             }).then(async function () {
                                 // add User Data to backend
                                 await updateAccessToken();
-
+  
                                 if (analytics) {
                                     analytics.identify(userEmailSelector.value.toLowerCase(), {
                                         name: userNameValue,
@@ -1033,15 +1039,15 @@ formButtonSelector.addEventListener('click', function (e) {
                                     localStoragePropeties["visited-date"] = verifiedUser.metadata.creationTime;
                                     localStorage.setItem("hasVisitedBefore", JSON.stringify(localStoragePropeties))
                                 }
-
+  
                                 triggerEvent('Signed Up', {
                                     'source': 'sign-in',
                                     'method': 'phone',
                                     'country_code': `+${iti.getSelectedCountryData().dialCode}`,
                                     'subscribe_newsletter': acceptSubscriptionSelector.checked
                                 });
-
-
+  
+  
                                 addUserDetails({
                                     name: userNameValue,
                                     email: userEmailSelector.value.toLowerCase(),
@@ -1065,20 +1071,20 @@ formButtonSelector.addEventListener('click', function (e) {
             }
         }
     }
-});
-
-
-
-// Intl-tel-input -->
-var input = getElement("phone"),
+  });
+  
+  
+  
+  // Intl-tel-input -->
+  var input = getElement("phone"),
     dialCode = getElement(".dialCode"),
     errorMsg = getElement("error-msg"),
     validMsg = getElement("valid-msg");
-
-var iti = intlTelInput(input, { initialCountry: "in", placeholderNumberType: 'FIXED_LINE', separateDialCode: true, });
-var errorMap = ["Invalid number", "Invalid country code", "Too short", "Too long", "Invalid number"];
-
-var reset = function (event) {
+  
+  var iti = intlTelInput(input, { initialCountry: "in", placeholderNumberType: 'FIXED_LINE', separateDialCode: true, });
+  var errorMap = ["Invalid number", "Invalid country code", "Too short", "Too long", "Invalid number"];
+  
+  var reset = function (event) {
     input.classList.remove("error");
     errorMsg.innerHTML = "";
     errorMsg.classList.add("hide");
@@ -1090,9 +1096,9 @@ var reset = function (event) {
             formButtonSelector.click()
         });
     }
-};
-
-var getPhoneNumberFromIti = function (onCorrectNumber) {
+  };
+  
+  var getPhoneNumberFromIti = function (onCorrectNumber) {
     reset();
     if (input.value.trim()) {
         if (iti.isValidNumber()) {
@@ -1108,18 +1114,18 @@ var getPhoneNumberFromIti = function (onCorrectNumber) {
             errorMsg.classList.remove("hide");
         }
     }
-}
-
-input.addEventListener('blur', function () {
+  }
+  
+  input.addEventListener('blur', function () {
     getPhoneNumberFromIti()
-});
-
-input.addEventListener('change', reset);
-input.addEventListener('keyup', reset);
-
-
-
-function onPaymentFailure(place) {
+  });
+  
+  input.addEventListener('change', reset);
+  input.addEventListener('keyup', reset);
+  
+  
+  
+  function onPaymentFailure(place) {
     console.error("Payment failed at", place);
     const properties = {
         "button_name":currentButtonName,
@@ -1164,14 +1170,14 @@ function onPaymentFailure(place) {
     sendAnalyticsToSegment.track("Payment Failed",properties);
     hideElements([orderLoader]);
     showElements([orderOverlay, orderErrorSelector]);
-}
-
-
-function closeCheckoutModal() {
+  }
+  
+  
+  function closeCheckoutModal() {
     hideElements([checkoutModal])
-}
-
-function showLoginModal() {
+  }
+  
+  function showLoginModal() {
     if (!verifiedUser) {
         showElements([loginModal], "flex");
         const properties = {
@@ -1179,14 +1185,14 @@ function showLoginModal() {
         }
         sendAnalyticsToSegment.track("Login/Signup Started",properties);
     }
-}
-
-function closeLoginModal() {
+  }
+  
+  function closeLoginModal() {
     hideElements([loginModal]);
-}
-
-
-for(let i=0;i<menuLogin.length;i++){
+  }
+  
+  
+  for(let i=0;i<menuLogin.length;i++){
     menuLogin[i].onclick = function (event) {
         currentButtonName = menuLogin[i].getAttribute("button-name");
         const properties = {
@@ -1199,32 +1205,32 @@ for(let i=0;i<menuLogin.length;i++){
         event.returnValue = false;
         showLoginModal();
     }
-}
-
-
-let bookSessionMethod = function () {
+  }
+  
+  
+  let bookSessionMethod = function () {
     triggerEvent('Sales Session Booking Started', {});
-}
-
-//intercombot launch
-let bookSessionButtons = document.querySelectorAll(".intercom-bot")
-for (let i = 0; i < bookSessionButtons.length; i++) {
+  }
+  
+  //intercombot launch
+  let bookSessionButtons = document.querySelectorAll(".intercom-bot")
+  for (let i = 0; i < bookSessionButtons.length; i++) {
     bookSessionButtons[i].onclick = bookSessionMethod;
-}
-
-var loginLink01 = getElement("login-link-01");
-if (loginLink01) {
+  }
+  
+  var loginLink01 = getElement("login-link-01");
+  if (loginLink01) {
     loginLink01.onclick = function (event) {
         event.preventDefault();
         event.stopPropagation();
         event.returnValue = false;
         showLoginModal();
     }
-}
-
-
-
-if (footerLogin) {
+  }
+  
+  
+  
+  if (footerLogin) {
     footerLogin.onclick = function (event) {
         event.preventDefault();
         if (verifiedUser) {
@@ -1234,8 +1240,8 @@ if (footerLogin) {
             showLoginModal();
         }
     }
-}
- dashboardButtons.forEach((dashboardButton)=>{
+  }
+  dashboardButtons.forEach((dashboardButton)=>{
   dashboardButton.addEventListener("click", (event) => {
       var properties = {
           "button_name": dashboardButton.getAttribute("button-name")
@@ -1246,9 +1252,9 @@ if (footerLogin) {
           sendAnalyticsToSegment.track("Logout",properties);
       }
   });
-})
-
-function onReady() {
+  })
+  
+  function onReady() {
     let params = Object.fromEntries(
         new URLSearchParams(window.location.search).entries()
       );
@@ -1263,6 +1269,7 @@ function onReady() {
         sendAnalyticsToSegment.track("First Website Visit",properties);
         localStorage.setItem("hasVisitedBefore", JSON.stringify(properties));
     }
-}
-
-onReady();
+  }
+  
+  onReady();
+  
