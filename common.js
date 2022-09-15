@@ -63,7 +63,7 @@ let userLocation;
 let localUserName = localStorage.getItem("Name");
 let accessToken = localStorage.getItem("ACCESS_TOKEN");
 let RecaptchaSelector = getElement('recaptcha');
-var dashboardButton = getElement('dashboard-button');
+// var dashboardButton = getElement('dashboard-button');
 var menuLoginButton = getElement('menuLoginButton');
 var navbarSelector = getElement("navbar-container");
 var loginModal = getElement("login-modal");
@@ -84,7 +84,7 @@ var afterCheckoutClosedMethod = function () {
 }
 var isMobile = window.innerWidth <= 425;
 var menuLogin = document.getElementsByClassName("login-button");
-
+var dashboardButtons = document.querySelectorAll('.dashboard');
 
 // To check if a user is on mobile device or not
 let details = navigator.userAgent;
@@ -93,7 +93,6 @@ let isMobileDevice = regexp.test(details);
 
 // Wait for Intercom to boot (max 30 seconds)
 // const timeout = setTimeout(() => clearInterval(interval), 30000);
-
 
 
 /*******************************************************************\
@@ -689,19 +688,25 @@ var setInitialDisplays = function () {
         // hideElements([menuLoginButton]);
         hideElements(menuLogin);
         if (!isMobile) {
+          dashboardButtons.forEach((dashboardButton)=>{
             showElements([dashboardButton], "flex");
+          })
         }
         else {
+          dashboardButtons.forEach((dashboardButton)=>{
             hideElements([dashboardButton]);
+          })
         }
         (localUserName && userName) ?
             (userName.innerHTML = "Welcome " + localUserName)
             : userName && userName.classList.add('hide');
     }
     else {
+      dashboardButtons.forEach((dashboardButton)=>{
         hideElements([dashboardButton]);
-        // showElements([menuLoginButton]);
-        showElements(menuLogin);
+      })
+      // showElements([menuLoginButton]);
+      showElements(menuLogin);
     }
 }
 setInitialDisplays();
@@ -744,11 +749,17 @@ firebase.auth().onAuthStateChanged(function (user) {
         updateAccessToken();
         // hideElements([menuLoginButton]);
         hideElements(menuLogin);
+        
         if (!isMobile) {
-            showElements([dashboardButton], "flex");
+          dashboardButtons.forEach((dashboardButton)=>{
+            // showElements([dashboardButton], "flex");
+            dashboardButton.style.display = "flex"
+          })
         }
         else {
+          dashboardButtons.forEach((dashboardButton)=>{
             hideElements([dashboardButton]);
+          })
         }
 
         //changing the footer login text to dashboard
@@ -762,7 +773,9 @@ firebase.auth().onAuthStateChanged(function (user) {
         } else {
             // showElements([menuLoginButton]);
             showElements(menuLogin);
-            hideElements([dashboardButton]);
+            dashboardButtons.forEach((dashboardButton)=>{
+              hideElements([dashboardButton]);
+            })
             console.log('No user is logged in');
         }
     }
@@ -1222,17 +1235,18 @@ if (footerLogin) {
         }
     }
 }
-
-dashboardButton.addEventListener("click", (event) => {
-    var properties = {
-        "button_name": dashboardButton.getAttribute("button-name")
-    };
-    if(event.currentTarget.innerText.includes("Dashboard")){
-        sendAnalyticsToSegment.track("Dashboard Opened",properties);
-    }else{
-        sendAnalyticsToSegment.track("Logout",properties);
-    }
-});
+ dashboardButtons.forEach((dashboardButton)=>{
+  dashboardButton.addEventListener("click", (event) => {
+      var properties = {
+          "button_name": dashboardButton.getAttribute("button-name")
+      };
+      if(event.currentTarget.innerText.includes("Dashboard")){
+          sendAnalyticsToSegment.track("Dashboard Opened",properties);
+      }else{
+          sendAnalyticsToSegment.track("Logout",properties);
+      }
+  });
+})
 
 function onReady() {
     let params = Object.fromEntries(
