@@ -65,13 +65,15 @@ var params = Object.fromEntries(new URLSearchParams(window.location.search).entr
 
 const loaderSpinner = getElement("loader-overlay");
 
-let logoutonDashboardButton = getElement("dashboard-button");
-
-logoutonDashboardButton.innerText = "Log out"
-logoutonDashboardButton.onclick = function(event) {
-    event.preventDefault();
-    signOutUser();
-}
+dashboardButtons.forEach((dashboardButton)=>{
+    dashboardButton.innerText = "Log out"
+})
+dashboardButtons.forEach((dashboardButton)=>{
+    dashboardButton.onclick = function(event) {
+        event.preventDefault();
+        signOutUser();
+    }
+})
 
 // Styling mentorProfile text
 mentorProfile.style.lineHeight = "1rem";
@@ -354,6 +356,10 @@ const onCandidateFetched = (response) => {
     candidateData = response.data.candidates[0];
     setIntialUI();
     hideLoadingSpinner();
+    if(candidateData.packageVersionFromCompletedPackage[0] === candidateData.packageVersionFromPackage[0]){
+        $("#upgrade-plan-generated-cta").css("display","flex");
+        $("#upgrade-plan-generated-cta").attr("href",`https://planner.preplaced.in/upgrade/${candidateData.id}`)
+    }
 }
 
 const onCandidateFetchedError = (response) => {
@@ -379,6 +385,9 @@ const getCandidateData = () => {
               priority
             }
           }
+          id
+          packageVersionFromCompletedPackage
+          packageVersionFromPackage
           email
           name
           slackId
