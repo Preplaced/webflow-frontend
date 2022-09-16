@@ -663,7 +663,7 @@ const showCheckoutTriggerByURL = () => {
 
     } else {
       console.log("Not Verified User");
-      if (userLoggedInStatus === false) {
+      if (!userLoggedInStatus) {
         clearInterval(checkVerifiedUserResult);
         packageTypeShow();
         openCheckoutModal(currentPackageId);
