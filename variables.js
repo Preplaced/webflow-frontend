@@ -157,3 +157,6 @@ const roleMapper = {
 }
 
 var upcomingInterviewSelectorAll = document.querySelectorAll(".upcoming-interview-selector");
+var params = Object.fromEntries(
+  new URLSearchParams(window.location.search).entries()
+);

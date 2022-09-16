@@ -357,7 +357,7 @@ const onCandidateFetched = (response) => {
     setIntialUI();
     hideLoadingSpinner();
     try{
-        if(candidateData.packageVersionFromCompletedPackage[0] === candidateData.packageVersionFromPackage[0]){
+        if(candidateData.packageVersionFromCompletedPackage[0] == "Trial" && candidateData.packageVersionFromPackage[0] == "Trial"){
             $("#upgrade-plan-generated-cta").css("display","flex");
             $("#upgrade-plan-generated-cta").attr("href",`https://planner.preplaced.in/upgrade/${candidateData.id}`)
         }
