@@ -557,9 +557,6 @@ function login(code, successCallback, errorCallback) {
                 }
                 sendAnalyticsToSegment.track("Login Completed",properties);
             }
-
-
-
             console.log("were you able to identify user?");
             successCallback(result);
         })
@@ -587,6 +584,8 @@ function addUserDetails(details, successCallback, errorCallback) {
 
 function createOrder(packageDetails, successCallback, errorCallback) {
     triggerPurchaseInitiation(packageDetails);
+    packageDetails["coupon"] = currentCoupon;
+    console.log("creayeOrder pkDetails", packageDetails);
     packageDetails["version"] = "default";
     packageDetails["package_type"] = currentPackageType;
     let url = apiBaseURL + "user/create-order/v2";
@@ -755,7 +754,6 @@ firebase.auth().onAuthStateChanged(function (user) {
         console.log('User is logged in!');
         console.log('phone: ' + user.phoneNumber);
         console.log('UID: ' + user.uid);
-        userLoggedInStatus = true;
         updateAccessToken();
         // hideElements([menuLoginButton]);
         hideElements(menuLogin);
@@ -776,12 +774,14 @@ firebase.auth().onAuthStateChanged(function (user) {
         if (footerLogin) {
             footerLogin.innerText = "Dashboard";
         }
+        userLoggedInStatus = "Logged In";
     } else {
         // User is signed out.
         if (privatePages.includes(currentPath)) {
             window.location.replace('/');
         } else {
             // showElements([menuLoginButton]);
+            userLoggedInStatus = "Not Logged In"
             showElements(menuLogin);
             dashboardButtons.forEach((dashboardButton)=>{
               hideElements([dashboardButton]);
@@ -980,6 +980,12 @@ formButtonSelector.addEventListener('click', function (e) {
                     else {
                         // redirectToDashboard();
                         closeLoginModal();
+                    }
+                    if(params.razorpay === "true" && currentCoupon != ""){
+                        couponSubmitSelector.click();
+                    }else if(params.razorpay==="true" && currentCoupon === ""){
+                        setTimeout(()=>{payNowButtonSelector.click()},400)
+                    
                     }
                 }
                 login(otp, onLogin, onLoginFailed);

@@ -647,7 +647,11 @@ function commonGetPricingData() {
         matcher: matchMaker,
         minimumInputLength: 3,
       });
-
+      // commonSaveInfoToLocalStorage(currentPackageId);
+      // pkDetails = JSON.parse(localStorage.getItem("packageDetails"));
+      if(currentCoupon != ""){
+        couponSubmitSelector.click();
+      }
       //
       showCheckoutTriggerByURL();
     }
@@ -656,14 +660,17 @@ function commonGetPricingData() {
 
 const showCheckoutTriggerByURL = () => {
   var checkVerifiedUserResult = setInterval(() => {
-    if (verifiedUser) {
+    if (verifiedUser && userLoggedInStatus === "Logged In") {
       clearInterval(checkVerifiedUserResult);
       packageTypeShow();
-            openCheckoutModal(currentPackageId)
-
+      openCheckoutModal(currentPackageId);
+      if(params.razorpay === "true" && currentCoupon===""){
+        payNowButtonSelector.click();
+      }
     } else {
       console.log("Not Verified User");
-      if (!userLoggedInStatus) {
+      if (userLoggedInStatus === "Not Logged In") {
+        console.log("No User Logged In")
         clearInterval(checkVerifiedUserResult);
         packageTypeShow();
         openCheckoutModal(currentPackageId);
@@ -726,6 +733,11 @@ function onCouponApplied(discount) {
   showElements([couponSuccessSelector]);
   couponSubmitSelector.innerText = "Redeem";
   couponAppliedAnalytics();
+  commonSaveInfoToLocalStorage(currentPackageId);
+  console.log("button clicked",params);
+  if(params.razorpay === "true" && currentButtonName === ""){
+    payNowButtonSelector.click();
+  }
 }
 
 function onInvalidCoupon() {
@@ -792,12 +804,12 @@ function payNowButtonIdealState() {
 }
 
 function preparePayment(e = "none") {
-  let params = Object.fromEntries(
-    new URLSearchParams(window.location.search).entries()
-  );
-  if(params.razorpay){
-    couponSubmitSelector.click()
-  }
+  // let params = Object.fromEntries(
+  //   new URLSearchParams(window.location.search).entries()
+  // );
+  // if(params.razorpay){
+  //   couponSubmitSelector.click()
+  // }
   if (
     $targetCompaniesSelector.val().length === 0 ||
     targetRoleSelector.value === "select_designation" ||
