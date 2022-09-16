@@ -356,6 +356,14 @@ const onCandidateFetched = (response) => {
     candidateData = response.data.candidates[0];
     setIntialUI();
     hideLoadingSpinner();
+    try{
+        if(candidateData.packageVersionFromCompletedPackage[0] == "Trial" && candidateData.packageVersionFromPackage[0] == "Trial"){
+            $("#upgrade-plan-generated-cta").css("display","flex");
+            $("#upgrade-plan-generated-cta").attr("href",`https://planner.preplaced.in/upgrade/${candidateData.id}`)
+        }
+    }catch(err){
+        console.error(err);
+    }
 }
 
 const onCandidateFetchedError = (response) => {
@@ -381,6 +389,9 @@ const getCandidateData = () => {
               priority
             }
           }
+          id
+          packageVersionFromCompletedPackage
+          packageVersionFromPackage
           email
           name
           slackId

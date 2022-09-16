@@ -136,6 +136,10 @@ function updateCheckoutValuesOnShown() {
     updateUI();
 }
 
+if(params.razorpay==="true"){
+  autoCheckout = true;
+}
+
 /* -------------------------------------------------------------------------- */
 /*                           Getting Companies List                           */
 /* -------------------------------------------------------------------------- */
@@ -183,7 +187,8 @@ function commonProceedToCheckout(modalText) {
         hideElements([loginModal]);
         updateCheckoutValuesOnShown();
         showElements([checkoutModal], "flex");
-        sendAnalyticsToSegment.track("Checkout Started", properties);
+        sendAnalyticsToSegment.track("Checkout Started",properties);
+
         //REMIND if (currentTriggerBy === "url") {
         //     console.log("currentTriggerBy",currentTriggerBy);
         //   preparePayment();
@@ -647,7 +652,11 @@ function commonGetPricingData() {
         matcher: matchMaker,
         minimumInputLength: 3,
       });
-
+      // commonSaveInfoToLocalStorage(currentPackageId);
+      // pkDetails = JSON.parse(localStorage.getItem("packageDetails"));
+      if(currentCoupon != ""){
+        couponSubmitSelector.click();
+      }
       //
       showCheckoutTriggerByURL();
     }
@@ -656,14 +665,17 @@ function commonGetPricingData() {
 
 const showCheckoutTriggerByURL = () => {
   var checkVerifiedUserResult = setInterval(() => {
-    if (verifiedUser) {
+    if (verifiedUser && userLoggedInStatus === "Logged In") {
       clearInterval(checkVerifiedUserResult);
       packageTypeShow();
-            openCheckoutModal(currentPackageId)
-
+      openCheckoutModal(currentPackageId);
+      if(params.razorpay === "true" && currentCoupon===""){
+        payNowButtonSelector.click();
+      }
     } else {
       console.log("Not Verified User");
-      if (!userLoggedInStatus) {
+      if (userLoggedInStatus === "Not Logged In") {
+        console.log("No User Logged In")
         clearInterval(checkVerifiedUserResult);
         packageTypeShow();
         openCheckoutModal(currentPackageId);
@@ -726,6 +738,11 @@ function onCouponApplied(discount) {
   showElements([couponSuccessSelector]);
   couponSubmitSelector.innerText = "Redeem";
   couponAppliedAnalytics();
+  commonSaveInfoToLocalStorage(currentPackageId);
+  if(autoCheckout){
+    console.log("pkDetails: ", pkDetails);
+    payNowButtonSelector.click();
+  }
 }
 
 function onInvalidCoupon() {
@@ -792,12 +809,6 @@ function payNowButtonIdealState() {
 }
 
 function preparePayment(e = "none") {
-  let params = Object.fromEntries(
-    new URLSearchParams(window.location.search).entries()
-  );
-  if(params.razorpay){
-    couponSubmitSelector.click()
-  }
   if (
     $targetCompaniesSelector.val().length === 0 ||
     targetRoleSelector.value === "select_designation" ||
@@ -1034,12 +1045,15 @@ function preparePayment(e = "none") {
           });
           hideElements([orderOverlay, orderErrorSelector]);
           rzp1.open();
+          autoCheckout = false;
         } else {
           onPaymentComplete({
             razorpay_order_id: `${responseData.orderId}`,
           });
         }
       }
+
+      console.log("coupon in Checkout.min.js",coupon);
       pkDetails["coupon"] = coupon;
       pkDetails["target_companies"] = $targetCompaniesSelector.val().join(",");
       pkDetails["mentor_instructions"] = mentorInstructionSelector.value;
@@ -1047,6 +1061,8 @@ function preparePayment(e = "none") {
       if(couponAppliedSuccessfullyUsingURL){
         pkDetails["coupon"] = currentCoupon;
       }
+
+      console.log("pkDetails in",pkDetails);
       createOrder(pkDetails, onOrderCreated, function () {
         onPaymentFailure("create-order");
       });
