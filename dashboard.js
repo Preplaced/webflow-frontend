@@ -356,9 +356,13 @@ const onCandidateFetched = (response) => {
     candidateData = response.data.candidates[0];
     setIntialUI();
     hideLoadingSpinner();
-    if(candidateData.packageVersionFromCompletedPackage[0] === candidateData.packageVersionFromPackage[0]){
-        $("#upgrade-plan-generated-cta").css("display","flex");
-        $("#upgrade-plan-generated-cta").attr("href",`https://planner.preplaced.in/upgrade/${candidateData.id}`)
+    try{
+        if(candidateData.packageVersionFromCompletedPackage[0] === candidateData.packageVersionFromPackage[0]){
+            $("#upgrade-plan-generated-cta").css("display","flex");
+            $("#upgrade-plan-generated-cta").attr("href",`https://planner.preplaced.in/upgrade/${candidateData.id}`)
+        }
+    }catch(err){
+        console.error(err);
     }
 }
 
