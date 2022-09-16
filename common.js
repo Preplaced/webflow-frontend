@@ -5,7 +5,6 @@ catch (e) { }
 
 // console.log("%cWelcome to Preplaced LocalHost Server", "color: red; font-size:2rem;padding: 2px");
 
-loadFile("styles/style.js",false);
 
 //for development
 // loadFile("variables.js",false);
@@ -13,6 +12,7 @@ loadFile("styles/style.js",false);
 
 //for production
 loadFile("variables.min.js",false);
+loadFile("styles/style.js",false);
 loadFile("checkout.min.js", false);
 
 var firebaseConfig = {
@@ -170,41 +170,41 @@ const sendAnalyticsToSegment = {
 }
 
 function triggerPurchase(packageDetails) {
-    packageDetails['item_name'] = packageDetails.package;
-    packageDetails['item_id'] = packageDetails.package;
-    let eventParams = {
-        'coupon': packageDetails.coupon,
-        'currency': packageDetails.currency,
-        'transaction_id': packageDetails.order_id,
-        'value': packageDetails.totalPrice,
-        'items': packageDetails,
-        'item_name': packageDetails.package,
-        'item_id': packageDetails.package,
-        'experience': packageDetails.experience,
-        'domain': packageDetails.domain,
-        'designation': packageDetails.designation,
-        'target_companies': packageDetails.target_companies,
-        'logged_in': !!accessToken,
-    }
+    // packageDetails['item_name'] = packageDetails.package;
+    // packageDetails['item_id'] = packageDetails.package;
+    // let eventParams = {
+    //     'coupon': packageDetails.coupon,
+    //     'currency': packageDetails.currency,
+    //     'transaction_id': packageDetails.order_id,
+    //     'value': packageDetails.totalPrice,
+    //     'items': packageDetails,
+    //     'item_name': packageDetails.package,
+    //     'item_id': packageDetails.package,
+    //     'experience': packageDetails.experience,
+    //     'domain': packageDetails.domain,
+    //     'designation': packageDetails.designation,
+    //     'target_companies': packageDetails.target_companies,
+    //     'logged_in': !!accessToken,
+    // }
     // REMIND triggerEvent('Payment Completed', eventParams);
 }
 
 function triggerPurchaseInitiation(packageDetails) {
-    packageDetails['item_name'] = packageDetails.package;
-    packageDetails['item_id'] = packageDetails.package;
-    let eventParams = {
-        'coupon': packageDetails.coupon,
-        'currency': packageDetails.currency,
-        'value': packageDetails.totalPrice,
-        'items': packageDetails,
-        'item_name': packageDetails.package,
-        'item_id': packageDetails.package,
-        'experience': packageDetails.experience,
-        'domain': packageDetails.domain,
-        'designation': packageDetails.designation,
-        'target_companies': packageDetails.target_companies,
-        'logged_in': !!accessToken,
-    }
+    // packageDetails['item_name'] = packageDetails.package;
+    // packageDetails['item_id'] = packageDetails.package;
+    // let eventParams = {
+    //     'coupon': packageDetails.coupon,
+    //     'currency': packageDetails.currency,
+    //     'value': packageDetails.totalPrice,
+    //     'items': packageDetails,
+    //     'item_name': packageDetails.package,
+    //     'item_id': packageDetails.package,
+    //     'experience': packageDetails.experience,
+    //     'domain': packageDetails.domain,
+    //     'designation': packageDetails.designation,
+    //     'target_companies': packageDetails.target_companies,
+    //     'logged_in': !!accessToken,
+    // }
     // REMIND triggerEvent('Payment Started', eventParams);
 }
 //////////////////////////////////////////////////////////////////////
@@ -534,6 +534,8 @@ function login(code, successCallback, errorCallback) {
                 analytics.identify(result.user.email);
             }
 
+            verifiedUser = result.user;
+
             // login Analytics
             if(signInType === "login"){
                 let properties = {
@@ -734,6 +736,7 @@ function matchMaker(params, data) {
 |                                                                   |
 \*******************************************************************/
 
+
 firebase.auth().onAuthStateChanged(function (user) {
     var logoutUser = function (e) {
         e.preventDefault();
@@ -743,9 +746,16 @@ firebase.auth().onAuthStateChanged(function (user) {
     if (user) {
         // User is signed in.
         verifiedUser = user;
+        let properties = {
+            name: user.displayName,
+            email: user.email,
+            phone: user.phoneNumber,
+        }
+        sendAnalyticsToSegment.identify(properties.email,properties);
         console.log('User is logged in!');
         console.log('phone: ' + user.phoneNumber);
         console.log('UID: ' + user.uid);
+        userLoggedInStatus = true;
         updateAccessToken();
         // hideElements([menuLoginButton]);
         hideElements(menuLogin);
@@ -779,7 +789,7 @@ firebase.auth().onAuthStateChanged(function (user) {
             console.log('No user is logged in');
         }
     }
-});
+})
 
 let lastScrollTop = 0;
 
@@ -850,7 +860,6 @@ function onLoginFailed(error) {
 }
 
 function verifyAndSendOTP(phoneNumber) {
-    console.log(phoneNumber);
     localStorage.setItem("Phone", phoneNumber);
     formButtonSelector.disabled = true;
     setButtonLoading(formButtonSelector, "Sending OTP")

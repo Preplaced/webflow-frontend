@@ -74,12 +74,14 @@ closeCheckout.addEventListener("click", function (e) {
 /*                           Handle Display Pricing                           */
 /* -------------------------------------------------------------------------- */
 function handlePaymentSectionUI() {
-  updatePaymentInfo();
+  if(!couponAppliedSuccessfullyUsingURL){
+    updatePaymentInfo();
+  }
   packagePriceSelector.innerText = `${currencyMap[pkDetails.currency]} ${
     pkDetails.price
   }`;
   discountPriceSelector.innerText = `${currencyMap[pkDetails.currency]} 0`;
-  hideElements([couponErrorSelector, couponSuccessSelector]);
+  !couponAppliedSuccessfullyUsingURL && hideElements([couponErrorSelector, couponSuccessSelector]);
   if (gstAdded) {
     if (pkDetails.currency !== "INR") {
       gstLabel.innerText = "IGST (18%)";
@@ -126,12 +128,12 @@ function updateUI() {
 }
 
 function updateCheckoutValuesOnShown() {
-  pkDetails = JSON.parse(localStorage.getItem("packageDetails"));
-  totalPrice = 0;
-  coupon = "";
-  gstAdded = pkDetails.addGST || false;
-  gstPrice = 0;
-  updateUI();
+    pkDetails = JSON.parse(localStorage.getItem("packageDetails"));
+    totalPrice = 0;
+    coupon = "";
+    gstAdded = pkDetails.addGST || false;
+    gstPrice = 0;
+    updateUI();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -157,9 +159,6 @@ getCompanies();
 
 var paymentCheckoutSelectors = document.querySelectorAll(".payment-checkout");
 
-const successGetAllPriceForCountry = (response) => {
-  console.log("success response", response);
-};
 
 function commonProceedToCheckout(modalText) {
   try {
@@ -185,6 +184,10 @@ function commonProceedToCheckout(modalText) {
         updateCheckoutValuesOnShown();
         showElements([checkoutModal], "flex");
         sendAnalyticsToSegment.track("Checkout Started", properties);
+        //REMIND if (currentTriggerBy === "url") {
+        //     console.log("currentTriggerBy",currentTriggerBy);
+        //   preparePayment();
+        // }
       };
       customOnSignIn = true;
       showLoginModal(modalText);
@@ -192,6 +195,10 @@ function commonProceedToCheckout(modalText) {
       updateCheckoutValuesOnShown();
       showElements([checkoutModal], "flex");
       sendAnalyticsToSegment.track("Checkout Started", properties);
+      //REMIND if (currentTriggerBy === "url") {
+      //   console.log("currentTriggerBy ",currentTriggerBy);
+      //   preparePayment();
+      // }
     }
   } catch (error) {
     console.error("Error in commonProceedCheckout", error);
@@ -227,6 +234,10 @@ function commonSaveInfoToLocalStorage(package_id) {
     mentor_instructions: currentMentorInstruction,
     version: "default",
   };
+  if(couponAppliedSuccessfullyUsingURL){
+    packageDetails["totalPrice"] = totalPrice;
+    packageDetails["coupon"] = currentCoupon;
+  }
   localStorage.setItem("packageDetails", JSON.stringify(packageDetails));
 }
 
@@ -287,45 +298,49 @@ function createBubbleButtons() {
 }
 
 function setCurrentPrice() {
-  for (let i = 0; i < pricing.length; i++) {
-    if (pricing[i].name === currentPackageId) {
-      currentPackageDetails = pricing[i];
-      for (let j = 0; j < pricing[i].type.length; j++) {
-        if (pricing[i].type[j].name === currentPackageType) {
-          currentPackageDetail = pricing[i].type[j];
-          break;
-        } else if (
-          pricing[i].type[j].preference_order === 1 &&
-          !currentPackageType
-        ) {
-          currentPackageDetail = pricing[i].type[j];
-          currentPackageType = pricing[i].type[j].name;
-          break;
-        }
-      }
-      break;
+    try{
+        for (let i = 0; i < pricing.length; i++) {
+            if (pricing[i].name === currentPackageId) {
+              currentPackageDetails = pricing[i];
+              for (let j = 0; j < pricing[i].type.length; j++) {
+                if (pricing[i].type[j].name === currentPackageType) {
+                  currentPackageDetail = pricing[i].type[j];
+                  break;
+                } else if (
+                  pricing[i].type[j].preference_order === 1 &&
+                  !currentPackageType
+                ) {
+                  currentPackageDetail = pricing[i].type[j];
+                  currentPackageType = pricing[i].type[j].name;
+                  break;
+                }
+              }
+              break;
+            }
+          }
+        
+          for (let i = 0; i < currentPackageDetail.pricing.length; i++) {
+            if (
+              currentCurrency === "INR" &&
+              currentPackageDetail.pricing[i].experience_level ===
+                currentMentorExperience
+            ) {
+              currentPrice = currentPackageDetail.pricing[i].inr_pricing;
+              currentSku = currentPackageDetail.pricing[i].sku;
+              break;
+            } else if (
+              currentCurrency !== "INR" &&
+              currentPackageDetail.pricing[i].experience_level ===
+                currentMentorExperience
+            ) {
+              currentPrice = currentPackageDetail.pricing[i].usd_pricing;
+              currentSku = currentPackageDetail.pricing[i].sku;
+              break;
+            }
+          }
+    }catch(error){
+        console.error("error in setcurrentprice",error)
     }
-  }
-
-  for (let i = 0; i < currentPackageDetail.pricing.length; i++) {
-    if (
-      currentCurrency === "INR" &&
-      currentPackageDetail.pricing[i].experience_level ===
-        currentMentorExperience
-    ) {
-      currentPrice = currentPackageDetail.pricing[i].inr_pricing;
-      currentSku = currentPackageDetail.pricing[i].sku;
-      break;
-    } else if (
-      currentCurrency !== "INR" &&
-      currentPackageDetail.pricing[i].experience_level ===
-        currentMentorExperience
-    ) {
-      currentPrice = currentPackageDetail.pricing[i].usd_pricing;
-      currentSku = currentPackageDetail.pricing[i].sku;
-      break;
-    }
-  }
 }
 
 function commonUpdatePricing() {
@@ -527,6 +542,9 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
 /*                                 Get Pricing                                */
 /* -------------------------------------------------------------------------- */
 
+
+
+
 function getAllPricing(callback) {
   let url = apiBaseURL + "pricing/get-price/v2";
   getAPI(
@@ -555,29 +573,159 @@ function commonGetPricingData() {
     let params = Object.fromEntries(
       new URLSearchParams(window.location.search).entries()
     );
+    currentTriggerBy = "url";
+    // simple checkout open without razorpay opening up
     if (
       params.checkout &&
       params["package-id"] &&
       params["package-type"] &&
-      response
+      response &&
+      !params["razorpay"]
     ) {
       currentPackageId = params["package-id"];
       currentPackageType = params["package-type"];
-      currentTriggerBy = "url";
       packageTypeShow();
       openCheckoutModal(currentPackageId);
     }
+
+    // checkout + razorpay open
+    else if (
+      params.razorpay == "true" &&
+      params.checkout &&
+      params["package-id"] &&
+      params["package-type"] &&
+      params.domain &&
+      params.role &&
+      params["mentor-experience"] &&
+      params["target-companies"] &&
+      response
+    ) {
+      // set current Values
+      currentPackageId = params["package-id"];
+      currentPackageType = params["package-type"];
+      currentDomain = params.domain;
+      currentRole = roleMapper[params.role];
+      currentMentorExperience = params["mentor-experience"];
+      currenTargetCompanies = params["target-companies"];
+      currentCoupon = params.coupon || "";
+      currentUpcomingInterviewSchedule = params["upcoming-interview"];
+
+      // set prefilled data using params
+      targetRoleSelector.value = currentRole;
+      domainSelector.value = currentDomain;
+      mentorExperienceSelector.value = currentMentorExperience;
+      couponSelector.value = currentCoupon;
+
+      //settingup value of upcomingInterviewSelector
+      upcomingInterviewSelectors.forEach((upcomingInterviewSelector) => {
+        if (
+          currentUpcomingInterviewSchedule ==
+          upcomingInterviewSelector.getAttribute("value")
+        ) {
+          upcomingInterviewSelector.value = currentUpcomingInterviewSchedule;
+        }
+      });
+
+      //upcoming interview selector - span
+      upcomingInterviewSelectorAll.forEach((upcomingInterviewSelector)=>{
+        upcomingInterviewSelector.style.border = "2px solid #e8e7ee";
+        if(upcomingInterviewSelector.getAttribute("for")===currentUpcomingInterviewSchedule){
+          upcomingInterviewSelector.style.border = "2px solid #2463EB";
+        }
+    })
+
+      //target Companies
+      let companies = [];
+      currenTargetCompanies.split(",").map((company) => {
+        companies.push({ id: company, text: company, selected: true });
+      });
+      $targetCompaniesSelector.select2({
+        multiple: true,
+        data: companies,
+        width: "100%",
+        tags: true,
+        matcher: matchMaker,
+        minimumInputLength: 3,
+      });
+
+      //
+      showCheckoutTriggerByURL();
+    }
   });
 }
+
+const showCheckoutTriggerByURL = () => {
+  var checkVerifiedUserResult = setInterval(() => {
+    if (verifiedUser) {
+      clearInterval(checkVerifiedUserResult);
+      packageTypeShow();
+            openCheckoutModal(currentPackageId)
+
+    } else {
+      console.log("Not Verified User");
+      if (!userLoggedInStatus) {
+        clearInterval(checkVerifiedUserResult);
+        packageTypeShow();
+        openCheckoutModal(currentPackageId);
+      }
+    }
+  }, 100);
+};
 
 /* -------------------------------------------------------------------------- */
 /*                                Redeem Coupen                               */
 /* -------------------------------------------------------------------------- */
 
+function couponAppliedAnalytics() {
+  var properties = {
+    button_name: currentButtonName,
+    triggered_by: currentTriggerBy,
+    item_id: currentSku,
+    value: +pkDetails.totalPrice,
+    coupon_code: coupon,
+    package_name: currentPackageId,
+    package_type: currentPackageType,
+    package_amount: currentPrice,
+    ecommerce: {
+      currency: pkDetails.currency,
+      value: +pkDetails.totalPrice,
+      promotion_id: coupon,
+      items: [
+        {
+          item_id: currentSku,
+          item_name: currentPackageId,
+          item_variant: currentMentorExperience,
+          coupon: coupon,
+          currency: pkDetails.currency,
+          addGST: pkDetails.addGST,
+          country: pkDetails.country,
+          designation: pkDetails.designation,
+          domain: pkDetails.domain,
+          domain_id: pkDetails.domain_id,
+          experience: pkDetails.experience,
+          experience_id: pkDetails.experience_id,
+          mentor_instructions: pkDetails.mentor_instructions,
+          package: pkDetails.package,
+          package_type: pkDetails.package_type,
+          preferred_mentor_experience: pkDetails.preferred_mentor_experience,
+          price: pkDetails.price,
+          target_companies: currenTargetCompanies,
+          target_role: pkDetails.target_role,
+          value: +pkDetails.totalPrice,
+          upcoming_interview: pkDetails.upcoming_interview,
+          version: pkDetails.version,
+        },
+      ],
+    },
+  };
+  sendAnalyticsToSegment.track("Coupon Applied", properties);
+}
+
 function onCouponApplied(discount) {
   updatePaymentInfo(discount);
   showElements([couponSuccessSelector]);
   couponSubmitSelector.innerText = "Redeem";
+  couponAppliedAnalytics();
 }
 
 function onInvalidCoupon() {
@@ -595,49 +743,6 @@ function checkCoupon(coupon, successCallback, errorCallback) {
     function (response) {
       if (response.status === 200) {
         var discount = response.data;
-        var properties = {
-          button_name: currentButtonName,
-          triggered_by: currentTriggerBy,
-          item_id: currentSku,
-          value: +pkDetails.totalPrice,
-          coupon_code: coupon,
-          package_name: currentPackageId,
-          package_type: currentPackageType,
-          package_amount: currentPrice,
-          ecommerce: {
-            currency: pkDetails.currency,
-            value: +pkDetails.totalPrice,
-            promotion_id: coupon,
-            items: [
-              {
-                item_id: currentSku,
-                item_name: currentPackageId,
-                item_variant: currentMentorExperience,
-                coupon: coupon,
-                currency: pkDetails.currency,
-                addGST: pkDetails.addGST,
-                country: pkDetails.country,
-                designation: pkDetails.designation,
-                domain: pkDetails.domain,
-                domain_id: pkDetails.domain_id,
-                experience: pkDetails.experience,
-                experience_id: pkDetails.experience_id,
-                mentor_instructions: pkDetails.mentor_instructions,
-                package: pkDetails.package,
-                package_type: pkDetails.package_type,
-                preferred_mentor_experience:
-                  pkDetails.preferred_mentor_experience,
-                price: pkDetails.price,
-                target_companies: currenTargetCompanies,
-                target_role: pkDetails.target_role,
-                value: +pkDetails.totalPrice,
-                upcoming_interview: pkDetails.upcoming_interview,
-                version: pkDetails.version,
-              },
-            ],
-          },
-        };
-        sendAnalyticsToSegment.track("Coupon Applied", properties);
         successCallback(discount);
       } else {
         errorCallback(false);
@@ -662,6 +767,7 @@ couponSubmitSelector.addEventListener("click", function (e) {
     couponSubmitSelector.innerText = "Redeem";
     updatePaymentInfo();
   }
+  return true;
 });
 
 /* -------------------------------------------------------------------------- */
@@ -685,7 +791,13 @@ function payNowButtonIdealState() {
   loader.style.display = "none";
 }
 
-payNowButtonSelector.addEventListener("click", function (e) {
+function preparePayment(e = "none") {
+  let params = Object.fromEntries(
+    new URLSearchParams(window.location.search).entries()
+  );
+  if(params.razorpay){
+    couponSubmitSelector.click()
+  }
   if (
     $targetCompaniesSelector.val().length === 0 ||
     targetRoleSelector.value === "select_designation" ||
@@ -742,7 +854,7 @@ payNowButtonSelector.addEventListener("click", function (e) {
             price: pkDetails.price,
             target_companies: currenTargetCompanies,
             target_role: pkDetails.target_role,
-            value: +pkDetails.totalPrice,
+            value: +pkDetails.totalPrice || totalPrice,
             upcoming_interview: pkDetails.upcoming_interview,
             version: pkDetails.version,
           },
@@ -750,10 +862,11 @@ payNowButtonSelector.addEventListener("click", function (e) {
       },
     };
     sendAnalyticsToSegment.track("Payment Started", properties);
-    e.preventDefault();
+    e != "none" && e.preventDefault();
     payNowButtonLoader();
     hideElements([orderErrorSelector]);
     showElements([orderOverlay, orderLoader]);
+
     if (
       verifiedUser &&
       verifiedUser.phoneNumber &&
@@ -866,6 +979,7 @@ payNowButtonSelector.addEventListener("click", function (e) {
             },
             modal: {
               ondismiss: function () {
+                couponAppliedSuccessfullyUsingURL = false;
                 const properties = {
                   button_name: currentButtonName,
                   triggered_by: currentTriggerBy,
@@ -930,11 +1044,18 @@ payNowButtonSelector.addEventListener("click", function (e) {
       pkDetails["target_companies"] = $targetCompaniesSelector.val().join(",");
       pkDetails["mentor_instructions"] = mentorInstructionSelector.value;
       pkDetails["upcoming_interview"] = currentUpcomingInterviewSchedule;
+      if(couponAppliedSuccessfullyUsingURL){
+        pkDetails["coupon"] = currentCoupon;
+      }
       createOrder(pkDetails, onOrderCreated, function () {
         onPaymentFailure("create-order");
       });
     }
   }
+}
+
+payNowButtonSelector.addEventListener("click", function (e) {
+  preparePayment(e);
 });
 
 upcomingInterviewSelectors.forEach((upcomingInterviewSelector) => {
