@@ -3,7 +3,7 @@ try {
 }
 catch (e) { }
 
-console.log("%cWelcome to Preplaced LocalHost Server", "color: red; font-size:2rem;padding: 2px");
+// console.log("%cWelcome to Preplaced LocalHost Server", "color: red; font-size:2rem;padding: 2px");
 
 
 //for development
@@ -63,7 +63,7 @@ let userLocation;
 let localUserName = localStorage.getItem("Name");
 let accessToken = localStorage.getItem("ACCESS_TOKEN");
 let RecaptchaSelector = getElement('recaptcha');
-var dashboardButton = getElement('dashboard-button');
+// var dashboardButton = getElement('dashboard-button');
 var menuLoginButton = getElement('menuLoginButton');
 var navbarSelector = getElement("navbar-container");
 var loginModal = getElement("login-modal");
@@ -84,7 +84,7 @@ var afterCheckoutClosedMethod = function () {
 }
 var isMobile = window.innerWidth <= 425;
 var menuLogin = document.getElementsByClassName("login-button");
-
+var dashboardButtons = document.querySelectorAll('.dashboard');
 
 // To check if a user is on mobile device or not
 let details = navigator.userAgent;
@@ -93,7 +93,6 @@ let isMobileDevice = regexp.test(details);
 
 // Wait for Intercom to boot (max 30 seconds)
 // const timeout = setTimeout(() => clearInterval(interval), 30000);
-
 
 
 /*******************************************************************\
@@ -599,6 +598,9 @@ function createOrder(packageDetails, successCallback, errorCallback) {
             errorCallback(response);
         }
     }, function (error) {
+        if(error.response.status===500){
+            payNowButtonIdealState();
+        }
         console.error("createOrder: ", error);
         errorCallback(error);
     });
@@ -688,19 +690,25 @@ var setInitialDisplays = function () {
         // hideElements([menuLoginButton]);
         hideElements(menuLogin);
         if (!isMobile) {
+          dashboardButtons.forEach((dashboardButton)=>{
             showElements([dashboardButton], "flex");
+          })
         }
         else {
+          dashboardButtons.forEach((dashboardButton)=>{
             hideElements([dashboardButton]);
+          })
         }
         (localUserName && userName) ?
             (userName.innerHTML = "Welcome " + localUserName)
             : userName && userName.classList.add('hide');
     }
     else {
+      dashboardButtons.forEach((dashboardButton)=>{
         hideElements([dashboardButton]);
-        // showElements([menuLoginButton]);
-        showElements(menuLogin);
+      })
+      // showElements([menuLoginButton]);
+      showElements(menuLogin);
     }
 }
 setInitialDisplays();
@@ -738,6 +746,12 @@ firebase.auth().onAuthStateChanged(function (user) {
     if (user) {
         // User is signed in.
         verifiedUser = user;
+        let properties = {
+            name: user.displayName,
+            email: user.email,
+            phone: user.phoneNumber,
+        }
+        sendAnalyticsToSegment.identify(properties.email,properties);
         console.log('User is logged in!');
         console.log('phone: ' + user.phoneNumber);
         console.log('UID: ' + user.uid);
@@ -745,11 +759,17 @@ firebase.auth().onAuthStateChanged(function (user) {
         updateAccessToken();
         // hideElements([menuLoginButton]);
         hideElements(menuLogin);
+        
         if (!isMobile) {
-            showElements([dashboardButton], "flex");
+          dashboardButtons.forEach((dashboardButton)=>{
+            // showElements([dashboardButton], "flex");
+            dashboardButton.style.display = "flex"
+          })
         }
         else {
+          dashboardButtons.forEach((dashboardButton)=>{
             hideElements([dashboardButton]);
+          })
         }
 
         //changing the footer login text to dashboard
@@ -763,8 +783,9 @@ firebase.auth().onAuthStateChanged(function (user) {
         } else {
             // showElements([menuLoginButton]);
             showElements(menuLogin);
-            hideElements([dashboardButton]);
-            userLoggedInStatus = false;
+            dashboardButtons.forEach((dashboardButton)=>{
+              hideElements([dashboardButton]);
+            })
             console.log('No user is logged in');
         }
     }
@@ -839,7 +860,6 @@ function onLoginFailed(error) {
 }
 
 function verifyAndSendOTP(phoneNumber) {
-    console.log(phoneNumber);
     localStorage.setItem("Phone", phoneNumber);
     formButtonSelector.disabled = true;
     setButtonLoading(formButtonSelector, "Sending OTP")
@@ -1224,17 +1244,18 @@ if (footerLogin) {
         }
     }
 }
-
-dashboardButton.addEventListener("click", (event) => {
-    var properties = {
-        "button_name": dashboardButton.getAttribute("button-name")
-    };
-    if(event.currentTarget.innerText.includes("Dashboard")){
-        sendAnalyticsToSegment.track("Dashboard Opened",properties);
-    }else{
-        sendAnalyticsToSegment.track("Logout",properties);
-    }
-});
+ dashboardButtons.forEach((dashboardButton)=>{
+  dashboardButton.addEventListener("click", (event) => {
+      var properties = {
+          "button_name": dashboardButton.getAttribute("button-name")
+      };
+      if(event.currentTarget.innerText.includes("Dashboard")){
+          sendAnalyticsToSegment.track("Dashboard Opened",properties);
+      }else{
+          sendAnalyticsToSegment.track("Logout",properties);
+      }
+  });
+})
 
 function onReady() {
     let params = Object.fromEntries(

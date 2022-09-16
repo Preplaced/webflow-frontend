@@ -159,9 +159,6 @@ getCompanies();
 
 var paymentCheckoutSelectors = document.querySelectorAll(".payment-checkout");
 
-const successGetAllPriceForCountry = (response) => {
-  console.log("success response", response);
-};
 
 function commonProceedToCheckout(modalText) {
   try {
@@ -665,7 +662,7 @@ const showCheckoutTriggerByURL = () => {
             openCheckoutModal(currentPackageId)
 
     } else {
-      console.log("not verified");
+      console.log("Not Verified User");
       if (userLoggedInStatus === false) {
         clearInterval(checkVerifiedUserResult);
         packageTypeShow();
@@ -960,7 +957,6 @@ function preparePayment(e = "none") {
       }
       function onOrderCreated(responseData) {
         let order = responseData.razorpay_order_object;
-        console.log("onorderCreatedResponse",responseData);
         if (!!order) {
           var options = {
             key: responseData.key || "rzp_test_sPcDgJ2yGLxdzT", // Enter the Key ID generated from the Dashboard
