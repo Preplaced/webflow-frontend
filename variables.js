@@ -8,6 +8,8 @@ let coupon = "";
 let gstAdded = (pkDetails && pkDetails.addGST) || false;
 let gstPrice = 0;
 let bubbleButtonsFlag = true;
+let userLoggedInStatus;
+let couponAppliedSuccessfullyUsingURL;
 
 // Selectors
 let [
@@ -142,3 +144,16 @@ let allTargetDomain = {
   sales_roles: "Sales Roles",
 };
 let addGST = false;
+
+
+/* -------------------------------------------------------------------------- */
+/*                             Checkout using URL                             */
+/* -------------------------------------------------------------------------- */
+// checkoutURL mapper;
+const roleMapper = {
+  "Junior":"0-3 years",
+  "Senior":"4-6 years",
+  "Lead":"7-10 years"
+}
+
+var upcomingInterviewSelectorAll = document.querySelectorAll(".upcoming-interview-selector");
