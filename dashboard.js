@@ -359,7 +359,7 @@ const onCandidateFetched = (response) => {
     try{
         if(candidateData.packageVersionFromCompletedPackage[0] == "Trial" && candidateData.packageVersionFromPackage[0] == "Trial"){
             $("#upgrade-plan-generated-cta").css("display","flex");
-            $("#upgrade-plan-generated-cta").attr("href",`https://planner.preplaced.in/upgrade/${candidateData.id}`)
+            $("#upgrade-plan-generated-cta").attr("href",`https://planner.preplaced.in/upgrade/${candidateData.id}?source=mentee-dashboard`)
         }
     }catch(err){
         console.error(err);
