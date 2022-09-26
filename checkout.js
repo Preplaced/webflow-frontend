@@ -551,7 +551,7 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
 
 
 function getAllPricing(callback) {
-  let url = apiBaseURL + "pricing/get-price/v2";
+  let url = apiBaseURL + "pricing/get-price/v3";
   getAPI(
     url,
     function (response) {
@@ -754,7 +754,7 @@ function onInvalidCoupon() {
 
 function checkCoupon(coupon, successCallback, errorCallback) {
   // REMIND   triggerEvent("Coupon Applied", { coupon: coupon });
-  let url = apiBaseURL + `pricing/validate-coupon/v2/${coupon}`;
+  let url = apiBaseURL + `pricing/validate-coupon/v3/${coupon}`;
   getAPI(
     url,
     function (response) {
