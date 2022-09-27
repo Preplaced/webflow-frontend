@@ -588,7 +588,7 @@ function createOrder(packageDetails, successCallback, errorCallback) {
     console.log("creayeOrder pkDetails", packageDetails);
     packageDetails["version"] = "default";
     packageDetails["package_type"] = currentPackageType;
-    let url = apiBaseURL + "user/create-order/v2";
+    let url = apiBaseURL + "user/create-order/v3";
     postAPI(url, packageDetails, function (response) {
         if (response.status === 200) {
             successCallback(response.data);
