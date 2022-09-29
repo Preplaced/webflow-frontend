@@ -810,7 +810,7 @@ let isNavbarChangeNeeded = true;
 
 if (downloadEbookButton) {
     downloadEbookButton.onclick = function () {
-        triggerEvent('Ebook Downloaded');
+        // triggerEvent('Ebook Downloaded');
     }
 }
 
@@ -979,11 +979,11 @@ formButtonSelector.addEventListener('click', function (e) {
                 signInType = "login"; // login signInType
                 function onLogin() {
 
-                    triggerEvent('Signed In', {
-                        'source': 'sign-in',
-                        'method': 'phone',
-                        'country_code': `+${iti.getSelectedCountryData().dialCode}`
-                    });
+                    // triggerEvent('Signed In', {
+                    //     'source': 'sign-in',
+                    //     'method': 'phone',
+                    //     'country_code': `+${iti.getSelectedCountryData().dialCode}`
+                    // });
                     removeButtonLoading(formButtonSelector, "Verified");
                     if (customOnSignIn) {
                         customOnSignInMethod();
@@ -1061,12 +1061,12 @@ formButtonSelector.addEventListener('click', function (e) {
                                     localStorage.setItem("hasVisitedBefore", JSON.stringify(localStoragePropeties))
                                 }
 
-                                triggerEvent('Signed Up', {
-                                    'source': 'sign-in',
-                                    'method': 'phone',
-                                    'country_code': `+${iti.getSelectedCountryData().dialCode}`,
-                                    'subscribe_newsletter': acceptSubscriptionSelector.checked
-                                });
+                                // triggerEvent('Signed Up', {
+                                //     'source': 'sign-in',
+                                //     'method': 'phone',
+                                //     'country_code': `+${iti.getSelectedCountryData().dialCode}`,
+                                //     'subscribe_newsletter': acceptSubscriptionSelector.checked
+                                // });
 
 
                                 addUserDetails({
@@ -1230,7 +1230,7 @@ for(let i=0;i<menuLogin.length;i++){
 
 
 let bookSessionMethod = function () {
-    triggerEvent('Sales Session Booking Started', {});
+    // triggerEvent('Sales Session Booking Started', {});
 }
 
 //intercombot launch
