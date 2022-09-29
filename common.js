@@ -142,10 +142,7 @@ const sendAnalyticsToSegment = {
     track:(eventName,properties) => {
         try{
             var failedTimes = 1;
-            console.log("eventName: ", eventName, "\n properties: ", properties);
-                Sentry.captureException(new Error(`event_name:${eventName}`), {
-                    ...JSON.stringify(properties),
-                });
+            // console.log("eventName: ", eventName, "\n properties: ", properties);
             analytics && analytics.track(eventName,properties)
             .then((success)=>{
                 if(success.logger.log() && failedTimes <= 5){
@@ -153,9 +150,17 @@ const sendAnalyticsToSegment = {
                     failedTimes++;
                 }
             })
-            .catch((error)=>{console.log("Error in sendAnalyticsToSegment.track of analytics.track()",error)});
+            .catch((error)=>{
+                Sentry.captureException(new Error(`Error in analytics track eventName: ${eventName}`), {
+                    ...JSON.stringify(properties),
+                    ...error
+                })
+            });
         }catch(error){
-            console.error("Error in sendAnalyticsToSegment.track()",error);
+            Sentry.captureException(new Error(`Error in sendAnalyticsToSegment.track() eventName: ${eventName}`), {
+                ...JSON.stringify(properties),
+                ...error
+            })
             setTimeout(()=>{
                 console.log("InCatch - eventName: ", eventName, "\n properties: ", properties);
                 analytics && analytics.track(eventName,properties)
