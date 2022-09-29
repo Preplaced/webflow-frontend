@@ -873,6 +873,8 @@ function preparePayment(e = "none") {
         ],
       },
     };
+    
+    sendAnalyticsToSegment.identify(verifiedUser.email,properties)
     sendAnalyticsToSegment.track("Payment Started", properties);
     e != "none" && e.preventDefault();
     payNowButtonLoader();
@@ -938,6 +940,7 @@ function preparePayment(e = "none") {
             ],
           },
         };
+        sendAnalyticsToSegment.identify(verifiedUser.email,properties)
         sendAnalyticsToSegment.track("Payment Completed", properties);
         function goToThankYouPage() {
           hideElements([orderOverlay, orderLoader, checkoutModal]);
@@ -1034,6 +1037,7 @@ function preparePayment(e = "none") {
                     ],
                   },
                 };
+                sendAnalyticsToSegment.identify(verifiedUser.email,properties)
                 sendAnalyticsToSegment.track("Payment Cancelled", properties);
                 payNowButtonIdealState();
               },
