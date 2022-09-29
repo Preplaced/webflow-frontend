@@ -578,7 +578,6 @@ function commonGetPricingData() {
     let params = Object.fromEntries(
       new URLSearchParams(window.location.search).entries()
     );
-    currentTriggerBy = "url";
     // simple checkout open without razorpay opening up
     if (
       params.checkout &&
@@ -587,6 +586,7 @@ function commonGetPricingData() {
       response &&
       !params["razorpay"]
     ) {
+      currentTriggerBy = "url";
       currentPackageId = params["package-id"];
       currentPackageType = params["package-type"];
       packageTypeShow();
@@ -606,6 +606,7 @@ function commonGetPricingData() {
       response
     ) {
       // set current Values
+      currentTriggerBy = "url";
       currentPackageId = params["package-id"];
       currentPackageType = params["package-type"];
       currentDomain = params.domain;
