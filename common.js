@@ -142,7 +142,7 @@ const sendAnalyticsToSegment = {
     track:(eventName,properties) => {
         try{
             var failedTimes = 1;
-            console.log("eventName: ", eventName, "\n properties: ", properties);
+            // console.log("eventName: ", eventName, "\n properties: ", properties);
             analytics && analytics.track(eventName,properties)
             .then((success)=>{
                 if(success.logger.log() && failedTimes <= 5){
@@ -150,9 +150,17 @@ const sendAnalyticsToSegment = {
                     failedTimes++;
                 }
             })
-            .catch((error)=>{console.log("Error in sendAnalyticsToSegment.track of analytics.track()",error)});
+            .catch((error)=>{
+                Sentry.captureException(new Error(`Error in analytics track eventName: ${eventName}`), {
+                    ...JSON.stringify(properties),
+                    ...error
+                })
+            });
         }catch(error){
-            console.error("Error in sendAnalyticsToSegment.track()",error);
+            Sentry.captureException(new Error(`Error in sendAnalyticsToSegment.track() eventName: ${eventName}`), {
+                ...JSON.stringify(properties),
+                ...error
+            })
             setTimeout(()=>{
                 console.log("InCatch - eventName: ", eventName, "\n properties: ", properties);
                 analytics && analytics.track(eventName,properties)
@@ -532,6 +540,7 @@ function login(code, successCallback, errorCallback) {
             if (analytics) {
                 console.log("identifying user");
                 analytics.identify(result.user.email);
+                Sentry.setUser({ email: result.user.email });
             }
 
             verifiedUser = result.user;
@@ -584,8 +593,9 @@ function addUserDetails(details, successCallback, errorCallback) {
 
 function createOrder(packageDetails, successCallback, errorCallback) {
     triggerPurchaseInitiation(packageDetails);
-    packageDetails["coupon"] = currentCoupon;
-    console.log("creayeOrder pkDetails", packageDetails);
+    if(currentTriggerBy === "url"){
+        packageDetails["coupon"] = currentCoupon;
+    }
     packageDetails["version"] = "default";
     packageDetails["package_type"] = currentPackageType;
     let url = apiBaseURL + "user/create-order/v3";
@@ -750,6 +760,7 @@ firebase.auth().onAuthStateChanged(function (user) {
             email: user.email,
             phone: user.phoneNumber,
         }
+        Sentry.setUser({ email: user.email });
         sendAnalyticsToSegment.identify(properties.email,properties);
         console.log('User is logged in!');
         console.log('phone: ' + user.phoneNumber);
@@ -799,7 +810,7 @@ let isNavbarChangeNeeded = true;
 
 if (downloadEbookButton) {
     downloadEbookButton.onclick = function () {
-        triggerEvent('Ebook Downloaded');
+        // triggerEvent('Ebook Downloaded');
     }
 }
 
@@ -968,11 +979,11 @@ formButtonSelector.addEventListener('click', function (e) {
                 signInType = "login"; // login signInType
                 function onLogin() {
 
-                    triggerEvent('Signed In', {
-                        'source': 'sign-in',
-                        'method': 'phone',
-                        'country_code': `+${iti.getSelectedCountryData().dialCode}`
-                    });
+                    // triggerEvent('Signed In', {
+                    //     'source': 'sign-in',
+                    //     'method': 'phone',
+                    //     'country_code': `+${iti.getSelectedCountryData().dialCode}`
+                    // });
                     removeButtonLoading(formButtonSelector, "Verified");
                     if (customOnSignIn) {
                         customOnSignInMethod();
@@ -1028,6 +1039,7 @@ formButtonSelector.addEventListener('click', function (e) {
                                         email: userEmailSelector.value.toLowerCase(),
                                         phone: phoneNumber
                                     });
+                                    Sentry.setUser({ email: userEmailSelector.value.toLowerCase() });
                                 }
                                 // SignUp Analytics
                                 if(signInType === 'register'){
@@ -1049,12 +1061,12 @@ formButtonSelector.addEventListener('click', function (e) {
                                     localStorage.setItem("hasVisitedBefore", JSON.stringify(localStoragePropeties))
                                 }
 
-                                triggerEvent('Signed Up', {
-                                    'source': 'sign-in',
-                                    'method': 'phone',
-                                    'country_code': `+${iti.getSelectedCountryData().dialCode}`,
-                                    'subscribe_newsletter': acceptSubscriptionSelector.checked
-                                });
+                                // triggerEvent('Signed Up', {
+                                //     'source': 'sign-in',
+                                //     'method': 'phone',
+                                //     'country_code': `+${iti.getSelectedCountryData().dialCode}`,
+                                //     'subscribe_newsletter': acceptSubscriptionSelector.checked
+                                // });
 
 
                                 addUserDetails({
@@ -1218,7 +1230,7 @@ for(let i=0;i<menuLogin.length;i++){
 
 
 let bookSessionMethod = function () {
-    triggerEvent('Sales Session Booking Started', {});
+    // triggerEvent('Sales Session Booking Started', {});
 }
 
 //intercombot launch
