@@ -169,9 +169,13 @@ const sendAnalyticsToSegment = {
     },
     identify:(email,identities) => {
         try{
-            console.log("email :",email, " identities :", identities);
+            // console.log("email :",email, " identities :", identities);
             analytics && analytics.identify(email,identities);
         }catch(error){
+            Sentry.captureException(new Error(`Error in sendAnalyticsToSegment.identify() user: ${email}`), {
+                ...JSON.stringify(properties),
+                ...error
+            })
             console.error("Error in sendAnalyticsToSegment identify",error);
         }
     }
@@ -540,7 +544,6 @@ function login(code, successCallback, errorCallback) {
             if (analytics) {
                 console.log("identifying user");
                 analytics.identify(result.user.email);
-                Sentry.setUser({ email: result.user.email });
             }
 
             verifiedUser = result.user;
@@ -760,7 +763,6 @@ firebase.auth().onAuthStateChanged(function (user) {
             email: user.email,
             phone: user.phoneNumber,
         }
-        Sentry.setUser({ email: user.email });
         sendAnalyticsToSegment.identify(properties.email,properties);
         console.log('User is logged in!');
         console.log('phone: ' + user.phoneNumber);
@@ -1039,7 +1041,6 @@ formButtonSelector.addEventListener('click', function (e) {
                                         email: userEmailSelector.value.toLowerCase(),
                                         phone: phoneNumber
                                     });
-                                    Sentry.setUser({ email: userEmailSelector.value.toLowerCase() });
                                 }
                                 // SignUp Analytics
                                 if(signInType === 'register'){
@@ -1060,14 +1061,6 @@ formButtonSelector.addEventListener('click', function (e) {
                                     localStoragePropeties["visited-date"] = verifiedUser.metadata.creationTime;
                                     localStorage.setItem("hasVisitedBefore", JSON.stringify(localStoragePropeties))
                                 }
-
-                                // triggerEvent('Signed Up', {
-                                //     'source': 'sign-in',
-                                //     'method': 'phone',
-                                //     'country_code': `+${iti.getSelectedCountryData().dialCode}`,
-                                //     'subscribe_newsletter': acceptSubscriptionSelector.checked
-                                // });
-
 
                                 addUserDetails({
                                     name: userNameValue,
