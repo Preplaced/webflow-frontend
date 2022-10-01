@@ -595,18 +595,18 @@ function commonGetPricingData() {
       currentMentorExperience = params["mentor-experience"];
       currentMentorPreference = params["mentor-preference"];
       
-      if(currentMentorPreference){
-        $("#mentor-preference-block").css("display","flex")
-        $("#mentor-name").text(currentMentorPreference)
-        $("#Mentor-Name-2").val(currentMentorPreference)
-        mentorPreferenceSelectorAll[0].setAttribute("for",currentMentorPreference)
-          mentorPreferenceSelectorAll.forEach((mentorPreferenceSelector)=>{
-            mentorPreferenceSelector.style.border = "2px solid #e8e7ee";
-            if(mentorPreferenceSelector.getAttribute("for")===currentMentorPreference){
-              mentorPreferenceSelector.style.border = "2px solid #2463EB";
-            }
-        })
-      }
+      //REMIND if(currentMentorPreference){
+      //   $("#mentor-preference-block").css("display","flex")
+      //   $("#mentor-name").text(currentMentorPreference)
+      //   $("#Mentor-Name-2").val(currentMentorPreference)
+      //   mentorPreferenceSelectorAll[0].setAttribute("for",currentMentorPreference)
+      //     mentorPreferenceSelectorAll.forEach((mentorPreferenceSelector)=>{
+      //       mentorPreferenceSelector.style.border = "2px solid #e8e7ee";
+      //       if(mentorPreferenceSelector.getAttribute("for")===currentMentorPreference){
+      //         mentorPreferenceSelector.style.border = "2px solid #2463EB";
+      //       }
+      //   })
+      // }
 
       //price container show
       if (currentPrice == 0) {
@@ -1125,17 +1125,17 @@ upcomingInterviewSelectors.forEach((upcomingInterviewSelector) => {
   });
 });
 
-mentorPreferenceSelectors.forEach((mentorPreferenceSelector)=>{
-  mentorPreferenceSelector.addEventListener("click", (event) => {
-    currentMentorPreference = event.target.value;
-    mentorPreferenceSelectorAll.forEach((mentorPreferenceSelector)=>{
-      mentorPreferenceSelector.style.border = "2px solid #e8e7ee";
-      if(mentorPreferenceSelector.getAttribute("for").replaceAll(" ","-")===currentMentorPreference.replaceAll(" ", "-")){
-        mentorPreferenceSelector.style.border = "2px solid #2463EB";
-      }
-  })
-  })
-})
+// mentorPreferenceSelectors.forEach((mentorPreferenceSelector)=>{
+//   mentorPreferenceSelector.addEventListener("click", (event) => {
+//     currentMentorPreference = event.target.value;
+//     mentorPreferenceSelectorAll.forEach((mentorPreferenceSelector)=>{
+//       mentorPreferenceSelector.style.border = "2px solid #e8e7ee";
+//       if(mentorPreferenceSelector.getAttribute("for").replaceAll(" ","-")===currentMentorPreference.replaceAll(" ", "-")){
+//         mentorPreferenceSelector.style.border = "2px solid #2463EB";
+//       }
+//   })
+//   })
+// })
 
 /* -------------------------------------------------------------------------- */
 /*                                 GeoLocation                                */
