@@ -77,6 +77,7 @@ let targetRoleSelector = getElement("target-role-new");
 let targetCompaniesSelector = getElement("company-selector-new");
 let domainSelector = getElement("target-domain-new");
 let upcomingInterviewSelectors = document.getElementsByName("Radio-Options");
+let mentorPreferenceSelectors = document.getElementsByName("Mentor-Preference");
 let mentorExperienceSelector = getElement("mentor-experience-new");
 let totalPriceSelector = document.querySelector("#checkout-new #total-price");
 var loginTextSelector = getElement("login-text");
@@ -115,6 +116,7 @@ var currentPackageDetails = {};
 var currentPackageDetail = {};
 var currentSku = "";
 var currentCoupon = "";
+var currentMentorPreference;
 
 /* -------------------------------------------------------------------------- */
 /*                            Analytics Properities                           */
@@ -157,6 +159,7 @@ const roleMapper = {
 }
 
 var upcomingInterviewSelectorAll = document.querySelectorAll(".upcoming-interview-selector");
+var mentorPreferenceSelectorAll = document.querySelectorAll(".mentor-preference-selector");
 var autoCheckout;
 var params = Object.fromEntries(
   new URLSearchParams(window.location.search).entries()

@@ -238,6 +238,7 @@ function commonSaveInfoToLocalStorage(package_id) {
     target_companies: currenTargetCompanies,
     mentor_instructions: currentMentorInstruction,
     version: "default",
+    mentor_preference: currentMentorPreference
   };
   if(couponAppliedSuccessfullyUsingURL){
     packageDetails["totalPrice"] = totalPrice;
@@ -589,8 +590,49 @@ function commonGetPricingData() {
       currentTriggerBy = "url";
       currentPackageId = params["package-id"];
       currentPackageType = params["package-type"];
-      packageTypeShow();
-      openCheckoutModal(currentPackageId);
+      currentDomain = params.domain;
+      currentRole = roleMapper[params.role];
+      currentMentorExperience = params["mentor-experience"];
+      currentMentorPreference = params["mentor-preference"];
+      
+      //REMIND if(currentMentorPreference){
+      //   $("#mentor-preference-block").css("display","flex")
+      //   $("#mentor-name").text(currentMentorPreference)
+      //   $("#Mentor-Name-2").val(currentMentorPreference)
+      //   mentorPreferenceSelectorAll[0].setAttribute("for",currentMentorPreference)
+      //     mentorPreferenceSelectorAll.forEach((mentorPreferenceSelector)=>{
+      //       mentorPreferenceSelector.style.border = "2px solid #e8e7ee";
+      //       if(mentorPreferenceSelector.getAttribute("for")===currentMentorPreference){
+      //         mentorPreferenceSelector.style.border = "2px solid #2463EB";
+      //       }
+      //   })
+      // }
+
+      //price container show
+      if (currentPrice == 0) {
+        hideElements([totalPriceSelector]);
+        showElements([priceCalculationSelector]);
+      } else {
+        hideElements([priceCalculationSelector]);
+        showElements([totalPriceSelector]);
+      }
+
+      var checkVerifiedUserResult = setInterval(() => {
+        if (verifiedUser && userLoggedInStatus === "Logged In") {
+          clearInterval(checkVerifiedUserResult);
+          packageTypeShow();
+          openCheckoutModal(currentPackageId);
+        } else {
+          console.log("Not Verified User");
+          if (userLoggedInStatus === "Not Logged In") {
+            console.log("No User Logged In")
+            clearInterval(checkVerifiedUserResult);
+            packageTypeShow();
+            openCheckoutModal(currentPackageId);
+          }
+        }
+      }, 100);
+
     }
 
     // checkout + razorpay open
@@ -970,7 +1012,7 @@ function preparePayment(e = "none") {
           }
         );
       }
-      function onOrderCreated(responseData) {
+      function onOrderCreated(responseData){
         let order = responseData.razorpay_order_object;
         if (!!order) {
           var options = {
@@ -1057,8 +1099,6 @@ function preparePayment(e = "none") {
           });
         }
       }
-
-      console.log("coupon in Checkout.min.js",coupon);
       pkDetails["coupon"] = coupon;
       pkDetails["target_companies"] = $targetCompaniesSelector.val().join(",");
       pkDetails["mentor_instructions"] = mentorInstructionSelector.value;
@@ -1067,7 +1107,6 @@ function preparePayment(e = "none") {
         pkDetails["coupon"] = currentCoupon;
       }
 
-      console.log("pkDetails in",pkDetails);
       createOrder(pkDetails, onOrderCreated, function () {
         onPaymentFailure("create-order");
       });
@@ -1085,6 +1124,18 @@ upcomingInterviewSelectors.forEach((upcomingInterviewSelector) => {
       upcomingInterviewSelector.getAttribute("value");
   });
 });
+
+// mentorPreferenceSelectors.forEach((mentorPreferenceSelector)=>{
+//   mentorPreferenceSelector.addEventListener("click", (event) => {
+//     currentMentorPreference = event.target.value;
+//     mentorPreferenceSelectorAll.forEach((mentorPreferenceSelector)=>{
+//       mentorPreferenceSelector.style.border = "2px solid #e8e7ee";
+//       if(mentorPreferenceSelector.getAttribute("for").replaceAll(" ","-")===currentMentorPreference.replaceAll(" ", "-")){
+//         mentorPreferenceSelector.style.border = "2px solid #2463EB";
+//       }
+//   })
+//   })
+// })
 
 /* -------------------------------------------------------------------------- */
 /*                                 GeoLocation                                */
