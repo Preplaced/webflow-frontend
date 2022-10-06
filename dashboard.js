@@ -10,7 +10,7 @@ const SESSION_STATUS_MAP = {
     "Session Completed": "Session Completed",
 }
 
-const JOIN_SLACK_LINK = "https://join.slack.com/t/preplaced-community/shared_invite/zt-1fgcz9it3-B9WPAitfKLdMym1CtFYIjA";
+const JOIN_SLACK_LINK = "https://join.slack.com/t/preplaced-community/shared_invite/zt-1h30kdyc5-jveE~O8waVwAuJX4TP71wQ";
 let slackCTALink = JOIN_SLACK_LINK;
 
 let welcomeText = getElement("welcome-text");
