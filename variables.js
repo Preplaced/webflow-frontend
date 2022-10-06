@@ -157,6 +157,26 @@ const roleMapper = {
   "Senior":"4-6 years",
   "Lead":"7-10 years"
 }
+const domainMapper = {
+  "Backend Developer":"backend_developer",
+  "Frontend Developer":"frontend_developer",
+  "Fullstack Developer":"fullstack_developer",
+  "Data Scientist":"data_scientist",
+  "AI/ML Engineer":"ai_ml_engineer",
+  "Data Analyst":"data_analyst",
+  "Data Engineer":"data_engineer",
+  "DevOps Engineer":"devops_engineer",
+  "SRE":"sre",
+  "Cloud Engineer":"cloud_engineer",
+  "Finance Roles":"finance_roles",
+  "Marketing Roles":"marketing_roles",
+  "HR":"hr",
+  "Consultant":"consultant",
+  "Business Analyst":"business_analyst",
+  "Sales Roles":"sales_roles",
+  "Software Developer For Testing":"software-developer-for-testing",
+  "QA Engineer":"qa-engineer"
+}
 
 var upcomingInterviewSelectorAll = document.querySelectorAll(".upcoming-interview-selector");
 var mentorPreferenceSelectorAll = document.querySelectorAll(".mentor-preference-selector");

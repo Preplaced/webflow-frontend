@@ -590,7 +590,7 @@ function commonGetPricingData() {
       currentTriggerBy = "url";
       currentPackageId = params["package-id"];
       currentPackageType = params["package-type"];
-      currentDomain = params.domain;
+      currentDomain = domainMapper[params.domain];
       currentRole = roleMapper[params.role];
       currentMentorExperience = params["mentor-experience"];
       currentMentorPreference = params["mentor-preference"];
@@ -651,7 +651,7 @@ function commonGetPricingData() {
       currentTriggerBy = "url";
       currentPackageId = params["package-id"];
       currentPackageType = params["package-type"];
-      currentDomain = params.domain;
+      currentDomain = domainMapper[params.domain];
       currentRole = roleMapper[params.role];
       currentMentorExperience = params["mentor-experience"];
       currenTargetCompanies = params["target-companies"];
