@@ -1,3 +1,4 @@
+loadFile("axios.min.js",false);
 try {
     document.domain = 'preplaced.in';
 }
@@ -253,7 +254,7 @@ function logAPIError(params) {
 }
 
 function getAPI(url, successCallback, errorCallback) {
-    axios.get(url, getDefaultConfig())
+    axios.default.get(url, getDefaultConfig())
         .then(function (response) {
             successCallback(response);
         })
@@ -267,7 +268,7 @@ function getAPI(url, successCallback, errorCallback) {
 }
 
 function postAPI(url, data, successCallback, errorCallback) {
-    axios.post(url, data, getDefaultConfig())
+    axios.default.post(url, data, getDefaultConfig())
         .then(function (response) {
             successCallback(response);
         })
