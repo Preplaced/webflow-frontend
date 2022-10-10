@@ -229,7 +229,7 @@ function commonSaveInfoToLocalStorage(package_id) {
     target_companies: currenTargetCompanies,
     mentor_instructions: currentMentorInstruction,
     version: "default",
-    mentor_preference: currentMentorPreference
+    mentor_preference: currentMentorPreference,
   };
   if(couponAppliedSuccessfullyUsingURL){
     packageDetails["totalPrice"] = totalPrice;
@@ -1156,9 +1156,17 @@ payNowButtonSelector.addEventListener("click", function (e) {
 
 
 upcomingInterviewSelectors.forEach((upcomingInterviewSelector) => {
+  var nextSubling = upcomingInterviewSelector.nextElementSibling;
   upcomingInterviewSelector.addEventListener("click", (event) => {
-    currentUpcomingInterviewSchedule =
-      upcomingInterviewSelector.getAttribute("value");
+      //set value of upcoming interview schuedule
+      currentUpcomingInterviewSchedule = upcomingInterviewSelector.getAttribute("value");
+      //remove color from unselected options
+      upcomingInterviewSelectors.forEach((upcomingInterviewSelector2) => {
+        var nextSubling2 = upcomingInterviewSelector2.nextElementSibling;
+        nextSubling2.style.border = "2px solid #e8e7ee";
+      })
+      //set color for selected option
+      nextSubling.style.border = "2px solid #2463EB";
   });
 });
 
