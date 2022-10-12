@@ -116,7 +116,7 @@ var currentPackageDetails = {};
 var currentPackageDetail = {};
 var currentSku = "";
 var currentCoupon = "";
-var currentMentorPreference;
+var currentMentorPreference = "Preplaced Auto Assign";
 var currentMentorPreferenceExp;
 
 /* -------------------------------------------------------------------------- */

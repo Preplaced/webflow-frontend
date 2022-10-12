@@ -536,9 +536,9 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
     /* -------------------------------------------------------------------------- */
     /*               Get Cookies and Show Checkout According to that              */
     /* -------------------------------------------------------------------------- */
-    currentMentorPreference = getCookie("mentor-preference") || "";
+    currentMentorPreference = getCookie("mentor-preference") || "Preplaced Auto Assign";
     currentMentorPreferenceExp = +getCookie("mentor-preference-exp") || ""; //REMIND
-    if(currentMentorPreference){
+    if(currentMentorPreference != "Preplaced Auto Assign"){
       mentorPreferenceCheckout();
     }
     openCheckoutModal(currentPackageId, modalText);
@@ -596,12 +596,12 @@ const checkoutStartedViaURLs = () => {
     currenTargetCompanies = params["target-companies"] || "";
     currentCoupon = params.coupon || "";
     currentUpcomingInterviewSchedule = params["upcoming-interview"] || "No";
-    currentMentorPreference = params["mentor-preference"] || "";
+    currentMentorPreference = params["mentor-preference"] || "Preplaced Auto Assign";
     currentMentorPreferenceExp = params["mentor-preference-exp"] || ""; //REMIND
     /* -------------------------------------------------------------------------- */
     /*                          mentor preference feature                         */
     /* -------------------------------------------------------------------------- */
-    if(currentMentorPreference){
+    if(currentMentorPreference != "Preplaced Auto Assign"){
       mentorPreferenceCheckout();
     }
 
@@ -751,12 +751,12 @@ const setUpcommingInterviewAndColor = () => {
 
 const mentorPreferenceCheckoutSetup = () => {
   if(params["mentor-preference"] && params["mentor-preference-exp"]){
-    currentMentorPreference = params["mentor-preference"] || "";
+    currentMentorPreference = params["mentor-preference"] || "Preplaced Auto Assign";
     currentMentorPreferenceExp = params["mentor-preference-exp"] || "";
     /* -------------------------------------------------------------------------- */
     /*                          mentor preference feature                         */
     /* -------------------------------------------------------------------------- */
-    if(currentMentorPreference){
+    if(currentMentorPreference != "Preplaced Auto Assign"){
       mentorPreferenceCheckout();
     }
   }
