@@ -363,9 +363,12 @@ targetRoleSelector.onchange = function (event) {
     targetRoleSelector.classList.remove("error");
     mentorExperienceSelector.removeAttribute("disabled");
   }
+
   if(!flagMentorPreference){
     mentorExperienceSelector.value = "select_mentor_experience";
     commonDisableLowerMentorDesignationOptions();
+  }else{
+    mentorExperienceSelector.setAttribute("disabled",true)
   }
   commonSaveInfoToLocalStorage(currentPackageId);
   updateCheckoutValuesOnShown();
@@ -375,7 +378,7 @@ mentorExperienceSelector.onchange = function (event) {
   event.preventDefault();
   currentMentorExperience = event.target.value;
   event.target.value !== "select_mentor_experience" &&
-    mentorExperienceSelector.classList.remove("error");
+  mentorExperienceSelector.classList.remove("error");
   commonUpdatePricing();
   if (currentPrice == 0) {
     hideElements([totalPriceSelector]);
