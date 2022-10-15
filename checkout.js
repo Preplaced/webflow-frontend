@@ -188,11 +188,6 @@ function commonProceedToCheckout(modalText) {
         updateCheckoutValuesOnShown();
         showElements([checkoutModal], "flex");
         sendAnalyticsToSegment.track("Checkout Started",properties);
-
-        //REMIND if (currentTriggerBy === "url") {
-        //     console.log("currentTriggerBy",currentTriggerBy);
-        //   preparePayment();
-        // }
       };
       customOnSignIn = true;
       showLoginModal(modalText);
@@ -200,10 +195,6 @@ function commonProceedToCheckout(modalText) {
       updateCheckoutValuesOnShown();
       showElements([checkoutModal], "flex");
       sendAnalyticsToSegment.track("Checkout Started", properties);
-      //REMIND if (currentTriggerBy === "url") {
-      //   console.log("currentTriggerBy ",currentTriggerBy);
-      //   preparePayment();
-      // }
     }
   } catch (error) {
     console.error("Error in commonProceedCheckout", error);
@@ -238,7 +229,7 @@ function commonSaveInfoToLocalStorage(package_id) {
     target_companies: currenTargetCompanies,
     mentor_instructions: currentMentorInstruction,
     version: "default",
-    mentor_preference: currentMentorPreference
+    mentor_preference: currentMentorPreference,
   };
   if(couponAppliedSuccessfullyUsingURL){
     packageDetails["totalPrice"] = totalPrice;
@@ -250,14 +241,6 @@ function commonSaveInfoToLocalStorage(package_id) {
 function commonPaymentCheckout(package_id, modalText) {
   try {
     commonSaveInfoToLocalStorage(package_id); //save the form Info here to local Storage which will be used in the checkout page
-    // REMIND triggerEvent("Checkout Started", {
-    //   experience: packageDetails.experience,
-    //   domain: packageDetails.domain,
-    //   designation: packageDetails.designation,
-    //   target_companies: packageDetails.target_companies,
-    //   logged_in: !!accessToken,
-    //   items: packageDetails,
-    // });
     commonProceedToCheckout(modalText);
   } catch (error) {
     console.error("error in commonPaymentCheckout()", error);
@@ -344,6 +327,16 @@ function setCurrentPrice() {
               break;
             }
           }
+          /* -------------------------------------------------------------------------- */
+          /*                            Show Price Container                            */
+          /* -------------------------------------------------------------------------- */
+          if (currentPrice == 0) {
+            hideElements([totalPriceSelector]);
+            showElements([priceCalculationSelector]);
+          } else {
+            hideElements([priceCalculationSelector]);
+            showElements([totalPriceSelector]);
+          }
     }catch(error){
         console.error("error in setcurrentprice",error)
     }
@@ -369,11 +362,14 @@ targetRoleSelector.onchange = function (event) {
   if (event.target.value !== "select_designation") {
     targetRoleSelector.classList.remove("error");
     mentorExperienceSelector.removeAttribute("disabled");
-    // mentorExperienceSelector.classList.remove("error");
   }
-  mentorExperienceSelector.value = "select_mentor_experience";
-  commonDisableLowerMentorDesignationOptions();
-  // commonUpdatePricing();
+
+  if(!flagMentorPreference){
+    mentorExperienceSelector.value = "select_mentor_experience";
+    commonDisableLowerMentorDesignationOptions();
+  }else{
+    mentorExperienceSelector.setAttribute("disabled",true)
+  }
   commonSaveInfoToLocalStorage(currentPackageId);
   updateCheckoutValuesOnShown();
 };
@@ -382,7 +378,7 @@ mentorExperienceSelector.onchange = function (event) {
   event.preventDefault();
   currentMentorExperience = event.target.value;
   event.target.value !== "select_mentor_experience" &&
-    mentorExperienceSelector.classList.remove("error");
+  mentorExperienceSelector.classList.remove("error");
   commonUpdatePricing();
   if (currentPrice == 0) {
     hideElements([totalPriceSelector]);
@@ -540,6 +536,14 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
     };
     sendAnalyticsToSegment.track("Checkout Button Clicked", properties);
     packageTypeShow();
+    /* -------------------------------------------------------------------------- */
+    /*               Get Cookies and Show Checkout According to that              */
+    /* -------------------------------------------------------------------------- */
+    currentMentorPreference = getCookie("mentor-preference") || "Preplaced Auto Assign";
+    currentMentorPreferenceExp = +getCookie("mentor-preference-exp") || ""; //REMIND
+    if(currentMentorPreference != "Preplaced Auto Assign"){
+      mentorPreferenceCheckout();
+    }
     openCheckoutModal(currentPackageId, modalText);
   });
 });
@@ -547,10 +551,6 @@ paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
 /* -------------------------------------------------------------------------- */
 /*                                 Get Pricing                                */
 /* -------------------------------------------------------------------------- */
-
-
-
-
 function getAllPricing(callback) {
   let url = apiBaseURL + "pricing/get-price/v3";
   getAPI(
@@ -573,140 +573,128 @@ function commonSetGSTFlag(gstEnabled) {
 function commonGetPricingData() {
   getAllPricing(function (response) {
     pricing = response;
-    // commonUpdatePricing();
     currentCurrency = country === "India" ? "INR" : "USD";
     commonSetGSTFlag(false);
-    let params = Object.fromEntries(
-      new URLSearchParams(window.location.search).entries()
-    );
-    // simple checkout open without razorpay opening up
-    if (
-      params.checkout &&
-      params["package-id"] &&
-      params["package-type"] &&
-      response &&
-      !params["razorpay"]
-    ) {
-      currentTriggerBy = "url";
-      currentPackageId = params["package-id"];
-      currentPackageType = params["package-type"];
-      currentDomain = domainMapper[params.domain];
-      currentRole = roleMapper[params.role];
-      currentMentorExperience = params["mentor-experience"];
-      currentMentorPreference = params["mentor-preference"];
-      
-      //REMIND if(currentMentorPreference){
-      //   $("#mentor-preference-block").css("display","flex")
-      //   $("#mentor-name").text(currentMentorPreference)
-      //   $("#Mentor-Name-2").val(currentMentorPreference)
-      //   mentorPreferenceSelectorAll[0].setAttribute("for",currentMentorPreference)
-      //     mentorPreferenceSelectorAll.forEach((mentorPreferenceSelector)=>{
-      //       mentorPreferenceSelector.style.border = "2px solid #e8e7ee";
-      //       if(mentorPreferenceSelector.getAttribute("for")===currentMentorPreference){
-      //         mentorPreferenceSelector.style.border = "2px solid #2463EB";
-      //       }
-      //   })
-      // }
-
-      //price container show
-      if (currentPrice == 0) {
-        hideElements([totalPriceSelector]);
-        showElements([priceCalculationSelector]);
-      } else {
-        hideElements([priceCalculationSelector]);
-        showElements([totalPriceSelector]);
-      }
-
-      var checkVerifiedUserResult = setInterval(() => {
-        if (verifiedUser && userLoggedInStatus === "Logged In") {
-          clearInterval(checkVerifiedUserResult);
-          packageTypeShow();
-          openCheckoutModal(currentPackageId);
-        } else {
-          console.log("Not Verified User");
-          if (userLoggedInStatus === "Not Logged In") {
-            console.log("No User Logged In")
-            clearInterval(checkVerifiedUserResult);
-            packageTypeShow();
-            openCheckoutModal(currentPackageId);
-          }
-        }
-      }, 100);
-
-    }
-
-    // checkout + razorpay open
-    else if (
-      params.razorpay == "true" &&
-      params.checkout &&
-      params["package-id"] &&
-      params["package-type"] &&
-      params.domain &&
-      params.role &&
-      params["mentor-experience"] &&
-      params["target-companies"] &&
-      response
-    ) {
-      // set current Values
-      currentTriggerBy = "url";
-      currentPackageId = params["package-id"];
-      currentPackageType = params["package-type"];
-      currentDomain = domainMapper[params.domain];
-      currentRole = roleMapper[params.role];
-      currentMentorExperience = params["mentor-experience"];
-      currenTargetCompanies = params["target-companies"];
-      currentCoupon = params.coupon || "";
-      currentUpcomingInterviewSchedule = params["upcoming-interview"];
-
-      // set prefilled data using params
-      targetRoleSelector.value = currentRole;
-      domainSelector.value = currentDomain;
-      mentorExperienceSelector.value = currentMentorExperience;
-      couponSelector.value = currentCoupon;
-
-      //settingup value of upcomingInterviewSelector
-      upcomingInterviewSelectors.forEach((upcomingInterviewSelector) => {
-        if (
-          currentUpcomingInterviewSchedule ==
-          upcomingInterviewSelector.getAttribute("value")
-        ) {
-          upcomingInterviewSelector.value = currentUpcomingInterviewSchedule;
-        }
-      });
-
-      //upcoming interview selector - span
-      upcomingInterviewSelectorAll.forEach((upcomingInterviewSelector)=>{
-        upcomingInterviewSelector.style.border = "2px solid #e8e7ee";
-        if(upcomingInterviewSelector.getAttribute("for")===currentUpcomingInterviewSchedule){
-          upcomingInterviewSelector.style.border = "2px solid #2463EB";
-        }
-    })
-
-      //target Companies
-      let companies = [];
-      currenTargetCompanies.split(",").map((company) => {
-        companies.push({ id: company, text: company, selected: true });
-      });
-      $targetCompaniesSelector.select2({
-        multiple: true,
-        data: companies,
-        width: "100%",
-        tags: true,
-        matcher: matchMaker,
-        minimumInputLength: 3,
-      });
-      // commonSaveInfoToLocalStorage(currentPackageId);
-      // pkDetails = JSON.parse(localStorage.getItem("packageDetails"));
-      if(currentCoupon != ""){
-        couponSubmitSelector.click();
-      }
-      //
-      showCheckoutTriggerByURL();
+    if(response){
+      checkoutStartedViaURLs();
     }
   });
 }
+/* -------------------------------------------------------------------------- */
+/*                          Checkout Started Via URL                          */
+/* -------------------------------------------------------------------------- */
 
-const showCheckoutTriggerByURL = () => {
+const checkoutStartedViaURLs = () => {
+  const {checkout} = params;
+  if(checkout && params["package-id"] && params["package-type"]){
+    /* -------------------------------------------------------------------------- */
+    /*                          setting up current values                         */
+    /* -------------------------------------------------------------------------- */
+    currentTriggerBy = "url";
+    currentPackageId = params["package-id"];
+    currentPackageType = params["package-type"];
+    currentDomain = domainMapper[params.domain] || "select_domain";
+    currentRole = roleMapper[params.role] || "select_designation";
+    currentMentorExperience = params["mentor-experience"] || "select_mentor_experience";
+    currenTargetCompanies = params["target-companies"] || "";
+    currentCoupon = params.coupon || "";
+    currentUpcomingInterviewSchedule = params["upcoming-interview"] || "No";
+    currentMentorPreference = params["mentor-preference"] || "Preplaced Auto Assign";
+    currentMentorPreferenceExp = params["mentor-preference-exp"] || ""; //REMIND
+    /* -------------------------------------------------------------------------- */
+    /*                          mentor preference feature                         */
+    /* -------------------------------------------------------------------------- */
+    if(currentMentorPreference != "Preplaced Auto Assign"){
+      mentorPreferenceCheckout();
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                       set prefilled data using params                      */
+    /* -------------------------------------------------------------------------- */
+    targetRoleSelector.value = currentRole;
+    domainSelector.value = currentDomain ;
+    // if mentor preference experience contains then mentor value set in the mentorPreferenceCheckout()
+    if(!currentMentorPreferenceExp){
+      mentorExperienceSelector.value = currentMentorExperience;
+    }
+    couponSelector.value = currentCoupon;
+    /* -------------------------------------------------------------------------- */
+    /*                settingup value of upcomingInterviewSelector                */
+    /* -------------------------------------------------------------------------- */
+    currentUpcomingInterviewSchedule == "No" && setUpcommingInterviewAndColor();
+
+    /* -------------------------------------------------------------------------- */
+    /*                       setting Target Companies Values                      */
+    /* -------------------------------------------------------------------------- */
+    currenTargetCompanies != "" && setTargetCompanyValues();
+    openCheckout();
+  }
+}
+
+const mentorPreferenceCheckout = () => {
+  /* -------------------------------------------------------------------------- */
+  /*                         Flag value for identifying                         */
+  /* -------------------------------------------------------------------------- */
+  flagMentorPreference = true;
+  /* -------------------------------------------------------------------------- */
+  /*                set Mentor Preference in Cookies with Expiry                */
+  /* -------------------------------------------------------------------------- */
+  let expiry = new Date(Date.now() + 86400e3);
+  expiry = expiry.toUTCString();
+  if(!getCookie("mentor-preference") || !getCookie("mentor-preference-exp")){
+    setCookie("mentor-preference",currentMentorPreference,expiry);
+    setCookie("mentor-preference-exp",currentMentorPreferenceExp,expiry);
+  }
+  /* -------------------------------------------------------------------------- */
+  /*                Mentor Preference Display and assigning value               */
+  /* -------------------------------------------------------------------------- */
+  $("#mentor-preference-block").css("display","flex");
+  $("#mentor-name").text(currentMentorPreference);
+  $("#Mentor-Name-2").val(currentMentorPreference);
+  mentorPreferenceSelectorAll[0].setAttribute("for",currentMentorPreference)
+    mentorPreferenceSelectorAll.forEach((mentorPreferenceSelector)=>{
+      mentorPreferenceSelector.style.border = "2px solid #e8e7ee";
+      if(mentorPreferenceSelector.getAttribute("for")===currentMentorPreference){
+        mentorPreferenceSelector.style.border = "2px solid #2463EB";
+      }
+  })
+  /* -------------------------------------------------------------------------- */
+  /*                        Mentor Preference Experience                        */
+  /* -------------------------------------------------------------------------- */
+  setMentorExpViaMentorPreferExp();
+  /* -------------------------------------------------------------------------- */
+  /*                           Lock Mentor Experience                           */
+  /* -------------------------------------------------------------------------- */
+  mentorExperienceSelector.setAttribute("disabled",true)
+}
+
+const setMentorExpViaMentorPreferExp = () => {
+  if(+currentMentorPreferenceExp >= 0 && +currentMentorPreferenceExp <= 3){
+    mentorExperienceSelector.value = "0-3 years"
+  }else if(+currentMentorPreferenceExp > 3 && +currentMentorPreferenceExp <= 6){
+    mentorExperienceSelector.value = "4-6 years"
+  }else if(+currentMentorPreferenceExp > 6 && +currentMentorPreferenceExp <= 10){
+    mentorExperienceSelector.value = "7-10 years"
+  }else{
+    mentorExperienceSelector.value = "11-15 years"
+  }
+}
+
+const openCheckout = () => {
+  const { razorpay } = params;
+  /* -------------------------------------------------------------------------- */
+  /*                             apply coupon  auto                             */
+  /* -------------------------------------------------------------------------- */
+  if(currentCoupon != "" && razorpay === "true"){
+      couponSubmitSelector.click();
+  }
+  /* -------------------------------------------------------------------------- */
+  /*                           checking User Logged In                          */
+  /* -------------------------------------------------------------------------- */
+  checkingUserLoggedIn();
+}
+
+const checkingUserLoggedIn = () => {
   var checkVerifiedUserResult = setInterval(() => {
     if (verifiedUser && userLoggedInStatus === "Logged In") {
       clearInterval(checkVerifiedUserResult);
@@ -726,6 +714,58 @@ const showCheckoutTriggerByURL = () => {
     }
   }, 100);
 };
+
+const setTargetCompanyValues = () => {
+  if(currenTargetCompanies.length > 0){
+    let companies = [];
+    currenTargetCompanies.split(",").map((company) => {
+      companies.push({ id: company, text: company, selected: true });
+    });
+    $targetCompaniesSelector.select2({
+      multiple: true,
+      data: companies,
+      width: "100%",
+      tags: true,
+      matcher: matchMaker,
+      minimumInputLength: 3,
+    })
+  }
+}
+
+const setUpcommingInterviewAndColor = () => {
+  upcomingInterviewSelectors.forEach((upcomingInterviewSelector) => {
+    if (
+      currentUpcomingInterviewSchedule ==
+      upcomingInterviewSelector.getAttribute("value")
+    ) {
+      upcomingInterviewSelector.value = currentUpcomingInterviewSchedule;
+    }
+  });
+  /* -------------------------------------------------------------------------- */
+  /*                     upcoming interview selector - span                     */
+  /* -------------------------------------------------------------------------- */
+  upcomingInterviewSelectorAll.forEach((upcomingInterviewSelector)=>{
+    upcomingInterviewSelector.style.border = "2px solid #e8e7ee";
+    if(upcomingInterviewSelector.getAttribute("for")===currentUpcomingInterviewSchedule){
+      upcomingInterviewSelector.style.border = "2px solid #2463EB";
+    }
+  })
+}
+
+const mentorPreferenceCheckoutSetup = () => {
+  if(params["mentor-preference"] && params["mentor-preference-exp"]){
+    currentMentorPreference = params["mentor-preference"] || "Preplaced Auto Assign";
+    currentMentorPreferenceExp = params["mentor-preference-exp"] || "";
+    /* -------------------------------------------------------------------------- */
+    /*                          mentor preference feature                         */
+    /* -------------------------------------------------------------------------- */
+    if(currentMentorPreference != "Preplaced Auto Assign"){
+      mentorPreferenceCheckout();
+    }
+  }
+}
+
+mentorPreferenceCheckoutSetup();
 
 /* -------------------------------------------------------------------------- */
 /*                                Redeem Coupen                               */
@@ -796,7 +836,6 @@ function onInvalidCoupon() {
 }
 
 function checkCoupon(coupon, successCallback, errorCallback) {
-  // REMIND   triggerEvent("Coupon Applied", { coupon: coupon });
   let url = apiBaseURL + `pricing/validate-coupon/v3/${coupon}`;
   getAPI(
     url,
@@ -867,7 +906,7 @@ function preparePayment(e = "none") {
     $targetCompaniesSelector.val().length === 0 &&
       targetCompaniesSelector.parentElement.classList.add("error");
     $targetCompaniesSelector.val().length === 0 &&
-      showElements([tC_ErrorSelector]);
+    showElements([tC_ErrorSelector]);
     $(".error").filter(":first")[0].scrollIntoView();
   } else {
     const properties = {
@@ -1118,24 +1157,57 @@ payNowButtonSelector.addEventListener("click", function (e) {
   preparePayment(e);
 });
 
+
 upcomingInterviewSelectors.forEach((upcomingInterviewSelector) => {
+  var nextSubling = upcomingInterviewSelector.nextElementSibling;
   upcomingInterviewSelector.addEventListener("click", (event) => {
-    currentUpcomingInterviewSchedule =
-      upcomingInterviewSelector.getAttribute("value");
+      //set value of upcoming interview schuedule
+      currentUpcomingInterviewSchedule = upcomingInterviewSelector.getAttribute("value");
+      //remove color from unselected options
+      upcomingInterviewSelectors.forEach((upcomingInterviewSelector2) => {
+        var nextSubling2 = upcomingInterviewSelector2.nextElementSibling;
+        nextSubling2.style.border = "2px solid #e8e7ee";
+      })
+      //set color for selected option
+      nextSubling.style.border = "2px solid #2463EB";
   });
 });
 
-// mentorPreferenceSelectors.forEach((mentorPreferenceSelector)=>{
-//   mentorPreferenceSelector.addEventListener("click", (event) => {
-//     currentMentorPreference = event.target.value;
-//     mentorPreferenceSelectorAll.forEach((mentorPreferenceSelector)=>{
-//       mentorPreferenceSelector.style.border = "2px solid #e8e7ee";
-//       if(mentorPreferenceSelector.getAttribute("for").replaceAll(" ","-")===currentMentorPreference.replaceAll(" ", "-")){
-//         mentorPreferenceSelector.style.border = "2px solid #2463EB";
-//       }
-//   })
-//   })
-// })
+mentorPreferenceSelectors.forEach((mentorPreferenceSelector)=>{
+  mentorPreferenceSelector.addEventListener("click", (event) => {
+    currentMentorPreference = event.target.value;
+    /* -------------------------------------------------------------------------- */
+    /*            whenever auto assign selected the flag becomes false            */
+    /* -------------------------------------------------------------------------- */
+    if(currentMentorPreference === "Preplaced Auto Assign"){
+      flagMentorPreference = false;
+      mentorExperienceSelector.removeAttribute("disabled");
+    }
+    /* -------------------------------------------------------------------------- */
+    /*         whenever auto assign is not selected then flag becomes true        */
+    /* -------------------------------------------------------------------------- */
+    if(currentMentorPreference === params["mentor-preference"] || currentMentorPreference === getCookie("mentor-preference")){
+      flagMentorPreference = true;
+      mentorExperienceSelector.setAttribute("disabled", true);
+      setMentorExpViaMentorPreferExp();
+    }
+    /* -------------------------------------------------------------------------- */
+    /*                  setting up the update pricing on checkout                 */
+    /* -------------------------------------------------------------------------- */
+    commonUpdatePricing();
+    commonSaveInfoToLocalStorage(currentPackageId);
+    updateCheckoutValuesOnShown();
+    /* -------------------------------------------------------------------------- */
+    /*                      setup color for mentor preference                     */
+    /* -------------------------------------------------------------------------- */
+    mentorPreferenceSelectorAll.forEach((mentorPreferenceSelector)=>{
+      mentorPreferenceSelector.style.border = "2px solid #e8e7ee";
+      if(mentorPreferenceSelector.getAttribute("for").replaceAll(" ","-")===currentMentorPreference.replaceAll(" ", "-")){
+        mentorPreferenceSelector.style.border = "2px solid #2463EB";
+      }
+  })
+  })
+})
 
 /* -------------------------------------------------------------------------- */
 /*                                 GeoLocation                                */
@@ -1196,4 +1268,33 @@ $("#company-selector-new")
 
 function scrollBody(overflowValue) {
   document.body.style.overflow = overflowValue;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                 set Cookies                                */
+/* -------------------------------------------------------------------------- */
+function setCookie(cname, cvalue, exdays) {
+  const d = new Date();
+  d.setTime(d.getTime() + (exdays*24*60*60*1000));
+  let expires = "expires="+ d.toUTCString();
+  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                 get Cookies                                */
+/* -------------------------------------------------------------------------- */
+function getCookie(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for(let i = 0; i <ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
 }

@@ -116,7 +116,8 @@ var currentPackageDetails = {};
 var currentPackageDetail = {};
 var currentSku = "";
 var currentCoupon = "";
-var currentMentorPreference;
+var currentMentorPreference = "Preplaced Auto Assign";
+var currentMentorPreferenceExp;
 
 /* -------------------------------------------------------------------------- */
 /*                            Analytics Properities                           */
@@ -184,3 +185,9 @@ var autoCheckout;
 var params = Object.fromEntries(
   new URLSearchParams(window.location.search).entries()
 );
+
+/* -------------------------------------------------------------------------- */
+/*                                    Flags                                   */
+/* -------------------------------------------------------------------------- */
+
+var flagMentorPreference = false;
