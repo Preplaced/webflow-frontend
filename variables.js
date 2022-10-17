@@ -1,7 +1,6 @@
 /* -------------------------------------------------------------------------- */
 /*                            Variable Declarations                           */
 /* -------------------------------------------------------------------------- */
-
 let pkDetails = JSON.parse(localStorage.getItem("packageDetails"));
 let totalPrice = 0;
 let coupon = "";
@@ -10,6 +9,8 @@ let gstPrice = 0;
 let bubbleButtonsFlag = true;
 let userLoggedInStatus;
 let couponAppliedSuccessfullyUsingURL;
+var signInWithCheckoutButton = false;
+var signInWithLoginButton = false;
 
 // Selectors
 let [
@@ -41,7 +42,8 @@ let [
   closeCheckout,
   mentorInstructionSelector,
   programNameSelector,
-  priceCalculationSelector
+  priceCalculationSelector,
+  loginWithGoogleSelector
 ] = getElements([
   "change-domain",
   "domain-title",
@@ -71,7 +73,8 @@ let [
   "close-checkout-new",
   "specific-instructions-new",
   "program-name",
-  "price-calculation"
+  "price-calculation",
+  "login-with-google"
 ]);
 let targetRoleSelector = getElement("target-role-new");
 let targetCompaniesSelector = getElement("company-selector-new");
@@ -189,5 +192,9 @@ var params = Object.fromEntries(
 /* -------------------------------------------------------------------------- */
 /*                                    Flags                                   */
 /* -------------------------------------------------------------------------- */
-
 var flagMentorPreference = false;
+
+/* -------------------------------------------------------------------------- */
+/*                         Firebase Provider for login                        */
+/* -------------------------------------------------------------------------- */
+var provider = new firebase.auth.GoogleAuthProvider();

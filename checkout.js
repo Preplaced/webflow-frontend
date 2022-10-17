@@ -468,6 +468,10 @@ function packageTypeShow() {
 paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
   paymentCheckoutSelector.addEventListener("click", function (event) {
     scrollBody("hidden");
+    /* -------------------------------------------------------------------------- */
+    /*                         signIn With Checkout Button                        */
+    /* -------------------------------------------------------------------------- */
+    signInWithCheckoutButton = true;
     mentorExperienceSelector.value === "select_mentor_experience" &&
       targetRoleSelector.value === "select_designation" &&
       mentorExperienceSelector.setAttribute("disabled", true);

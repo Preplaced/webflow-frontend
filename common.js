@@ -9,7 +9,6 @@ catch (e) { }
 //for development
 // loadFile("variables.js",false);
 // loadFile("checkout.js", false);
-
 //for production
 loadFile("variables.min.js",false);
 loadFile("styles/style.js",false);
@@ -242,14 +241,6 @@ function logAPIError(params) {
     let { api, error, data } = params;
     let errorCode = error.response ? error.response.status : "";
     let errorText = error.response ? error.response.statusText : "";
-    // _LTracker.push({ 
-    //     requestData: data,
-    //     api: api,
-    //     error: error,
-    //     errorCode: errorCode,
-    //     errorText: errorText,
-    //     user: verifiedUser ? verifiedUser.displayName : "notSignedIn",
-    // })
 }
 
 function getAPI(url, successCallback, errorCallback) {
@@ -1286,3 +1277,50 @@ function onReady() {
 }
 
 onReady();
+/* -------------------------------------------------------------------------- */
+/*                              Login With Google                             */
+/* -------------------------------------------------------------------------- */
+
+$("#login-with-google").click((event) => {
+    event.preventDefault();
+    /* -------------------------------------------------------------------------- */
+    /*                              With Popup Window                             */
+    /* -------------------------------------------------------------------------- */
+    firebase.auth()
+  .signInWithPopup(provider)
+  .then((result) => {
+      console.log("result",result);
+    /** @type {firebase.auth.OAuthCredential} */
+    var credential = result.credential;
+    // This gives you a Google Access Token. You can use it to access the Google API.
+    var token = credential.accessToken;
+    // The signed-in user info.
+    var user = result.user;
+    // ...
+    if (customOnSignIn && signInWithCheckoutButton) {
+        customOnSignInMethod();
+    }
+    else {
+        closeLoginModal();
+    }
+  }).catch((error) => {
+      console.error("error",error);
+    // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    // The email of the user's account used.
+    var email = error.email;
+    // The firebase.auth.AuthCredential type that was used.
+    var credential = error.credential;
+    // ...
+  });
+})
+
+$(".iti--allow-dropdown").css("width","100%");
+// $("#phone").attr("type","number")
+$("#phone").attr("maxlength",14)
+$("#phone").on('change keydown paste input', function(event){
+    if(event.target.value.length >= 10){
+        $("#form-button").css("display","flex");
+    }
+});
