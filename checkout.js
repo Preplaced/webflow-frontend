@@ -840,6 +840,7 @@ function onCouponApplied(discount) {
 function onInvalidCoupon() {
   showElements([couponErrorSelector]);
   couponSubmitSelector.innerText = "Redeem";
+  currentCoupon = "";
   updatePaymentInfo();
   coupon = "";
 }
@@ -906,6 +907,7 @@ function preparePayment(e = "none") {
     domainSelector.value === "select_domain" ||
     mentorExperienceSelector.value === "select_mentor_experience"
   ) {
+    console.log("error thi yaha")
     targetRoleSelector.value === "select_designation" &&
       targetRoleSelector.classList.add("error");
     domainSelector.value === "select_domain" &&
