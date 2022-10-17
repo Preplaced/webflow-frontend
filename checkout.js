@@ -968,9 +968,8 @@ function preparePayment(e = "none") {
 
     if (
       verifiedUser &&
-      verifiedUser.phoneNumber &&
       verifiedUser.displayName &&
-      verifiedUser.email
+      verifiedUser.email || verifiedUser.phoneNumber
     ) {
       function onPaymentComplete(response) {
         hideElements([orderErrorSelector]);

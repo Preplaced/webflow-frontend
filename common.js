@@ -596,7 +596,7 @@ function createOrder(packageDetails, successCallback, errorCallback) {
     }
     packageDetails["version"] = "default";
     packageDetails["package_type"] = currentPackageType;
-    let url = apiBaseURL + "user/create-order/v3";
+    let url = apiBaseURL + "user/create-test-order/v3";
     postAPI(url, packageDetails, function (response) {
         if (response.status === 200) {
             successCallback(response.data);
@@ -1135,7 +1135,6 @@ input.addEventListener('keyup', reset);
 
 
 function onPaymentFailure(place) {
-    console.error("Payment failed at", place);
     const properties = {
         "button_name":currentButtonName,
         "item_id":currentSku,
