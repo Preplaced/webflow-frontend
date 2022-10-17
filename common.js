@@ -145,20 +145,20 @@ const sendAnalyticsToSegment = {
     track:(eventName,properties) => {
         try{
             var failedTimes = 1;
-            // console.log("eventName: ", eventName, "\n properties: ", properties);
-            analytics && analytics.track(eventName,properties)
-            .then((success)=>{
-                if(success.logger.log() && failedTimes <= 5){
-                    analytics.track(eventName,properties)
-                    failedTimes++;
-                }
-            })
-            .catch((error)=>{
-                Sentry.captureException(new Error(`Error in analytics track eventName: ${eventName}`), {
-                    ...JSON.stringify(properties),
-                    ...error
-                })
-            });
+            console.log("eventName: ", eventName, "\n properties: ", properties);
+            // analytics && analytics.track(eventName,properties)
+            // .then((success)=>{
+            //     if(success.logger.log() && failedTimes <= 5){
+            //         analytics.track(eventName,properties)
+            //         failedTimes++;
+            //     }
+            // })
+            // .catch((error)=>{
+            //     Sentry.captureException(new Error(`Error in analytics track eventName: ${eventName}`), {
+            //         ...JSON.stringify(properties),
+            //         ...error
+            //     })
+            // });
         }catch(error){
             Sentry.captureException(new Error(`Error in sendAnalyticsToSegment.track() eventName: ${eventName}`), {
                 ...JSON.stringify(properties),
@@ -596,7 +596,7 @@ function createOrder(packageDetails, successCallback, errorCallback) {
     }
     packageDetails["version"] = "default";
     packageDetails["package_type"] = currentPackageType;
-    let url = apiBaseURL + "user/create-test-order/v3";
+    let url = apiBaseURL + "user/create-order/v3";
     postAPI(url, packageDetails, function (response) {
         if (response.status === 200) {
             successCallback(response.data);
@@ -1292,35 +1292,72 @@ $("#login-with-google").click((event) => {
     firebase.auth()
   .signInWithPopup(provider)
   .then((result) => {
-      console.log("result",result);
-    /** @type {firebase.auth.OAuthCredential} */
-    var credential = result.credential;
-    // This gives you a Google Access Token. You can use it to access the Google API.
-    var token = credential.accessToken;
-    // The signed-in user info.
-    var user = result.user;
-    // ...
-    if (customOnSignIn && signInWithCheckoutButton) {
+    if(customOnSignIn && (signInWithCheckoutButton || currentTriggerBy === "url")){
         customOnSignInMethod();
     }
-    else {
+    else{
         closeLoginModal();
     }
+    /* -------------------------------------------------------------------------- */
+    /*                        LOGIN COMPLETED SUCCESSFULLY                        */
+    /* -------------------------------------------------------------------------- */
+    let propertiesForLogin = {
+        'source': 'sign-in',
+        'method': 'google',
+        'button_name':currentButtonName
+    }
+    if(localStorage.getItem("hasVisitedBefore") !== null){
+        var FirstWebsitedVisitedOn = new Date(JSON.parse(localStorage.getItem("hasVisitedBefore"))["visited-date"])
+        var creationDate = new Date(result.user.metadata.creationTime);
+        if(creationDate < FirstWebsitedVisitedOn){
+            propertiesForLogin = {
+                ...propertiesForLogin,
+                ...JSON.parse(localStorage.getItem("hasVisitedBefore"))
+            }
+            sendAnalyticsToSegment.identify(result.user.email,propertiesForLogin)
+        }  
+    }
+    sendAnalyticsToSegment.track("Login Completed",propertiesForLogin);
+
+    if(result.additionalUserInfo.isNewUser){
+        /* -------------------------------------------------------------------------- */
+        /*                              ADD USER DETAILS                              */
+        /* -------------------------------------------------------------------------- */
+        var addUserDetailsProp = {
+            name: result.user.displayName,
+            email: result.user.email,
+            subscribed: true,
+            photo_url:result.user.photoURL
+        };
+        setTimeout(() => {
+            addUserDetails(addUserDetailsProp, () => console.log('User Added Successfully',addUserDetailsProp.name), (e) => console.error("Error in user added",e))
+        },10000);
+        /* -------------------------------------------------------------------------- */
+        /*                         Sign Up Completed Analytics                        */
+        /* -------------------------------------------------------------------------- */
+        let properties = {
+            name: result.user.displayName,
+            email: result.user.email,
+            button_name:currentButtonName,
+            method:"google",
+            ...JSON.parse(localStorage.getItem("hasVisitedBefore"))
+        }
+        properties["visited-date"] = result.user.metadata.creationTime;
+        sendAnalyticsToSegment.identify(properties.email,properties);
+        sendAnalyticsToSegment.track("Signup Completed",properties);
+        let localStoragePropeties = {
+            ...JSON.parse(localStorage.getItem("hasVisitedBefore"))
+        }
+        localStoragePropeties["visited-date"] = result.user.metadata.creationTime;
+        localStorage.setItem("hasVisitedBefore", JSON.stringify(localStoragePropeties))
+    }
+
   }).catch((error) => {
       console.error("error",error);
-    // Handle Errors here.
-    var errorCode = error.code;
-    var errorMessage = error.message;
-    // The email of the user's account used.
-    var email = error.email;
-    // The firebase.auth.AuthCredential type that was used.
-    var credential = error.credential;
-    // ...
   });
 })
 
 $(".iti--allow-dropdown").css("width","100%");
-// $("#phone").attr("type","number")
 $("#phone").attr("maxlength",14)
 $("#phone").on('change keydown paste input', function(event){
     if(event.target.value.length >= 10){

@@ -43,7 +43,8 @@ let [
   mentorInstructionSelector,
   programNameSelector,
   priceCalculationSelector,
-  loginWithGoogleSelector
+  loginWithGoogleSelector,
+  specificSkillsSelector
 ] = getElements([
   "change-domain",
   "domain-title",
@@ -74,7 +75,8 @@ let [
   "specific-instructions-new",
   "program-name",
   "price-calculation",
-  "login-with-google"
+  "login-with-google",
+  "specific-skills"
 ]);
 let targetRoleSelector = getElement("target-role-new");
 let targetCompaniesSelector = getElement("company-selector-new");

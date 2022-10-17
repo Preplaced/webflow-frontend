@@ -1,3 +1,8 @@
+if(getCookie("mentor-preference") &&  getCookie("mentor-preference-exp")){
+  specificSkillsSelector.style.display = "none";
+}else{
+  specificSkillsSelector.style.display = "flex";
+}
 /* -------------------------------------------------------------------------- */
 /*                              Select2 Register                              */
 /* -------------------------------------------------------------------------- */
