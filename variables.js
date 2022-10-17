@@ -193,8 +193,3 @@ var params = Object.fromEntries(
 /*                                    Flags                                   */
 /* -------------------------------------------------------------------------- */
 var flagMentorPreference = false;
-
-/* -------------------------------------------------------------------------- */
-/*                         Firebase Provider for login                        */
-/* -------------------------------------------------------------------------- */
-var provider = new firebase.auth.GoogleAuthProvider();

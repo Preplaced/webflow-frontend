@@ -2,6 +2,10 @@ try {
     document.domain = 'preplaced.in';
 }
 catch (e) { }
+/* -------------------------------------------------------------------------- */
+/*                         Firebase Provider for login                        */
+/* -------------------------------------------------------------------------- */
+var provider = new firebase.auth.GoogleAuthProvider();
 
 // console.log("%cWelcome to Preplaced LocalHost Server", "color: red; font-size:2rem;padding: 2px");
 
