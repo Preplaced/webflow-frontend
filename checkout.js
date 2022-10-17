@@ -919,7 +919,8 @@ function preparePayment(e = "none") {
     $targetCompaniesSelector.val().length === 0 &&
     showElements([tC_ErrorSelector]);
     $(".error").filter(":first")[0].scrollIntoView();
-    $(".div-block-376")[0].style.position = "static"
+    $(".div-block-376")[0].style.position = "static";
+    setTimeout(() => {$(".div-block-376")[0].style.position = "relative"},10)
   } else {
     const properties = {
       button_name: currentButtonName,
