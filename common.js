@@ -9,7 +9,6 @@ catch (e) { }
 //for development
 // loadFile("variables.js",false);
 // loadFile("checkout.js", false);
-
 //for production
 loadFile("variables.min.js",false);
 loadFile("styles/style.js",false);
@@ -26,6 +25,10 @@ var firebaseConfig = {
     measurementId: "G-JBWKVRBC25"
 };
 firebase.initializeApp(firebaseConfig);
+/* -------------------------------------------------------------------------- */
+/*                         Firebase Provider for login                        */
+/* -------------------------------------------------------------------------- */
+var provider = new firebase.auth.GoogleAuthProvider();
 var signOutUser = function (reload = true) {
     localStorage.removeItem('ACCESS_TOKEN');
     accessToken = undefined;
@@ -242,14 +245,6 @@ function logAPIError(params) {
     let { api, error, data } = params;
     let errorCode = error.response ? error.response.status : "";
     let errorText = error.response ? error.response.statusText : "";
-    // _LTracker.push({ 
-    //     requestData: data,
-    //     api: api,
-    //     error: error,
-    //     errorCode: errorCode,
-    //     errorText: errorText,
-    //     user: verifiedUser ? verifiedUser.displayName : "notSignedIn",
-    // })
 }
 
 function getAPI(url, successCallback, errorCallback) {
@@ -1140,7 +1135,6 @@ input.addEventListener('keyup', reset);
 
 
 function onPaymentFailure(place) {
-    console.error("Payment failed at", place);
     const properties = {
         "button_name":currentButtonName,
         "item_id":currentSku,
@@ -1286,3 +1280,87 @@ function onReady() {
 }
 
 onReady();
+/* -------------------------------------------------------------------------- */
+/*                              Login With Google                             */
+/* -------------------------------------------------------------------------- */
+
+$("#login-with-google").click((event) => {
+    event.preventDefault();
+    /* -------------------------------------------------------------------------- */
+    /*                              With Popup Window                             */
+    /* -------------------------------------------------------------------------- */
+    firebase.auth()
+  .signInWithPopup(provider)
+  .then((result) => {
+    if(customOnSignIn && (signInWithCheckoutButton || currentTriggerBy === "url")){
+        customOnSignInMethod();
+    }
+    else{
+        closeLoginModal();
+    }
+    /* -------------------------------------------------------------------------- */
+    /*                        LOGIN COMPLETED SUCCESSFULLY                        */
+    /* -------------------------------------------------------------------------- */
+    let propertiesForLogin = {
+        'source': 'sign-in',
+        'method': 'google',
+        'button_name':currentButtonName
+    }
+    if(localStorage.getItem("hasVisitedBefore") !== null){
+        var FirstWebsitedVisitedOn = new Date(JSON.parse(localStorage.getItem("hasVisitedBefore"))["visited-date"])
+        var creationDate = new Date(result.user.metadata.creationTime);
+        if(creationDate < FirstWebsitedVisitedOn){
+            propertiesForLogin = {
+                ...propertiesForLogin,
+                ...JSON.parse(localStorage.getItem("hasVisitedBefore"))
+            }
+            sendAnalyticsToSegment.identify(result.user.email,propertiesForLogin)
+        }  
+    }
+    sendAnalyticsToSegment.track("Login Completed",propertiesForLogin);
+
+    if(result.additionalUserInfo.isNewUser){
+        /* -------------------------------------------------------------------------- */
+        /*                              ADD USER DETAILS                              */
+        /* -------------------------------------------------------------------------- */
+        var addUserDetailsProp = {
+            name: result.user.displayName,
+            email: result.user.email,
+            subscribed: true,
+            photo_url:result.user.photoURL
+        };
+        setTimeout(() => {
+            addUserDetails(addUserDetailsProp, () => console.log('User Added Successfully',addUserDetailsProp.name), (e) => console.error("Error in user added",e))
+        },10000);
+        /* -------------------------------------------------------------------------- */
+        /*                         Sign Up Completed Analytics                        */
+        /* -------------------------------------------------------------------------- */
+        let properties = {
+            name: result.user.displayName,
+            email: result.user.email,
+            button_name:currentButtonName,
+            method:"google",
+            ...JSON.parse(localStorage.getItem("hasVisitedBefore"))
+        }
+        properties["visited-date"] = result.user.metadata.creationTime;
+        sendAnalyticsToSegment.identify(properties.email,properties);
+        sendAnalyticsToSegment.track("Signup Completed",properties);
+        let localStoragePropeties = {
+            ...JSON.parse(localStorage.getItem("hasVisitedBefore"))
+        }
+        localStoragePropeties["visited-date"] = result.user.metadata.creationTime;
+        localStorage.setItem("hasVisitedBefore", JSON.stringify(localStoragePropeties))
+    }
+
+  }).catch((error) => {
+      console.error("error",error);
+  });
+})
+
+$(".iti--allow-dropdown").css("width","100%");
+$("#phone").attr("maxlength",14)
+$("#phone").on('change keydown paste input', function(event){
+    if(event.target.value.length >= 10){
+        $("#form-button").css("display","flex");
+    }
+});

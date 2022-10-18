@@ -1,3 +1,8 @@
+if(getCookie("mentor-preference") &&  getCookie("mentor-preference-exp")){
+  specificSkillsSelector.style.display = "none";
+}else{
+  specificSkillsSelector.style.display = "flex";
+}
 /* -------------------------------------------------------------------------- */
 /*                              Select2 Register                              */
 /* -------------------------------------------------------------------------- */
@@ -468,6 +473,10 @@ function packageTypeShow() {
 paymentCheckoutSelectors.forEach((paymentCheckoutSelector) => {
   paymentCheckoutSelector.addEventListener("click", function (event) {
     scrollBody("hidden");
+    /* -------------------------------------------------------------------------- */
+    /*                         signIn With Checkout Button                        */
+    /* -------------------------------------------------------------------------- */
+    signInWithCheckoutButton = true;
     mentorExperienceSelector.value === "select_mentor_experience" &&
       targetRoleSelector.value === "select_designation" &&
       mentorExperienceSelector.setAttribute("disabled", true);
@@ -831,6 +840,7 @@ function onCouponApplied(discount) {
 function onInvalidCoupon() {
   showElements([couponErrorSelector]);
   couponSubmitSelector.innerText = "Redeem";
+  currentCoupon = "";
   updatePaymentInfo();
   coupon = "";
 }
@@ -897,6 +907,7 @@ function preparePayment(e = "none") {
     domainSelector.value === "select_domain" ||
     mentorExperienceSelector.value === "select_mentor_experience"
   ) {
+    console.log("error thi yaha")
     targetRoleSelector.value === "select_designation" &&
       targetRoleSelector.classList.add("error");
     domainSelector.value === "select_domain" &&
@@ -908,6 +919,8 @@ function preparePayment(e = "none") {
     $targetCompaniesSelector.val().length === 0 &&
     showElements([tC_ErrorSelector]);
     $(".error").filter(":first")[0].scrollIntoView();
+    $(".div-block-376")[0].style.position = "static";
+    setTimeout(() => {$(".div-block-376")[0].style.position = "relative"},10)
   } else {
     const properties = {
       button_name: currentButtonName,
@@ -964,9 +977,8 @@ function preparePayment(e = "none") {
 
     if (
       verifiedUser &&
-      verifiedUser.phoneNumber &&
       verifiedUser.displayName &&
-      verifiedUser.email
+      verifiedUser.email || verifiedUser.phoneNumber
     ) {
       function onPaymentComplete(response) {
         hideElements([orderErrorSelector]);
