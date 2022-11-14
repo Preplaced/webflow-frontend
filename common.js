@@ -145,20 +145,20 @@ const sendAnalyticsToSegment = {
     track:(eventName,properties) => {
         try{
             var failedTimes = 1;
-            // console.log("eventName: ", eventName, "\n properties: ", properties);
-            analytics && analytics.track(eventName,properties)
-            .then((success)=>{
-                if(success.logger.log() && failedTimes <= 5){
-                    analytics.track(eventName,properties)
-                    failedTimes++;
-                }
-            })
-            .catch((error)=>{
-                Sentry.captureException(new Error(`Error in analytics track eventName: ${eventName}`), {
-                    ...JSON.stringify(properties),
-                    ...error
-                })
-            });
+            console.log("eventName: ", eventName, "\n properties: ", properties);
+            // analytics && analytics.track(eventName,properties)
+            // .then((success)=>{
+            //     if(success.logger.log() && failedTimes <= 5){
+            //         analytics.track(eventName,properties)
+            //         failedTimes++;
+            //     }
+            // })
+            // .catch((error)=>{
+            //     Sentry.captureException(new Error(`Error in analytics track eventName: ${eventName}`), {
+            //         ...JSON.stringify(properties),
+            //         ...error
+            //     })
+            // });
         }catch(error){
             Sentry.captureException(new Error(`Error in sendAnalyticsToSegment.track() eventName: ${eventName}`), {
                 ...JSON.stringify(properties),
@@ -596,7 +596,7 @@ function createOrder(packageDetails, successCallback, errorCallback) {
     }
     packageDetails["version"] = "default";
     packageDetails["package_type"] = currentPackageType;
-    let url = apiBaseURL + "user/create-order/v3";
+    let url = apiBaseURL + "user/create-test-order/v3";
     postAPI(url, packageDetails, function (response) {
         if (response.status === 200) {
             successCallback(response.data);
@@ -1318,7 +1318,7 @@ $("#login-with-google").click((event) => {
         }  
     }
     sendAnalyticsToSegment.track("Login Completed",propertiesForLogin);
-
+    console.log("IsNewUser",result.additionalUserInfo.isNewUser);
     if(result.additionalUserInfo.isNewUser){
         /* -------------------------------------------------------------------------- */
         /*                              ADD USER DETAILS                              */
