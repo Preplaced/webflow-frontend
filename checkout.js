@@ -1072,7 +1072,7 @@ function preparePayment(e = "none") {
             currency: order.currency,
             name: "Preplaced Education Pvt. Ltd",
             description: packageMap[pkDetails.package],
-            order_id: order.id,
+            // order_id: order.id,
             handler: function (response) {
               onPaymentComplete(response);
             },
