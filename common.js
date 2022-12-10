@@ -3,7 +3,7 @@ try {
 }
 catch (e) { }
 
-// console.log("%cWelcome to Preplaced LocalHost Server", "color: red; font-size:2rem;padding: 2px");
+console.log("%cWelcome to Preplaced LocalHost Server", "color: red; font-size:2rem;padding: 2px");
 
 
 //for development
