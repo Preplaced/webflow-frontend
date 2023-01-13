@@ -51,7 +51,7 @@ function onReady() {
     /* -------------------------------------------------------------------------- */
     /*                           Page Visited Analytics                           */
     /* -------------------------------------------------------------------------- */
-    sendAnalyticsToSegment.track("Page Visit", properties);
+    sendAnalyticsToSegment.track("Page Visited", properties);
 
     /* -------------------------------------------------------------------------- */
     /*                         Checking FirstWebsite Visit                        */
