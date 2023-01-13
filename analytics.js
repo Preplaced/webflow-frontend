@@ -78,3 +78,4 @@ function onReady() {
 }
 
 onReady();
+loadFile('commonV2.js',false);
