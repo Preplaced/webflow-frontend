@@ -42,7 +42,7 @@ function onReady() {
       new URLSearchParams(window.location.search).entries()
     );
     let properties = {
-      urlParams: {
+      url_params: {
         ...params,
         referrer: document.referrer,
       },
@@ -56,7 +56,7 @@ function onReady() {
     /* -------------------------------------------------------------------------- */
     /*                         Checking FirstWebsite Visit                        */
     /* -------------------------------------------------------------------------- */
-    if (localStorage.getItem("hasVisitedBefore") === null) {
+    if (localStorage.getItem("hasVisitedBefore") === null && !getCookie('firstWebsiteVisitUTMs')) {
       properties["hasVisitedBefore"] = true;
       properties["visited-date"] = new Date();
       sendAnalyticsToSegment.track("First Website Visit", properties);
