@@ -6,15 +6,15 @@ const sendAnalyticsToSegment = {
   track: (eventName, properties) => {
     try {
       // console.log("eventName: ", eventName, "\n properties: ", properties);
-      analytics && analytics.track(eventName,properties)
+      analytics && analytics.track(eventName, properties);
     } catch (error) {
-      console.error("Error in sendAnalyticsToSegment analytics",error);
+      console.error("Error in sendAnalyticsToSegment analytics", error);
     }
   },
   identify: (email, identities = {}) => {
     try {
       // console.log("email :", email, " identities :", identities);
-      analytics && analytics.identify(email,identities);
+      analytics && analytics.identify(email, identities);
     } catch (error) {
       console.error("Error in sendAnalyticsToSegment identify", error);
     }
@@ -49,33 +49,36 @@ function onReady() {
     };
 
     /* -------------------------------------------------------------------------- */
-    /*                           Page Visited Analytics                           */
-    /* -------------------------------------------------------------------------- */
-    sendAnalyticsToSegment.track("Page Visited", properties);
-
-    /* -------------------------------------------------------------------------- */
     /*                         Checking FirstWebsite Visit                        */
     /* -------------------------------------------------------------------------- */
-    if (localStorage.getItem("hasVisitedBefore") === null && !getCookie('firstWebsiteVisitUTMs')) {
+    if (
+      localStorage.getItem("hasVisitedBefore") === null &&
+      !getCookie("firstWebsiteVisitUTMs")
+    ) {
       properties["hasVisitedBefore"] = true;
       properties["visited-date"] = new Date();
+      let maxAge = "; max-age=" + 3650 * 24 * 60 * 60;
       sendAnalyticsToSegment.track("First Website Visit", properties);
       localStorage.setItem("hasVisitedBefore", JSON.stringify(properties));
       if (window.location.host.endsWith("webflow.io")) {
         document.cookie = `firstWebsiteVisitUTMs=${JSON.stringify(
           properties
-        )};domain=webflow.io;expires=Fri, 31 Dec 9999 23:59:59 GMT;`;
+        )};domain=webflow.io;`;
       }
       if (window.location.host.endsWith("preplaced.in")) {
         document.cookie = `firstWebsiteVisitUTMs=${JSON.stringify(
           properties
-        )};domain=preplaced.in;expires=Fri, 31 Dec 9999 23:59:59 GMT;`;
+        )};domain=preplaced.in${maxAge}`;
       }
     }
+    /* -------------------------------------------------------------------------- */
+    /*                           Page Visited Analytics                           */
+    /* -------------------------------------------------------------------------- */
+    sendAnalyticsToSegment.track("Page Visited", properties);
   } catch (e) {
     console.error(e);
   }
 }
 
 onReady();
-loadFile('commonV2.js',false);
+loadFile("commonV2.js", false);
